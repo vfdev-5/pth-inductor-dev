@@ -1,0 +1,365 @@
+buf1: SchedulerNode(ComputedBuffer)
+buf1.writes = [MemoryDep('buf1', c0, {c0: 314640})]
+buf1.unmet_dependencies = []
+buf1.met_dependencies = 
+    [   MemoryDep('arg1_1', 3*c1 + 1, {c0: 157320, c1: 2}),
+        MemoryDep('arg1_1', 3*c1 + 2, {c0: 157320, c1: 2}),
+        MemoryDep('arg1_1', 3*c1, {c0: 157320, c1: 2})]
+buf1.users = [NodeUser(node=SchedulerNode(name='buf2'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf3'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf4'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf5'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf6'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf7'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf8'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf9'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf10'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf11'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf12'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf13'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf14'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf15'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf16'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf17'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf18'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf19'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf20'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf21'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf22'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf23'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf24'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf25'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf26'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf27'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf28'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf29'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf30'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf31'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf32'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf33'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf34'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf35'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf36'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf37'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf38'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf39'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf40'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf41'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf42'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf43'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf44'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf45'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf46'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf47'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf48'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf49'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf50'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf51'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf52'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf53'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf54'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf55'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf56'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf57'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf58'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf59'), can_inplace=False), NodeUser(node=SchedulerNode(name='buf60'), can_inplace=False)]
+buf1.group.device = cuda:0
+buf1.group.iteration = (314640, 1)
+buf1.sizes = ([157320, 2], [])
+class buf1_loop_body:
+    var_ranges = {z0: 157320, z1: 2}
+    index0 = ModularIndexing(z0, 1, 456)
+    index1 = 455 - ModularIndexing(z0, 1, 456)
+    index2 = (z0//456)
+    index3 = 344 - (z0//456)
+    index4 = 3*z1
+    index5 = 3*z1 + 1
+    index6 = 3*z1 + 2
+    index7 = 2*z0 + z1
+    def body(self, ops):
+        constant = ops.constant(0, torch.int64)
+        constant_1 = ops.constant(1, torch.int64)
+        lt = ops.lt(constant, constant_1)
+        masked_subblock1 = self.masked_subblock1(lt, 0.0)
+        constant_2 = ops.constant(-1, torch.int64)
+        constant_3 = ops.constant(0, torch.int64)
+        ge = ops.ge(constant_2, constant_3)
+        constant_4 = ops.constant(-1, torch.int64)
+        constant_5 = ops.constant(1, torch.int64)
+        lt_1 = ops.lt(constant_4, constant_5)
+        and_ = ops.and_(ge, lt_1)
+        masked_subblock2 = self.masked_subblock2(and_, 0.0)
+        add = ops.add(masked_subblock1, masked_subblock2)
+        constant_6 = ops.constant(-2, torch.int64)
+        constant_7 = ops.constant(0, torch.int64)
+        ge_1 = ops.ge(constant_6, constant_7)
+        masked_subblock3 = self.masked_subblock3(ge_1, 0.0)
+        add_1 = ops.add(add, masked_subblock3)
+        get_index = self.get_index('index4')
+        load = ops.load('arg1_1', get_index)
+        mul = ops.mul(add_1, load)
+        constant_8 = ops.constant(1, torch.int64)
+        constant_9 = ops.constant(1, torch.int64)
+        lt_2 = ops.lt(constant_8, constant_9)
+        masked_subblock4 = self.masked_subblock4(lt_2, 0.0)
+        constant_10 = ops.constant(0, torch.int64)
+        constant_11 = ops.constant(0, torch.int64)
+        ge_2 = ops.ge(constant_10, constant_11)
+        constant_12 = ops.constant(0, torch.int64)
+        constant_13 = ops.constant(1, torch.int64)
+        lt_3 = ops.lt(constant_12, constant_13)
+        and__1 = ops.and_(ge_2, lt_3)
+        masked_subblock5 = self.masked_subblock5(and__1, 0.0)
+        add_2 = ops.add(masked_subblock4, masked_subblock5)
+        constant_14 = ops.constant(-1, torch.int64)
+        constant_15 = ops.constant(0, torch.int64)
+        ge_3 = ops.ge(constant_14, constant_15)
+        masked_subblock6 = self.masked_subblock6(ge_3, 0.0)
+        add_3 = ops.add(add_2, masked_subblock6)
+        get_index_1 = self.get_index('index5')
+        load_1 = ops.load('arg1_1', get_index_1)
+        mul_1 = ops.mul(add_3, load_1)
+        add_4 = ops.add(mul, mul_1)
+        constant_16 = ops.constant(2, torch.int64)
+        constant_17 = ops.constant(1, torch.int64)
+        lt_4 = ops.lt(constant_16, constant_17)
+        masked_subblock7 = self.masked_subblock7(lt_4, 0.0)
+        constant_18 = ops.constant(1, torch.int64)
+        constant_19 = ops.constant(0, torch.int64)
+        ge_4 = ops.ge(constant_18, constant_19)
+        constant_20 = ops.constant(1, torch.int64)
+        constant_21 = ops.constant(1, torch.int64)
+        lt_5 = ops.lt(constant_20, constant_21)
+        and__2 = ops.and_(ge_4, lt_5)
+        masked_subblock8 = self.masked_subblock8(and__2, 0.0)
+        add_5 = ops.add(masked_subblock7, masked_subblock8)
+        constant_22 = ops.constant(0, torch.int64)
+        constant_23 = ops.constant(0, torch.int64)
+        ge_5 = ops.ge(constant_22, constant_23)
+        masked_subblock9 = self.masked_subblock9(ge_5, 0.0)
+        add_6 = ops.add(add_5, masked_subblock9)
+        get_index_2 = self.get_index('index6')
+        load_2 = ops.load('arg1_1', get_index_2)
+        mul_2 = ops.mul(add_6, load_2)
+        add_7 = ops.add(add_4, mul_2)
+        get_index_3 = self.get_index('index7')
+        store = ops.store('buf1', get_index_3, add_7, None)
+        return store
+    def masked_subblock1(self, ops):
+        get_index = self.get_index('index0')
+        index_expr = ops.index_expr(get_index, torch.int64)
+        to_dtype = ops.to_dtype(index_expr, torch.float32)
+        constant = ops.constant(228.0, torch.float32)
+        lt = ops.lt(to_dtype, constant)
+        get_index_1 = self.get_index('index0')
+        index_expr_1 = ops.index_expr(get_index_1, torch.int64)
+        to_dtype_1 = ops.to_dtype(index_expr_1, torch.float32)
+        constant_1 = ops.constant(0.004385964912280702, torch.float32)
+        mul = ops.mul(to_dtype_1, constant_1)
+        constant_2 = ops.constant(-0.9978070175438597, torch.float32)
+        add = ops.add(mul, constant_2)
+        get_index_2 = self.get_index('index1')
+        index_expr_2 = ops.index_expr(get_index_2, torch.int64)
+        to_dtype_2 = ops.to_dtype(index_expr_2, torch.float32)
+        constant_3 = ops.constant(0.004385964912280702, torch.float32)
+        mul_1 = ops.mul(to_dtype_2, constant_3)
+        constant_4 = ops.constant(0.9978070175438597, torch.float32)
+        sub = ops.sub(constant_4, mul_1)
+        where = ops.where(lt, add, sub)
+        return where
+    def masked_subblock2(self, ops):
+        get_index = self.get_index('index2')
+        index_expr = ops.index_expr(get_index, torch.int64)
+        to_dtype = ops.to_dtype(index_expr, torch.float32)
+        constant = ops.constant(172.5, torch.float32)
+        lt = ops.lt(to_dtype, constant)
+        get_index_1 = self.get_index('index2')
+        index_expr_1 = ops.index_expr(get_index_1, torch.int64)
+        to_dtype_1 = ops.to_dtype(index_expr_1, torch.float32)
+        constant_1 = ops.constant(0.005797101449275362, torch.float32)
+        mul = ops.mul(to_dtype_1, constant_1)
+        constant_2 = ops.constant(-0.9971014492753624, torch.float32)
+        add = ops.add(mul, constant_2)
+        get_index_2 = self.get_index('index3')
+        index_expr_2 = ops.index_expr(get_index_2, torch.int64)
+        to_dtype_2 = ops.to_dtype(index_expr_2, torch.float32)
+        constant_3 = ops.constant(0.005797101449275362, torch.float32)
+        mul_1 = ops.mul(to_dtype_2, constant_3)
+        constant_4 = ops.constant(0.9971014492753624, torch.float32)
+        sub = ops.sub(constant_4, mul_1)
+        where = ops.where(lt, add, sub)
+        return where
+    def masked_subblock3(self, ops):
+        constant = ops.constant(1.0, torch.float32)
+        return constant
+    def masked_subblock4(self, ops):
+        get_index = self.get_index('index0')
+        index_expr = ops.index_expr(get_index, torch.int64)
+        to_dtype = ops.to_dtype(index_expr, torch.float32)
+        constant = ops.constant(228.0, torch.float32)
+        lt = ops.lt(to_dtype, constant)
+        get_index_1 = self.get_index('index0')
+        index_expr_1 = ops.index_expr(get_index_1, torch.int64)
+        to_dtype_1 = ops.to_dtype(index_expr_1, torch.float32)
+        constant_1 = ops.constant(0.004385964912280702, torch.float32)
+        mul = ops.mul(to_dtype_1, constant_1)
+        constant_2 = ops.constant(-0.9978070175438597, torch.float32)
+        add = ops.add(mul, constant_2)
+        get_index_2 = self.get_index('index1')
+        index_expr_2 = ops.index_expr(get_index_2, torch.int64)
+        to_dtype_2 = ops.to_dtype(index_expr_2, torch.float32)
+        constant_3 = ops.constant(0.004385964912280702, torch.float32)
+        mul_1 = ops.mul(to_dtype_2, constant_3)
+        constant_4 = ops.constant(0.9978070175438597, torch.float32)
+        sub = ops.sub(constant_4, mul_1)
+        where = ops.where(lt, add, sub)
+        return where
+    def masked_subblock5(self, ops):
+        get_index = self.get_index('index2')
+        index_expr = ops.index_expr(get_index, torch.int64)
+        to_dtype = ops.to_dtype(index_expr, torch.float32)
+        constant = ops.constant(172.5, torch.float32)
+        lt = ops.lt(to_dtype, constant)
+        get_index_1 = self.get_index('index2')
+        index_expr_1 = ops.index_expr(get_index_1, torch.int64)
+        to_dtype_1 = ops.to_dtype(index_expr_1, torch.float32)
+        constant_1 = ops.constant(0.005797101449275362, torch.float32)
+        mul = ops.mul(to_dtype_1, constant_1)
+        constant_2 = ops.constant(-0.9971014492753624, torch.float32)
+        add = ops.add(mul, constant_2)
+        get_index_2 = self.get_index('index3')
+        index_expr_2 = ops.index_expr(get_index_2, torch.int64)
+        to_dtype_2 = ops.to_dtype(index_expr_2, torch.float32)
+        constant_3 = ops.constant(0.005797101449275362, torch.float32)
+        mul_1 = ops.mul(to_dtype_2, constant_3)
+        constant_4 = ops.constant(0.9971014492753624, torch.float32)
+        sub = ops.sub(constant_4, mul_1)
+        where = ops.where(lt, add, sub)
+        return where
+    def masked_subblock6(self, ops):
+        constant = ops.constant(1.0, torch.float32)
+        return constant
+    def masked_subblock7(self, ops):
+        get_index = self.get_index('index0')
+        index_expr = ops.index_expr(get_index, torch.int64)
+        to_dtype = ops.to_dtype(index_expr, torch.float32)
+        constant = ops.constant(228.0, torch.float32)
+        lt = ops.lt(to_dtype, constant)
+        get_index_1 = self.get_index('index0')
+        index_expr_1 = ops.index_expr(get_index_1, torch.int64)
+        to_dtype_1 = ops.to_dtype(index_expr_1, torch.float32)
+        constant_1 = ops.constant(0.004385964912280702, torch.float32)
+        mul = ops.mul(to_dtype_1, constant_1)
+        constant_2 = ops.constant(-0.9978070175438597, torch.float32)
+        add = ops.add(mul, constant_2)
+        get_index_2 = self.get_index('index1')
+        index_expr_2 = ops.index_expr(get_index_2, torch.int64)
+        to_dtype_2 = ops.to_dtype(index_expr_2, torch.float32)
+        constant_3 = ops.constant(0.004385964912280702, torch.float32)
+        mul_1 = ops.mul(to_dtype_2, constant_3)
+        constant_4 = ops.constant(0.9978070175438597, torch.float32)
+        sub = ops.sub(constant_4, mul_1)
+        where = ops.where(lt, add, sub)
+        return where
+    def masked_subblock8(self, ops):
+        get_index = self.get_index('index2')
+        index_expr = ops.index_expr(get_index, torch.int64)
+        to_dtype = ops.to_dtype(index_expr, torch.float32)
+        constant = ops.constant(172.5, torch.float32)
+        lt = ops.lt(to_dtype, constant)
+        get_index_1 = self.get_index('index2')
+        index_expr_1 = ops.index_expr(get_index_1, torch.int64)
+        to_dtype_1 = ops.to_dtype(index_expr_1, torch.float32)
+        constant_1 = ops.constant(0.005797101449275362, torch.float32)
+        mul = ops.mul(to_dtype_1, constant_1)
+        constant_2 = ops.constant(-0.9971014492753624, torch.float32)
+        add = ops.add(mul, constant_2)
+        get_index_2 = self.get_index('index3')
+        index_expr_2 = ops.index_expr(get_index_2, torch.int64)
+        to_dtype_2 = ops.to_dtype(index_expr_2, torch.float32)
+        constant_3 = ops.constant(0.005797101449275362, torch.float32)
+        mul_1 = ops.mul(to_dtype_2, constant_3)
+        constant_4 = ops.constant(0.9971014492753624, torch.float32)
+        sub = ops.sub(constant_4, mul_1)
+        where = ops.where(lt, add, sub)
+        return where
+    def masked_subblock9(self, ops):
+        constant = ops.constant(1.0, torch.float32)
+        return constant
+
+
+buf2_buf3_buf4_buf8_buf9_buf10_buf12_buf13_buf14_buf17_buf18_buf19_buf23_buf24_buf25_buf27_buf28_buf29_buf31_buf32_buf33_buf37_buf38_buf39_buf41_buf42_buf43_buf46_buf47_buf48_buf52_buf53_buf54_buf56_buf57_buf58_buf5_buf6_buf20_buf21_buf34_buf35_buf49_buf50_buf7_buf22_buf36_buf51_buf11_buf15_buf26_buf30_buf40_buf44_buf55_buf59_buf16_buf45_buf60_buf61: FusedSchedulerNode(NoneType)
+buf2_buf3_buf4_buf8_buf9_buf10_buf12_buf13_buf14_buf17_buf18_buf19_buf23_buf24_buf25_buf27_buf28_buf29_buf31_buf32_buf33_buf37_buf38_buf39_buf41_buf42_buf43_buf46_buf47_buf48_buf52_buf53_buf54_buf56_buf57_buf58_buf5_buf6_buf20_buf21_buf34_buf35_buf49_buf50_buf7_buf22_buf36_buf51_buf11_buf15_buf26_buf30_buf40_buf44_buf55_buf59_buf16_buf45_buf60_buf61.writes = 
+    [   MemoryDep('buf10', c0, {c0: 471960}),
+        MemoryDep('buf11', c0, {c0: 471960}),
+        MemoryDep('buf12', c0, {c0: 471960}),
+        MemoryDep('buf13', c0, {c0: 471960}),
+        MemoryDep('buf14', c0, {c0: 471960}),
+        MemoryDep('buf15', c0, {c0: 471960}),
+        MemoryDep('buf16', c0, {c0: 471960}),
+        MemoryDep('buf17', c0, {c0: 471960}),
+        MemoryDep('buf18', c0, {c0: 471960}),
+        MemoryDep('buf19', c0, {c0: 471960}),
+        MemoryDep('buf2', c0, {c0: 471960}),
+        MemoryDep('buf20', c0, {c0: 471960}),
+        MemoryDep('buf21', c0, {c0: 471960}),
+        MemoryDep('buf22', c0, {c0: 471960}),
+        MemoryDep('buf23', c0, {c0: 471960}),
+        MemoryDep('buf24', c0, {c0: 471960}),
+        MemoryDep('buf25', c0, {c0: 471960}),
+        MemoryDep('buf26', c0, {c0: 471960}),
+        MemoryDep('buf27', c0, {c0: 471960}),
+        MemoryDep('buf28', c0, {c0: 471960}),
+        MemoryDep('buf29', c0, {c0: 471960}),
+        MemoryDep('buf3', c0, {c0: 471960}),
+        MemoryDep('buf30', c0, {c0: 471960}),
+        MemoryDep('buf31', c0, {c0: 471960}),
+        MemoryDep('buf32', c0, {c0: 471960}),
+        MemoryDep('buf33', c0, {c0: 471960}),
+        MemoryDep('buf34', c0, {c0: 471960}),
+        MemoryDep('buf35', c0, {c0: 471960}),
+        MemoryDep('buf36', c0, {c0: 471960}),
+        MemoryDep('buf37', c0, {c0: 471960}),
+        MemoryDep('buf38', c0, {c0: 471960}),
+        MemoryDep('buf39', c0, {c0: 471960}),
+        MemoryDep('buf4', c0, {c0: 471960}),
+        MemoryDep('buf40', c0, {c0: 471960}),
+        MemoryDep('buf41', c0, {c0: 471960}),
+        MemoryDep('buf42', c0, {c0: 471960}),
+        MemoryDep('buf43', c0, {c0: 471960}),
+        MemoryDep('buf44', c0, {c0: 471960}),
+        MemoryDep('buf45', c0, {c0: 471960}),
+        MemoryDep('buf46', c0, {c0: 471960}),
+        MemoryDep('buf47', c0, {c0: 471960}),
+        MemoryDep('buf48', c0, {c0: 471960}),
+        MemoryDep('buf49', c0, {c0: 471960}),
+        MemoryDep('buf5', c0, {c0: 471960}),
+        MemoryDep('buf50', c0, {c0: 471960}),
+        MemoryDep('buf51', c0, {c0: 471960}),
+        MemoryDep('buf52', c0, {c0: 471960}),
+        MemoryDep('buf53', c0, {c0: 471960}),
+        MemoryDep('buf54', c0, {c0: 471960}),
+        MemoryDep('buf55', c0, {c0: 471960}),
+        MemoryDep('buf56', c0, {c0: 471960}),
+        MemoryDep('buf57', c0, {c0: 471960}),
+        MemoryDep('buf58', c0, {c0: 471960}),
+        MemoryDep('buf59', c0, {c0: 471960}),
+        MemoryDep('buf6', c0, {c0: 471960}),
+        MemoryDep('buf60', c0, {c0: 471960}),
+        MemoryDep('buf61', c0, {c0: 471960}),
+        MemoryDep('buf7', c0, {c0: 471960}),
+        MemoryDep('buf8', c0, {c0: 471960}),
+        MemoryDep('buf9', c0, {c0: 471960})]
+buf2_buf3_buf4_buf8_buf9_buf10_buf12_buf13_buf14_buf17_buf18_buf19_buf23_buf24_buf25_buf27_buf28_buf29_buf31_buf32_buf33_buf37_buf38_buf39_buf41_buf42_buf43_buf46_buf47_buf48_buf52_buf53_buf54_buf56_buf57_buf58_buf5_buf6_buf20_buf21_buf34_buf35_buf49_buf50_buf7_buf22_buf36_buf51_buf11_buf15_buf26_buf30_buf40_buf44_buf55_buf59_buf16_buf45_buf60_buf61.unmet_dependencies = 
+    [   MemoryDep('buf1', 2*c1 + 1, {c0: 3, c1: 157320}),
+        MemoryDep('buf1', 2*c1, {c0: 3, c1: 157320})]
+buf2_buf3_buf4_buf8_buf9_buf10_buf12_buf13_buf14_buf17_buf18_buf19_buf23_buf24_buf25_buf27_buf28_buf29_buf31_buf32_buf33_buf37_buf38_buf39_buf41_buf42_buf43_buf46_buf47_buf48_buf52_buf53_buf54_buf56_buf57_buf58_buf5_buf6_buf20_buf21_buf34_buf35_buf49_buf50_buf7_buf22_buf36_buf51_buf11_buf15_buf26_buf30_buf40_buf44_buf55_buf59_buf16_buf45_buf60_buf61.met_dependencies = 
+    [   MemoryDep('arg0_1', 456*(tmp0) + (tmp1) + 157320*c0, {c0: 3}),
+        MemoryDep('arg0_1', 456*(tmp49) + (tmp97) + 157320*c0, {c0: 3})]
+buf2_buf3_buf4_buf8_buf9_buf10_buf12_buf13_buf14_buf17_buf18_buf19_buf23_buf24_buf25_buf27_buf28_buf29_buf31_buf32_buf33_buf37_buf38_buf39_buf41_buf42_buf43_buf46_buf47_buf48_buf52_buf53_buf54_buf56_buf57_buf58_buf5_buf6_buf20_buf21_buf34_buf35_buf49_buf50_buf7_buf22_buf36_buf51_buf11_buf15_buf26_buf30_buf40_buf44_buf55_buf59_buf16_buf45_buf60_buf61.users = None
+buf2_buf3_buf4_buf8_buf9_buf10_buf12_buf13_buf14_buf17_buf18_buf19_buf23_buf24_buf25_buf27_buf28_buf29_buf31_buf32_buf33_buf37_buf38_buf39_buf41_buf42_buf43_buf46_buf47_buf48_buf52_buf53_buf54_buf56_buf57_buf58_buf5_buf6_buf20_buf21_buf34_buf35_buf49_buf50_buf7_buf22_buf36_buf51_buf11_buf15_buf26_buf30_buf40_buf44_buf55_buf59_buf16_buf45_buf60_buf61.snodes = 
+    [   'buf2',
+        'buf3',
+        'buf4',
+        'buf8',
+        'buf9',
+        'buf10',
+        'buf12',
+        'buf13',
+        'buf14',
+        'buf17',
+        'buf18',
+        'buf19',
+        'buf23',
+        'buf24',
+        'buf25',
+        'buf27',
+        'buf28',
+        'buf29',
+        'buf31',
+        'buf32',
+        'buf33',
+        'buf37',
+        'buf38',
+        'buf39',
+        'buf41',
+        'buf42',
+        'buf43',
+        'buf46',
+        'buf47',
+        'buf48',
+        'buf52',
+        'buf53',
+        'buf54',
+        'buf56',
+        'buf57',
+        'buf58',
+        'buf5',
+        'buf6',
+        'buf20',
+        'buf21',
+        'buf34',
+        'buf35',
+        'buf49',
+        'buf50',
+        'buf7',
+        'buf22',
+        'buf36',
+        'buf51',
+        'buf11',
+        'buf15',
+        'buf26',
+        'buf30',
+        'buf40',
+        'buf44',
+        'buf55',
+        'buf59',
+        'buf16',
+        'buf45',
+        'buf60',
+        'buf61']
+
+
