@@ -134,6 +134,7 @@ def main(
     perf_files: List[str],
     compare: Optional[List[str]] = None,
     debug: bool = False,
+    show_cols: bool = False,
 ):
     output_filepath = Path(output_filepath)
     if output_filepath.exists():
@@ -157,6 +158,12 @@ def main(
                 f"Triton version: {output['triton']}\n"
             )
             ab_results.extend(output["test_results"])
+
+        if show_cols:
+            print("Columns:", ab_results[-1].task_spec.description)
+
+    if show_cols:
+        return
 
     assert len(ab_configs) == len(perf_files), (len(ab_configs), len(perf_files))
     compare_obj = benchmark.Compare(ab_results)
