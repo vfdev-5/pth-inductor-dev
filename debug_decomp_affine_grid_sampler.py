@@ -18,29 +18,43 @@ def transform(img, theta):
     return output
 
 
-device = "cuda"
-x = torch.arange(3 * 345 * 456, device=device).reshape(1, 3, 345, 456).to(torch.uint8).to(torch.float32)
+# device = "cuda"
+device = "cpu"
+dtype = torch.float32
+# memory_format = torch.contiguous_format
+memory_format = torch.channels_last
+
+n = 1
+x = torch.arange(n * 3 * 345 * 456, device=device).reshape(n, 3, 345, 456).to(torch.uint8)
+x = x.to(dtype=dtype)
+x = x.contiguous(memory_format=memory_format)
+
 
 a = torch.deg2rad(torch.tensor(45.0))
 ca, sa = torch.cos(a), torch.sin(a)
 s1 = 1.23
 s2 = 1.34
-# theta = torch.tensor([[
-#     [ca / s1, sa, 0.0],
-#     [-sa, ca / s2, 0.0],
-# ]], device=device, dtype=x.dtype)
-
 theta = torch.tensor([[
-    [1.0, 0.0, 0.0],
-    [0.0, 1.0, 0.0],
+    [ca / s1, sa, 0.0],
+    [-sa, ca / s2, 0.0],
 ]], device=device, dtype=x.dtype)
+theta = theta.expand(n, 2, 3).contiguous()
 
+# theta = torch.tensor([[
+#     [1.0, 0.0, 0.0],
+#     [0.0, 1.0, 0.0],
+# ]], device=device, dtype=x.dtype)
 
 c_transform = torch.compile(transform)
 
-
 expected = transform(x, theta)
 output = c_transform(x, theta)
+
+print(x.stride())
+print(expected.stride())
+print(output.stride())
+
+exit(0)
 
 torch.set_printoptions(precision=7)
 

@@ -1,5 +1,3 @@
-import pickle
-from pathlib import Path
 import unittest.mock
 
 import torch
@@ -103,19 +101,16 @@ def run_benchmark(mode, align_corners, memory_format, dtype, device, tag="", min
 
 
 def main(
-    output_folder: str,
     min_run_time: float = 5.0,
     tag: str = "",
-    display: bool = True,
     num_threads: int = 1,
 ):
     torch.set_num_threads(num_threads)
     from datetime import datetime
 
     now = datetime.now().strftime('%Y%m%d-%H%M%S')
-    output_filepath = Path(output_folder) / f"{now}-affine-grid-sampler-{tag}-case_cuda-bicubic.pkl"
 
-    print(f"Output filepath: {str(output_filepath)}")
+    print(f"Datetime: {now}")
     print(f"Torch version: {torch.__version__}")
     print(f"Triton: {triton.__version__}")
     print(f"Torch config: {torch.__config__.show()}")
@@ -126,8 +121,10 @@ def main(
 
     for n in [1, 2]:
         # for device in ["cpu", "cuda"]:
-        for device in ["cuda", ]:
-            for mode in ["bicubic", ]:
+        # for device in ["cuda", ]:
+        for device in ["cpu", ]:
+            # for mode in ["bicubic", ]:
+            for mode in ["bilinear", ]:
                 for align_corners in [True, False]:
                     for memory_format in [torch.contiguous_format, torch.channels_last]:
                     # for memory_format in [torch.channels_last, ]:
@@ -137,23 +134,11 @@ def main(
                                 mode, align_corners, memory_format, dtype, device, tag, min_run_time, n=n
                             )
 
-    with open(output_filepath, "wb") as handler:
-        output = {
-            "filepath": str(output_filepath),
-            "torch_version": torch.__version__,
-            "torch_config": torch.__config__.show(),
-            "num_threads": torch.get_num_threads(),
-            "triton": triton.__version__,
-            "test_results": test_results,
-        }
-        pickle.dump(output, handler)
-
-    if display:
-        with unittest.mock.patch(
-            "torch.utils.benchmark.utils.compare._Row.as_column_strings", patched_as_column_strings
-        ):
-            compare = benchmark.Compare(test_results)
-            compare.print()
+    with unittest.mock.patch(
+        "torch.utils.benchmark.utils.compare._Row.as_column_strings", patched_as_column_strings
+    ):
+        compare = benchmark.Compare(test_results)
+        compare.print()
 
 
 if __name__ == "__main__":

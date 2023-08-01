@@ -30,12 +30,10 @@ def _make_base_grid_4d(theta: Tensor, h: int, w: int, align_corners: bool):
     grid_x = (
         _linspace_from_neg_one(w, align_corners, dtype, device)
         .view(1, w, 1)
-        .expand(h, w, 1)
     )
     grid_y = (
         _linspace_from_neg_one(h, align_corners, dtype, device)
         .view(h, 1, 1)
-        .expand(h, w, 1)
     )
     grid_one = torch.ones((1, 1, 1), dtype=dtype, device=device)
 
@@ -49,9 +47,15 @@ def _make_base_grid_4d(theta: Tensor, h: int, w: int, align_corners: bool):
 def decomp_affine_grid(img: Tensor, theta: Tensor, align_corners: bool):
     n, _, h, w = img.shape
     base_grid = _make_base_grid_4d(theta, h, w, align_corners=align_corners)
-    # grid = (base_grid.flatten(0, 1).unsqueeze(-1) * theta.mT.unsqueeze(1)).sum(-2)
-    grid = (base_grid.view(-1, 3, 1) * theta.mT.unsqueeze(1)).sum(-2)
-    return grid.view(n, h, w, 2)
+
+    # base_grid shape is (h, w, 3) and theta shape is (n, 2, 3)
+    # We do manually a matrix multiplication which is faster than mm()
+    # (h, w, 3, 1) * (n, 1, 1, 3, 2) -> (n, h, w, 2)
+
+    # (h, w, 3, 1) * (n, 1, 1, 3, 2)
+
+    # grid = (base_grid.view(-1, 3, 1) * theta.mT.unsqueeze(1)).sum(-2)
+    return (base_grid.unsqueeze(-1) * theta.mT.view(n, 1, 1, 3, 2)).sum(-2)
 
 
 def eager_affine_grid(img, theta, align_corners: bool):

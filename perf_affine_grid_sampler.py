@@ -54,7 +54,6 @@ def run_benchmark(mode, align_corners, memory_format, dtype, device, tag="", min
     ]])
     theta = theta.expand(n, 2, 3).contiguous()
 
-
     x = torch.arange(n * c * h * w, device=device).reshape(n, c, h, w).to(torch.uint8)
     x = x.to(dtype=dtype)
     x = x.contiguous(memory_format=memory_format)

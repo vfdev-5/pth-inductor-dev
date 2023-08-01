@@ -39,14 +39,14 @@ torch.manual_seed(12)
 num_threads = 1
 torch.set_num_threads(num_threads)
 
-# memory_format = torch.contiguous_format
-memory_format = torch.channels_last
+memory_format = torch.contiguous_format
+# memory_format = torch.channels_last
 # dtype = torch.float64
 dtype = torch.float32
 
 align_corners = False
-mode = "bicubic"
-# mode = "bilinear"
+# mode = "bicubic"
+mode = "bilinear"
 
 n, c, h, w = 2, 3, 345, 456
 theta = torch.tensor([[
