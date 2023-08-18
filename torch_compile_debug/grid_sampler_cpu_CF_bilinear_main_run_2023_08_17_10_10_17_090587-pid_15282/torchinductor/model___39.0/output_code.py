@@ -19,7 +19,7 @@ async_compile = AsyncCompile()
 
 
 cpp_fused_affine_grid_generator_grid_sampler_2d_0 = async_compile.cpp('''
-#include "/tmp/torchinductor_root/zr/czrrhd67iy62iqdam5uwroq4ibq3i5oo4yzl6euetoa7k25vfk35.h"
+#include "/tmp/torchinductor_root/i5/ci5uspp363v3ky6jkccllm3bxudy2fkdpqinkqhmpehfihejs7ko.h"
 extern "C" void kernel(float* in_out_ptr0,
                        const float* in_ptr0,
                        const float* in_ptr1,
@@ -27,13 +27,10 @@ extern "C" void kernel(float* in_out_ptr0,
                        float* out_ptr1,
                        float* out_ptr2,
                        float* out_ptr3,
-                       float* out_ptr4,
-                       float* out_ptr5,
-                       float* out_ptr6,
-                       long* out_ptr7,
-                       long* out_ptr8)
+                       long* out_ptr4,
+                       long* out_ptr5,
+                       float* out_ptr6)
 {
-    auto out_ptr9 = in_out_ptr0;
     {
         #pragma GCC ivdep
         for(long i0=static_cast<long>(0L); i0<static_cast<long>(2L); i0+=static_cast<long>(1L))
@@ -222,6 +219,71 @@ extern "C" void kernel(float* in_out_ptr0,
     }
     {
         #pragma GCC ivdep
+        for(long i0=static_cast<long>(0L); i0<static_cast<long>(314640L); i0+=static_cast<long>(1L))
+        {
+            auto tmp0 = out_ptr0[static_cast<long>(2L*i0)];
+            auto tmp10 = out_ptr0[static_cast<long>(1L + (2L*i0))];
+            auto tmp1 = static_cast<float>(228.0);
+            auto tmp2 = decltype(tmp0)(tmp0 * tmp1);
+            auto tmp3 = static_cast<float>(227.5);
+            auto tmp4 = tmp2 + tmp3;
+            auto tmp5 = std::floor(tmp4);
+            auto tmp6 = static_cast<float>(0.0);
+            auto tmp7 = tmp5 >= tmp6;
+            auto tmp8 = static_cast<float>(456.0);
+            auto tmp9 = tmp5 < tmp8;
+            auto tmp11 = static_cast<float>(172.5);
+            auto tmp12 = decltype(tmp10)(tmp10 * tmp11);
+            auto tmp13 = static_cast<float>(172.0);
+            auto tmp14 = tmp12 + tmp13;
+            auto tmp15 = std::floor(tmp14);
+            auto tmp16 = tmp15 >= tmp6;
+            auto tmp17 = static_cast<float>(345.0);
+            auto tmp18 = tmp15 < tmp17;
+            auto tmp19 = tmp16 && tmp18;
+            auto tmp20 = tmp9 && tmp19;
+            auto tmp21 = tmp7 && tmp20;
+            auto tmp22 = static_cast<float>(1.0);
+            auto tmp23 = tmp5 + tmp22;
+            auto tmp24 = tmp23 - tmp4;
+            auto tmp25 = tmp15 + tmp22;
+            auto tmp26 = tmp25 - tmp14;
+            auto tmp27 = decltype(tmp24)(tmp24 * tmp26);
+            auto tmp28 = tmp21 ? tmp27 : tmp6;
+            auto tmp29 = tmp23 >= tmp6;
+            auto tmp30 = tmp23 < tmp8;
+            auto tmp31 = tmp30 && tmp19;
+            auto tmp32 = tmp29 && tmp31;
+            auto tmp33 = tmp4 - tmp5;
+            auto tmp34 = decltype(tmp33)(tmp33 * tmp26);
+            auto tmp35 = tmp32 ? tmp34 : tmp6;
+            auto tmp36 = tmp25 >= tmp6;
+            auto tmp37 = tmp25 < tmp17;
+            auto tmp38 = tmp36 && tmp37;
+            auto tmp39 = tmp9 && tmp38;
+            auto tmp40 = tmp7 && tmp39;
+            auto tmp41 = tmp14 - tmp15;
+            auto tmp42 = decltype(tmp24)(tmp24 * tmp41);
+            auto tmp43 = tmp40 ? tmp42 : tmp6;
+            auto tmp44 = tmp30 && tmp38;
+            auto tmp45 = tmp29 && tmp44;
+            auto tmp46 = static_cast<long>(tmp25);
+            auto tmp47 = static_cast<long>(0);
+            auto tmp48 = tmp45 ? tmp46 : tmp47;
+            auto tmp49 = static_cast<long>(tmp23);
+            auto tmp50 = tmp45 ? tmp49 : tmp47;
+            auto tmp51 = decltype(tmp33)(tmp33 * tmp41);
+            auto tmp52 = tmp45 ? tmp51 : tmp6;
+            out_ptr1[static_cast<long>(i0)] = tmp28;
+            out_ptr2[static_cast<long>(i0)] = tmp35;
+            out_ptr3[static_cast<long>(i0)] = tmp43;
+            out_ptr4[static_cast<long>(i0)] = tmp48;
+            out_ptr5[static_cast<long>(i0)] = tmp50;
+            out_ptr6[static_cast<long>(i0)] = tmp52;
+        }
+    }
+    {
+        #pragma GCC ivdep
         for(long i0=static_cast<long>(0L); i0<static_cast<long>(2L); i0+=static_cast<long>(1L))
         {
             #pragma GCC ivdep
@@ -232,6 +294,12 @@ extern "C" void kernel(float* in_out_ptr0,
                 {
                     auto tmp0 = out_ptr0[static_cast<long>((2L*i2) + (314640L*i0))];
                     auto tmp10 = out_ptr0[static_cast<long>(1L + (2L*i2) + (314640L*i0))];
+                    auto tmp48 = out_ptr1[static_cast<long>(i2 + (157320L*i0))];
+                    auto tmp50 = out_ptr2[static_cast<long>(i2 + (157320L*i0))];
+                    auto tmp53 = out_ptr3[static_cast<long>(i2 + (157320L*i0))];
+                    auto tmp56 = out_ptr4[static_cast<long>(i2 + (157320L*i0))];
+                    auto tmp57 = out_ptr5[static_cast<long>(i2 + (157320L*i0))];
+                    auto tmp59 = out_ptr6[static_cast<long>(i2 + (157320L*i0))];
                     auto tmp1 = static_cast<float>(228.0);
                     auto tmp2 = decltype(tmp0)(tmp0 * tmp1);
                     auto tmp3 = static_cast<float>(227.5);
@@ -260,78 +328,34 @@ extern "C" void kernel(float* in_out_ptr0,
                     auto tmp27 = in_ptr1[static_cast<long>(tmp26 + (456L*tmp24) + (157320L*i1) + (471960L*i0))];
                     auto tmp28 = static_cast<float>(1.0);
                     auto tmp29 = tmp5 + tmp28;
-                    auto tmp30 = tmp29 - tmp4;
-                    auto tmp31 = tmp15 + tmp28;
-                    auto tmp32 = tmp31 - tmp14;
-                    auto tmp33 = decltype(tmp30)(tmp30 * tmp32);
-                    auto tmp34 = tmp21 ? tmp33 : tmp6;
-                    auto tmp35 = tmp29 >= tmp6;
-                    auto tmp36 = tmp29 < tmp8;
-                    auto tmp37 = tmp36 && tmp19;
-                    auto tmp38 = tmp35 && tmp37;
-                    auto tmp39 = tmp38 ? tmp22 : tmp23;
-                    auto tmp40 = static_cast<long>(tmp29);
-                    auto tmp41 = tmp38 ? tmp40 : tmp23;
-                    auto tmp42 = in_ptr1[static_cast<long>(tmp41 + (456L*tmp39) + (157320L*i1) + (471960L*i0))];
-                    auto tmp43 = tmp4 - tmp5;
-                    auto tmp44 = decltype(tmp43)(tmp43 * tmp32);
-                    auto tmp45 = tmp38 ? tmp44 : tmp6;
-                    auto tmp46 = tmp31 >= tmp6;
-                    auto tmp47 = tmp31 < tmp17;
-                    auto tmp48 = tmp46 && tmp47;
-                    auto tmp49 = tmp9 && tmp48;
-                    auto tmp50 = tmp7 && tmp49;
-                    auto tmp51 = static_cast<long>(tmp31);
-                    auto tmp52 = tmp50 ? tmp51 : tmp23;
-                    auto tmp53 = tmp50 ? tmp25 : tmp23;
-                    auto tmp54 = in_ptr1[static_cast<long>(tmp53 + (456L*tmp52) + (157320L*i1) + (471960L*i0))];
-                    auto tmp55 = tmp14 - tmp15;
-                    auto tmp56 = decltype(tmp30)(tmp30 * tmp55);
-                    auto tmp57 = tmp50 ? tmp56 : tmp6;
-                    auto tmp58 = tmp36 && tmp48;
-                    auto tmp59 = tmp35 && tmp58;
-                    auto tmp60 = tmp59 ? tmp51 : tmp23;
-                    auto tmp61 = tmp59 ? tmp40 : tmp23;
-                    auto tmp62 = decltype(tmp43)(tmp43 * tmp55);
-                    auto tmp63 = tmp59 ? tmp62 : tmp6;
-                    out_ptr1[static_cast<long>(i2 + (157320L*i1) + (471960L*i0))] = tmp27;
-                    out_ptr2[static_cast<long>(i2 + (157320L*i1) + (471960L*i0))] = tmp34;
-                    out_ptr3[static_cast<long>(i2 + (157320L*i1) + (471960L*i0))] = tmp42;
-                    out_ptr4[static_cast<long>(i2 + (157320L*i1) + (471960L*i0))] = tmp45;
-                    out_ptr5[static_cast<long>(i2 + (157320L*i1) + (471960L*i0))] = tmp54;
-                    out_ptr6[static_cast<long>(i2 + (157320L*i1) + (471960L*i0))] = tmp57;
-                    out_ptr7[static_cast<long>(i2 + (157320L*i1) + (471960L*i0))] = tmp60;
-                    out_ptr8[static_cast<long>(i2 + (157320L*i1) + (471960L*i0))] = tmp61;
-                    out_ptr9[static_cast<long>(i2 + (157320L*i1) + (471960L*i0))] = tmp63;
+                    auto tmp30 = tmp29 >= tmp6;
+                    auto tmp31 = tmp29 < tmp8;
+                    auto tmp32 = tmp31 && tmp19;
+                    auto tmp33 = tmp30 && tmp32;
+                    auto tmp34 = tmp33 ? tmp22 : tmp23;
+                    auto tmp35 = static_cast<long>(tmp29);
+                    auto tmp36 = tmp33 ? tmp35 : tmp23;
+                    auto tmp37 = in_ptr1[static_cast<long>(tmp36 + (456L*tmp34) + (157320L*i1) + (471960L*i0))];
+                    auto tmp38 = tmp15 + tmp28;
+                    auto tmp39 = tmp38 >= tmp6;
+                    auto tmp40 = tmp38 < tmp17;
+                    auto tmp41 = tmp39 && tmp40;
+                    auto tmp42 = tmp9 && tmp41;
+                    auto tmp43 = tmp7 && tmp42;
+                    auto tmp44 = static_cast<long>(tmp38);
+                    auto tmp45 = tmp43 ? tmp44 : tmp23;
+                    auto tmp46 = tmp43 ? tmp25 : tmp23;
+                    auto tmp47 = in_ptr1[static_cast<long>(tmp46 + (456L*tmp45) + (157320L*i1) + (471960L*i0))];
+                    auto tmp49 = decltype(tmp27)(tmp27 * tmp48);
+                    auto tmp51 = decltype(tmp37)(tmp37 * tmp50);
+                    auto tmp52 = tmp49 + tmp51;
+                    auto tmp54 = decltype(tmp47)(tmp47 * tmp53);
+                    auto tmp55 = tmp52 + tmp54;
+                    auto tmp58 = in_ptr1[static_cast<long>(tmp57 + (456L*tmp56) + (157320L*i1) + (471960L*i0))];
+                    auto tmp60 = decltype(tmp58)(tmp58 * tmp59);
+                    auto tmp61 = tmp55 + tmp60;
+                    in_out_ptr0[static_cast<long>(i2 + (157320L*i1) + (471960L*i0))] = tmp61;
                 }
-            }
-        }
-    }
-    {
-        #pragma GCC ivdep
-        for(long i0=static_cast<long>(0L); i0<static_cast<long>(6L); i0+=static_cast<long>(1L))
-        {
-            #pragma GCC ivdep
-            for(long i1=static_cast<long>(0L); i1<static_cast<long>(157320L); i1+=static_cast<long>(1L))
-            {
-                auto tmp0 = out_ptr1[static_cast<long>(i1 + (157320L*i0))];
-                auto tmp1 = out_ptr2[static_cast<long>(i1 + (157320L*i0))];
-                auto tmp3 = out_ptr3[static_cast<long>(i1 + (157320L*i0))];
-                auto tmp4 = out_ptr4[static_cast<long>(i1 + (157320L*i0))];
-                auto tmp7 = out_ptr5[static_cast<long>(i1 + (157320L*i0))];
-                auto tmp8 = out_ptr6[static_cast<long>(i1 + (157320L*i0))];
-                auto tmp11 = out_ptr7[static_cast<long>(i1 + (157320L*i0))];
-                auto tmp12 = out_ptr8[static_cast<long>(i1 + (157320L*i0))];
-                auto tmp14 = out_ptr9[static_cast<long>(i1 + (157320L*i0))];
-                auto tmp2 = decltype(tmp0)(tmp0 * tmp1);
-                auto tmp5 = decltype(tmp3)(tmp3 * tmp4);
-                auto tmp6 = tmp2 + tmp5;
-                auto tmp9 = decltype(tmp7)(tmp7 * tmp8);
-                auto tmp10 = tmp6 + tmp9;
-                auto tmp13 = in_ptr1[static_cast<long>(tmp12 + (456L*tmp11) + (157320L*i0))];
-                auto tmp15 = decltype(tmp13)(tmp13 * tmp14);
-                auto tmp16 = tmp10 + tmp15;
-                in_out_ptr0[static_cast<long>(i1 + (157320L*i0))] = tmp16;
             }
         }
     }
@@ -348,17 +372,15 @@ def call(args):
     assert_size_stride(arg0_1, (2, 3, 345, 456), (471960, 157320, 456, 1))
     assert_size_stride(arg1_1, (2, 2, 3), (6, 3, 1))
     buf1 = empty_strided((2, 157320, 2), (314640, 2, 1), device='cpu', dtype=torch.float32)
+    buf3 = empty_strided((2, 345, 456), (157320, 456, 1), device='cpu', dtype=torch.float32)
+    buf5 = empty_strided((2, 345, 456), (157320, 456, 1), device='cpu', dtype=torch.float32)
+    buf7 = empty_strided((2, 345, 456), (157320, 456, 1), device='cpu', dtype=torch.float32)
+    buf8 = empty_strided((2, 345, 456), (157320, 456, 1), device='cpu', dtype=torch.int64)
+    buf9 = empty_strided((2, 345, 456), (157320, 456, 1), device='cpu', dtype=torch.int64)
+    buf10 = empty_strided((2, 345, 456), (157320, 456, 1), device='cpu', dtype=torch.float32)
     buf2 = empty_strided((2, 3, 345, 456), (471960, 157320, 456, 1), device='cpu', dtype=torch.float32)
-    buf3 = empty_strided((2, 3, 345, 456), (471960, 157320, 456, 1), device='cpu', dtype=torch.float32)
-    buf4 = empty_strided((2, 3, 345, 456), (471960, 157320, 456, 1), device='cpu', dtype=torch.float32)
-    buf5 = empty_strided((2, 3, 345, 456), (471960, 157320, 456, 1), device='cpu', dtype=torch.float32)
-    buf6 = empty_strided((2, 3, 345, 456), (471960, 157320, 456, 1), device='cpu', dtype=torch.float32)
-    buf7 = empty_strided((2, 3, 345, 456), (471960, 157320, 456, 1), device='cpu', dtype=torch.float32)
-    buf8 = empty_strided((2, 3, 345, 456), (471960, 157320, 456, 1), device='cpu', dtype=torch.int64)
-    buf9 = empty_strided((2, 3, 345, 456), (471960, 157320, 456, 1), device='cpu', dtype=torch.int64)
-    buf10 = empty_strided((2, 3, 345, 456), (471960, 157320, 456, 1), device='cpu', dtype=torch.float32)
-    buf11 = buf10; del buf10  # reuse
-    cpp_fused_affine_grid_generator_grid_sampler_2d_0(c_void_p(buf11.data_ptr()), c_void_p(arg1_1.data_ptr()), c_void_p(arg0_1.data_ptr()), c_void_p(buf1.data_ptr()), c_void_p(buf2.data_ptr()), c_void_p(buf3.data_ptr()), c_void_p(buf4.data_ptr()), c_void_p(buf5.data_ptr()), c_void_p(buf6.data_ptr()), c_void_p(buf7.data_ptr()), c_void_p(buf8.data_ptr()), c_void_p(buf9.data_ptr()))
+    buf11 = buf2; del buf2  # reuse
+    cpp_fused_affine_grid_generator_grid_sampler_2d_0(c_void_p(buf11.data_ptr()), c_void_p(arg1_1.data_ptr()), c_void_p(arg0_1.data_ptr()), c_void_p(buf1.data_ptr()), c_void_p(buf3.data_ptr()), c_void_p(buf5.data_ptr()), c_void_p(buf7.data_ptr()), c_void_p(buf8.data_ptr()), c_void_p(buf9.data_ptr()), c_void_p(buf10.data_ptr()))
     del arg0_1
     del arg1_1
     return (buf11, )
@@ -373,5 +395,5 @@ def benchmark_compiled_module(times=10, repeat=10):
 
 
 if __name__ == "__main__":
-    from torch._inductor.utils import compiled_module_main
+    from torch._inductor.wrapper_benchmark import compiled_module_main
     compiled_module_main('None', benchmark_compiled_module)

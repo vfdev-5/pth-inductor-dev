@@ -356,20 +356,20 @@ class buf2_loop_body:
 
 
 buf3: SchedulerNode(ComputedBuffer)
-buf3.writes = [MemoryDep('buf3', c0, {c0: 943920})]
+buf3.writes = [MemoryDep('buf3', c0, {c0: 314640})]
 buf3.unmet_dependencies = 
-    [   MemoryDep('buf1', 314640*c0 + 2*c2 + 1, {c0: 2, c1: 3, c2: 157320}),
-        MemoryDep('buf1', 314640*c0 + 2*c2, {c0: 2, c1: 3, c2: 157320})]
+    [   MemoryDep('buf1', 2*c0 + 1, {c0: 314640}),
+        MemoryDep('buf1', 2*c0, {c0: 314640})]
 buf3.met_dependencies = []
-buf3.users = [NodeUser(node=SchedulerNode(name='buf11'), can_inplace=True)]
+buf3.users = [NodeUser(node=SchedulerNode(name='buf11'), can_inplace=False)]
 buf3.group.device = cpu
-buf3.group.iteration = ((2, 3, 157320), ())
-buf3.sizes = ([2, 3, 157320], [])
+buf3.group.iteration = ((314640,), ())
+buf3.sizes = ([314640], [])
 class buf3_loop_body:
-    var_ranges = {z0: 2, z1: 3, z2: 157320}
-    index0 = 314640*z0 + 2*z2
-    index1 = 314640*z0 + 2*z2 + 1
-    index2 = 471960*z0 + 157320*z1 + z2
+    var_ranges = {z0: 314640}
+    index0 = 2*z0
+    index1 = 2*z0 + 1
+    index2 = z0
     def body(self, ops):
         get_index = self.get_index('index0')
         load = ops.load('buf1', get_index)
@@ -585,20 +585,20 @@ class buf4_loop_body:
 
 
 buf5: SchedulerNode(ComputedBuffer)
-buf5.writes = [MemoryDep('buf5', c0, {c0: 943920})]
+buf5.writes = [MemoryDep('buf5', c0, {c0: 314640})]
 buf5.unmet_dependencies = 
-    [   MemoryDep('buf1', 314640*c0 + 2*c2 + 1, {c0: 2, c1: 3, c2: 157320}),
-        MemoryDep('buf1', 314640*c0 + 2*c2, {c0: 2, c1: 3, c2: 157320})]
+    [   MemoryDep('buf1', 2*c0 + 1, {c0: 314640}),
+        MemoryDep('buf1', 2*c0, {c0: 314640})]
 buf5.met_dependencies = []
-buf5.users = [NodeUser(node=SchedulerNode(name='buf11'), can_inplace=True)]
+buf5.users = [NodeUser(node=SchedulerNode(name='buf11'), can_inplace=False)]
 buf5.group.device = cpu
-buf5.group.iteration = ((2, 3, 157320), ())
-buf5.sizes = ([2, 3, 157320], [])
+buf5.group.iteration = ((314640,), ())
+buf5.sizes = ([314640], [])
 class buf5_loop_body:
-    var_ranges = {z0: 2, z1: 3, z2: 157320}
-    index0 = 314640*z0 + 2*z2
-    index1 = 314640*z0 + 2*z2 + 1
-    index2 = 471960*z0 + 157320*z1 + z2
+    var_ranges = {z0: 314640}
+    index0 = 2*z0
+    index1 = 2*z0 + 1
+    index2 = z0
     def body(self, ops):
         get_index = self.get_index('index0')
         load = ops.load('buf1', get_index)
@@ -816,20 +816,20 @@ class buf6_loop_body:
 
 
 buf7: SchedulerNode(ComputedBuffer)
-buf7.writes = [MemoryDep('buf7', c0, {c0: 943920})]
+buf7.writes = [MemoryDep('buf7', c0, {c0: 314640})]
 buf7.unmet_dependencies = 
-    [   MemoryDep('buf1', 314640*c0 + 2*c2 + 1, {c0: 2, c1: 3, c2: 157320}),
-        MemoryDep('buf1', 314640*c0 + 2*c2, {c0: 2, c1: 3, c2: 157320})]
+    [   MemoryDep('buf1', 2*c0 + 1, {c0: 314640}),
+        MemoryDep('buf1', 2*c0, {c0: 314640})]
 buf7.met_dependencies = []
-buf7.users = [NodeUser(node=SchedulerNode(name='buf11'), can_inplace=True)]
+buf7.users = [NodeUser(node=SchedulerNode(name='buf11'), can_inplace=False)]
 buf7.group.device = cpu
-buf7.group.iteration = ((2, 3, 157320), ())
-buf7.sizes = ([2, 3, 157320], [])
+buf7.group.iteration = ((314640,), ())
+buf7.sizes = ([314640], [])
 class buf7_loop_body:
-    var_ranges = {z0: 2, z1: 3, z2: 157320}
-    index0 = 314640*z0 + 2*z2
-    index1 = 314640*z0 + 2*z2 + 1
-    index2 = 471960*z0 + 157320*z1 + z2
+    var_ranges = {z0: 314640}
+    index0 = 2*z0
+    index1 = 2*z0 + 1
+    index2 = z0
     def body(self, ops):
         get_index = self.get_index('index0')
         load = ops.load('buf1', get_index)
@@ -913,20 +913,20 @@ class buf7_loop_body:
 
 
 buf8: SchedulerNode(ComputedBuffer)
-buf8.writes = [MemoryDep('buf8', c0, {c0: 943920})]
+buf8.writes = [MemoryDep('buf8', c0, {c0: 314640})]
 buf8.unmet_dependencies = 
-    [   MemoryDep('buf1', 314640*c0 + 2*c2 + 1, {c0: 2, c1: 3, c2: 157320}),
-        MemoryDep('buf1', 314640*c0 + 2*c2, {c0: 2, c1: 3, c2: 157320})]
+    [   MemoryDep('buf1', 2*c0 + 1, {c0: 314640}),
+        MemoryDep('buf1', 2*c0, {c0: 314640})]
 buf8.met_dependencies = []
-buf8.users = [NodeUser(node=SchedulerNode(name='buf11'), can_inplace=True)]
+buf8.users = [NodeUser(node=SchedulerNode(name='buf11'), can_inplace=False)]
 buf8.group.device = cpu
-buf8.group.iteration = ((2, 3, 157320), ())
-buf8.sizes = ([2, 3, 157320], [])
+buf8.group.iteration = ((314640,), ())
+buf8.sizes = ([314640], [])
 class buf8_loop_body:
-    var_ranges = {z0: 2, z1: 3, z2: 157320}
-    index0 = 314640*z0 + 2*z2
-    index1 = 314640*z0 + 2*z2 + 1
-    index2 = 471960*z0 + 157320*z1 + z2
+    var_ranges = {z0: 314640}
+    index0 = 2*z0
+    index1 = 2*z0 + 1
+    index2 = z0
     def body(self, ops):
         get_index = self.get_index('index0')
         load = ops.load('buf1', get_index)
@@ -993,20 +993,20 @@ class buf8_loop_body:
 
 
 buf9: SchedulerNode(ComputedBuffer)
-buf9.writes = [MemoryDep('buf9', c0, {c0: 943920})]
+buf9.writes = [MemoryDep('buf9', c0, {c0: 314640})]
 buf9.unmet_dependencies = 
-    [   MemoryDep('buf1', 314640*c0 + 2*c2 + 1, {c0: 2, c1: 3, c2: 157320}),
-        MemoryDep('buf1', 314640*c0 + 2*c2, {c0: 2, c1: 3, c2: 157320})]
+    [   MemoryDep('buf1', 2*c0 + 1, {c0: 314640}),
+        MemoryDep('buf1', 2*c0, {c0: 314640})]
 buf9.met_dependencies = []
-buf9.users = [NodeUser(node=SchedulerNode(name='buf11'), can_inplace=True)]
+buf9.users = [NodeUser(node=SchedulerNode(name='buf11'), can_inplace=False)]
 buf9.group.device = cpu
-buf9.group.iteration = ((2, 3, 157320), ())
-buf9.sizes = ([2, 3, 157320], [])
+buf9.group.iteration = ((314640,), ())
+buf9.sizes = ([314640], [])
 class buf9_loop_body:
-    var_ranges = {z0: 2, z1: 3, z2: 157320}
-    index0 = 314640*z0 + 2*z2
-    index1 = 314640*z0 + 2*z2 + 1
-    index2 = 471960*z0 + 157320*z1 + z2
+    var_ranges = {z0: 314640}
+    index0 = 2*z0
+    index1 = 2*z0 + 1
+    index2 = z0
     def body(self, ops):
         get_index = self.get_index('index0')
         load = ops.load('buf1', get_index)
@@ -1073,20 +1073,20 @@ class buf9_loop_body:
 
 
 buf10: SchedulerNode(ComputedBuffer)
-buf10.writes = [MemoryDep('buf10', c0, {c0: 943920})]
+buf10.writes = [MemoryDep('buf10', c0, {c0: 314640})]
 buf10.unmet_dependencies = 
-    [   MemoryDep('buf1', 314640*c0 + 2*c2 + 1, {c0: 2, c1: 3, c2: 157320}),
-        MemoryDep('buf1', 314640*c0 + 2*c2, {c0: 2, c1: 3, c2: 157320})]
+    [   MemoryDep('buf1', 2*c0 + 1, {c0: 314640}),
+        MemoryDep('buf1', 2*c0, {c0: 314640})]
 buf10.met_dependencies = []
-buf10.users = [NodeUser(node=SchedulerNode(name='buf11'), can_inplace=True)]
+buf10.users = [NodeUser(node=SchedulerNode(name='buf11'), can_inplace=False)]
 buf10.group.device = cpu
-buf10.group.iteration = ((2, 3, 157320), ())
-buf10.sizes = ([2, 3, 157320], [])
+buf10.group.iteration = ((314640,), ())
+buf10.sizes = ([314640], [])
 class buf10_loop_body:
-    var_ranges = {z0: 2, z1: 3, z2: 157320}
-    index0 = 314640*z0 + 2*z2
-    index1 = 314640*z0 + 2*z2 + 1
-    index2 = 471960*z0 + 157320*z1 + z2
+    var_ranges = {z0: 314640}
+    index0 = 2*z0
+    index1 = 2*z0 + 1
+    index2 = z0
     def body(self, ops):
         get_index = self.get_index('index0')
         load = ops.load('buf1', get_index)
@@ -1174,51 +1174,52 @@ class buf10_loop_body:
 buf11: SchedulerNode(ComputedBuffer)
 buf11.writes = [MemoryDep('buf11', c0, {c0: 943920})]
 buf11.unmet_dependencies = 
-    [   MemoryDep('buf10', c0, {c0: 943920}),
+    [   MemoryDep('buf10', 157320*c0 + c2, {c0: 2, c1: 3, c2: 157320}),
         MemoryDep('buf2', c0, {c0: 943920}),
-        MemoryDep('buf3', c0, {c0: 943920}),
+        MemoryDep('buf3', 157320*c0 + c2, {c0: 2, c1: 3, c2: 157320}),
         MemoryDep('buf4', c0, {c0: 943920}),
-        MemoryDep('buf5', c0, {c0: 943920}),
+        MemoryDep('buf5', 157320*c0 + c2, {c0: 2, c1: 3, c2: 157320}),
         MemoryDep('buf6', c0, {c0: 943920}),
-        MemoryDep('buf7', c0, {c0: 943920}),
-        MemoryDep('buf8', c0, {c0: 943920}),
-        MemoryDep('buf9', c0, {c0: 943920})]
+        MemoryDep('buf7', 157320*c0 + c2, {c0: 2, c1: 3, c2: 157320}),
+        MemoryDep('buf8', 157320*c0 + c2, {c0: 2, c1: 3, c2: 157320}),
+        MemoryDep('buf9', 157320*c0 + c2, {c0: 2, c1: 3, c2: 157320})]
 buf11.met_dependencies = [MemoryDep('arg0_1', 456*(tmp11) + (tmp12) + 157320*c0, {c0: 6})]
 buf11.users = [NodeUser(node=OUTPUT, can_inplace=False)]
 buf11.group.device = cpu
-buf11.group.iteration = ((6, 157320), ())
-buf11.sizes = ([6, 157320], [])
+buf11.group.iteration = ((2, 3, 157320), ())
+buf11.sizes = ([2, 3, 157320], [])
 class buf11_loop_body:
-    var_ranges = {z0: 6, z1: 157320}
-    index0 = 157320*z0 + z1
-    index1 = 456*indirect0 + indirect1 + 157320*z0
+    var_ranges = {z0: 2, z1: 3, z2: 157320}
+    index0 = 471960*z0 + 157320*z1 + z2
+    index1 = 157320*z0 + z2
+    index2 = 456*indirect0 + indirect1 + 471960*z0 + 157320*z1
     def body(self, ops):
         get_index = self.get_index('index0')
         load = ops.load('buf2', get_index)
-        get_index_1 = self.get_index('index0')
+        get_index_1 = self.get_index('index1')
         load_1 = ops.load('buf3', get_index_1)
         mul = ops.mul(load, load_1)
         get_index_2 = self.get_index('index0')
         load_2 = ops.load('buf4', get_index_2)
-        get_index_3 = self.get_index('index0')
+        get_index_3 = self.get_index('index1')
         load_3 = ops.load('buf5', get_index_3)
         mul_1 = ops.mul(load_2, load_3)
         add = ops.add(mul, mul_1)
         get_index_4 = self.get_index('index0')
         load_4 = ops.load('buf6', get_index_4)
-        get_index_5 = self.get_index('index0')
+        get_index_5 = self.get_index('index1')
         load_5 = ops.load('buf7', get_index_5)
         mul_2 = ops.mul(load_4, load_5)
         add_1 = ops.add(add, mul_2)
-        get_index_6 = self.get_index('index0')
+        get_index_6 = self.get_index('index1')
         load_6 = ops.load('buf8', get_index_6)
         set_indirect0 = self.set_indirect0(load_6)
-        get_index_7 = self.get_index('index0')
+        get_index_7 = self.get_index('index1')
         load_7 = ops.load('buf9', get_index_7)
         set_indirect1 = self.set_indirect1(load_7)
-        get_index_8 = self.get_index('index1')
+        get_index_8 = self.get_index('index2')
         load_8 = ops.load('arg0_1', get_index_8)
-        get_index_9 = self.get_index('index0')
+        get_index_9 = self.get_index('index1')
         load_9 = ops.load('buf10', get_index_9)
         mul_3 = ops.mul(load_8, load_9)
         add_2 = ops.add(add_1, mul_3)

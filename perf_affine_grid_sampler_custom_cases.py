@@ -124,7 +124,8 @@ def main(
         # for device in ["cuda", ]:
         for device in ["cpu", ]:
             # for mode in ["bicubic", ]:
-            for mode in ["bilinear", ]:
+            # for mode in ["bilinear", ]:
+            for mode in ["nearest", "bilinear", "bicubic"]:
                 for align_corners in [True, False]:
                     for memory_format in [torch.contiguous_format, torch.channels_last]:
                     # for memory_format in [torch.channels_last, ]:

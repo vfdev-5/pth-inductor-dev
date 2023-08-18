@@ -103,7 +103,7 @@ def run_benchmark(mode, align_corners, memory_format, dtype, device, tag="", min
 
 def main(
     output_folder: str,
-    min_run_time: float = 5.0,
+    min_run_time: float = 10.0,
     tag: str = "",
     display: bool = True,
     num_threads: int = 1,

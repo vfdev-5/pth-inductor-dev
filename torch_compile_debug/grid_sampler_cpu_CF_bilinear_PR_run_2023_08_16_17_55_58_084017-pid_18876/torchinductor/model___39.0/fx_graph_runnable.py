@@ -18,9 +18,9 @@ isolate_fails_code_str = None
 
 
 
-# torch version: 2.1.0a0+git1c48419
+# torch version: 2.1.0a0+git1afae24
 # torch cuda version: 11.7
-# torch git version: 1c48419d3de90bdeede8c4acff9eed78890a1571
+# torch git version: 1afae24ba724a1900db89d2168cb4479cbf5fbf9
 
 
 # CUDA Info: 
@@ -43,7 +43,7 @@ class Repro(torch.nn.Module):
     
     
     def forward(self, arg0_1, arg1_1):
-        iota = torch.ops.prims.iota.default(456, start = 0, step = 1, dtype = torch.int64, device = device(type='cuda', index=0), requires_grad = False)
+        iota = torch.ops.prims.iota.default(456, start = 0, step = 1, dtype = torch.int64, device = device(type='cpu'), requires_grad = False)
         lt = torch.ops.aten.lt.Scalar(iota, 228.0)
         convert_element_type = torch.ops.prims.convert_element_type.default(iota, torch.float32)
         mul = torch.ops.aten.mul.Tensor(convert_element_type, 0.004385964912280702);  convert_element_type = None
@@ -54,8 +54,7 @@ class Repro(torch.nn.Module):
         sub_1 = torch.ops.aten.sub.Tensor(0.9978070175438597, mul_1);  mul_1 = None
         where = torch.ops.aten.where.self(lt, add, sub_1);  lt = add = sub_1 = None
         view = torch.ops.aten.view.default(where, [1, 456, 1]);  where = None
-        expand = torch.ops.aten.expand.default(view, [345, 456, 1]);  view = None
-        iota_1 = torch.ops.prims.iota.default(345, start = 0, step = 1, dtype = torch.int64, device = device(type='cuda', index=0), requires_grad = False)
+        iota_1 = torch.ops.prims.iota.default(345, start = 0, step = 1, dtype = torch.int64, device = device(type='cpu'), requires_grad = False)
         lt_1 = torch.ops.aten.lt.Scalar(iota_1, 172.5)
         convert_element_type_2 = torch.ops.prims.convert_element_type.default(iota_1, torch.float32)
         mul_2 = torch.ops.aten.mul.Tensor(convert_element_type_2, 0.005797101449275362);  convert_element_type_2 = None
@@ -66,10 +65,9 @@ class Repro(torch.nn.Module):
         sub_3 = torch.ops.aten.sub.Tensor(0.9971014492753624, mul_3);  mul_3 = None
         where_1 = torch.ops.aten.where.self(lt_1, add_1, sub_3);  lt_1 = add_1 = sub_3 = None
         view_1 = torch.ops.aten.view.default(where_1, [345, 1, 1]);  where_1 = None
-        expand_1 = torch.ops.aten.expand.default(view_1, [345, 456, 1]);  view_1 = None
-        full_default = torch.ops.aten.full.default([1, 1, 1], 1, dtype = torch.float32, layout = torch.strided, device = device(type='cuda', index=0), pin_memory = False)
-        constant_pad_nd = torch.ops.aten.constant_pad_nd.default(expand, [0, 2], 0.0);  expand = None
-        constant_pad_nd_1 = torch.ops.aten.constant_pad_nd.default(expand_1, [1, 1], 0.0);  expand_1 = None
+        full_default = torch.ops.aten.full.default([1, 1, 1], 1, dtype = torch.float32, layout = torch.strided, device = device(type='cpu'), pin_memory = False)
+        constant_pad_nd = torch.ops.aten.constant_pad_nd.default(view, [0, 2], 0.0);  view = None
+        constant_pad_nd_1 = torch.ops.aten.constant_pad_nd.default(view_1, [1, 1], 0.0);  view_1 = None
         constant_pad_nd_2 = torch.ops.aten.constant_pad_nd.default(full_default, [2, 0], 0.0);  full_default = None
         add_2 = torch.ops.aten.add.Tensor(constant_pad_nd, constant_pad_nd_1);  constant_pad_nd = constant_pad_nd_1 = None
         add_3 = torch.ops.aten.add.Tensor(add_2, constant_pad_nd_2);  add_2 = constant_pad_nd_2 = None
@@ -80,13 +78,13 @@ class Repro(torch.nn.Module):
         sum_1 = torch.ops.aten.sum.dim_IntList(mul_4, [-2]);  mul_4 = None
         view_3 = torch.ops.aten.view.default(sum_1, [2, 345, 456, 2]);  sum_1 = None
         view_4 = torch.ops.aten.view.default(view_3, [2, 1, 345, 456, 2]);  view_3 = None
-        expand_2 = torch.ops.aten.expand.default(view_4, [2, 3, 345, 456, 2]);  view_4 = None
-        iota_2 = torch.ops.prims.iota.default(2, start = 0, step = 1, dtype = torch.int64, device = device(type='cuda', index=0), requires_grad = False)
+        expand = torch.ops.aten.expand.default(view_4, [2, 3, 345, 456, 2]);  view_4 = None
+        iota_2 = torch.ops.prims.iota.default(2, start = 0, step = 1, dtype = torch.int64, device = device(type='cpu'), requires_grad = False)
         view_5 = torch.ops.aten.view.default(iota_2, [2, 1, 1, 1]);  iota_2 = None
-        iota_3 = torch.ops.prims.iota.default(3, start = 0, step = 1, dtype = torch.int64, device = device(type='cuda', index=0), requires_grad = False)
+        iota_3 = torch.ops.prims.iota.default(3, start = 0, step = 1, dtype = torch.int64, device = device(type='cpu'), requires_grad = False)
         view_6 = torch.ops.aten.view.default(iota_3, [1, 3, 1, 1]);  iota_3 = None
-        select = torch.ops.aten.select.int(expand_2, 4, 0)
-        select_1 = torch.ops.aten.select.int(expand_2, 4, 1);  expand_2 = None
+        select = torch.ops.aten.select.int(expand, 4, 0)
+        select_1 = torch.ops.aten.select.int(expand, 4, 1);  expand = None
         mul_5 = torch.ops.aten.mul.Tensor(select, 228.0);  select = None
         add_4 = torch.ops.aten.add.Tensor(mul_5, 227.5);  mul_5 = None
         mul_6 = torch.ops.aten.mul.Tensor(select_1, 172.5);  select_1 = None
@@ -116,11 +114,11 @@ class Repro(torch.nn.Module):
         logical_and_2 = torch.ops.aten.logical_and.default(ge, logical_and_1);  ge = logical_and_1 = None
         convert_element_type_4 = torch.ops.prims.convert_element_type.default(floor, torch.int64)
         convert_element_type_5 = torch.ops.prims.convert_element_type.default(floor_1, torch.int64)
-        full_default_1 = torch.ops.aten.full.default([], 0, dtype = torch.int64, layout = torch.strided, device = device(type='cuda', index=0), pin_memory = False)
+        full_default_1 = torch.ops.aten.full.default([], 0, dtype = torch.int64, layout = torch.strided, device = device(type='cpu'), pin_memory = False)
         where_2 = torch.ops.aten.where.self(logical_and_2, convert_element_type_4, full_default_1);  convert_element_type_4 = full_default_1 = None
-        full_default_2 = torch.ops.aten.full.default([], 0, dtype = torch.int64, layout = torch.strided, device = device(type='cuda', index=0), pin_memory = False)
+        full_default_2 = torch.ops.aten.full.default([], 0, dtype = torch.int64, layout = torch.strided, device = device(type='cpu'), pin_memory = False)
         where_3 = torch.ops.aten.where.self(logical_and_2, convert_element_type_5, full_default_2);  convert_element_type_5 = full_default_2 = None
-        full_default_3 = torch.ops.aten.full.default([], 0.0, dtype = torch.float32, layout = torch.strided, device = device(type='cuda', index=0), pin_memory = False)
+        full_default_3 = torch.ops.aten.full.default([], 0.0, dtype = torch.float32, layout = torch.strided, device = device(type='cpu'), pin_memory = False)
         where_4 = torch.ops.aten.where.self(logical_and_2, mul_7, full_default_3);  logical_and_2 = mul_7 = full_default_3 = None
         index = torch.ops.aten.index.Tensor(arg0_1, [view_5, view_6, where_3, where_2]);  where_3 = where_2 = None
         mul_11 = torch.ops.aten.mul.Tensor(index, where_4);  index = where_4 = None
@@ -133,11 +131,11 @@ class Repro(torch.nn.Module):
         logical_and_5 = torch.ops.aten.logical_and.default(ge_2, logical_and_4);  ge_2 = logical_and_4 = None
         convert_element_type_6 = torch.ops.prims.convert_element_type.default(add_6, torch.int64)
         convert_element_type_7 = torch.ops.prims.convert_element_type.default(floor_1, torch.int64);  floor_1 = None
-        full_default_4 = torch.ops.aten.full.default([], 0, dtype = torch.int64, layout = torch.strided, device = device(type='cuda', index=0), pin_memory = False)
+        full_default_4 = torch.ops.aten.full.default([], 0, dtype = torch.int64, layout = torch.strided, device = device(type='cpu'), pin_memory = False)
         where_5 = torch.ops.aten.where.self(logical_and_5, convert_element_type_6, full_default_4);  convert_element_type_6 = full_default_4 = None
-        full_default_5 = torch.ops.aten.full.default([], 0, dtype = torch.int64, layout = torch.strided, device = device(type='cuda', index=0), pin_memory = False)
+        full_default_5 = torch.ops.aten.full.default([], 0, dtype = torch.int64, layout = torch.strided, device = device(type='cpu'), pin_memory = False)
         where_6 = torch.ops.aten.where.self(logical_and_5, convert_element_type_7, full_default_5);  convert_element_type_7 = full_default_5 = None
-        full_default_6 = torch.ops.aten.full.default([], 0.0, dtype = torch.float32, layout = torch.strided, device = device(type='cuda', index=0), pin_memory = False)
+        full_default_6 = torch.ops.aten.full.default([], 0.0, dtype = torch.float32, layout = torch.strided, device = device(type='cpu'), pin_memory = False)
         where_7 = torch.ops.aten.where.self(logical_and_5, mul_8, full_default_6);  logical_and_5 = mul_8 = full_default_6 = None
         index_1 = torch.ops.aten.index.Tensor(arg0_1, [view_5, view_6, where_6, where_5]);  where_6 = where_5 = None
         mul_12 = torch.ops.aten.mul.Tensor(index_1, where_7);  index_1 = where_7 = None
@@ -151,11 +149,11 @@ class Repro(torch.nn.Module):
         logical_and_8 = torch.ops.aten.logical_and.default(ge_4, logical_and_7);  ge_4 = logical_and_7 = None
         convert_element_type_8 = torch.ops.prims.convert_element_type.default(floor, torch.int64);  floor = None
         convert_element_type_9 = torch.ops.prims.convert_element_type.default(add_7, torch.int64)
-        full_default_7 = torch.ops.aten.full.default([], 0, dtype = torch.int64, layout = torch.strided, device = device(type='cuda', index=0), pin_memory = False)
+        full_default_7 = torch.ops.aten.full.default([], 0, dtype = torch.int64, layout = torch.strided, device = device(type='cpu'), pin_memory = False)
         where_8 = torch.ops.aten.where.self(logical_and_8, convert_element_type_8, full_default_7);  convert_element_type_8 = full_default_7 = None
-        full_default_8 = torch.ops.aten.full.default([], 0, dtype = torch.int64, layout = torch.strided, device = device(type='cuda', index=0), pin_memory = False)
+        full_default_8 = torch.ops.aten.full.default([], 0, dtype = torch.int64, layout = torch.strided, device = device(type='cpu'), pin_memory = False)
         where_9 = torch.ops.aten.where.self(logical_and_8, convert_element_type_9, full_default_8);  convert_element_type_9 = full_default_8 = None
-        full_default_9 = torch.ops.aten.full.default([], 0.0, dtype = torch.float32, layout = torch.strided, device = device(type='cuda', index=0), pin_memory = False)
+        full_default_9 = torch.ops.aten.full.default([], 0.0, dtype = torch.float32, layout = torch.strided, device = device(type='cpu'), pin_memory = False)
         where_10 = torch.ops.aten.where.self(logical_and_8, mul_9, full_default_9);  logical_and_8 = mul_9 = full_default_9 = None
         index_2 = torch.ops.aten.index.Tensor(arg0_1, [view_5, view_6, where_9, where_8]);  where_9 = where_8 = None
         mul_13 = torch.ops.aten.mul.Tensor(index_2, where_10);  index_2 = where_10 = None
@@ -169,11 +167,11 @@ class Repro(torch.nn.Module):
         logical_and_11 = torch.ops.aten.logical_and.default(ge_6, logical_and_10);  ge_6 = logical_and_10 = None
         convert_element_type_10 = torch.ops.prims.convert_element_type.default(add_6, torch.int64);  add_6 = None
         convert_element_type_11 = torch.ops.prims.convert_element_type.default(add_7, torch.int64);  add_7 = None
-        full_default_10 = torch.ops.aten.full.default([], 0, dtype = torch.int64, layout = torch.strided, device = device(type='cuda', index=0), pin_memory = False)
+        full_default_10 = torch.ops.aten.full.default([], 0, dtype = torch.int64, layout = torch.strided, device = device(type='cpu'), pin_memory = False)
         where_11 = torch.ops.aten.where.self(logical_and_11, convert_element_type_10, full_default_10);  convert_element_type_10 = full_default_10 = None
-        full_default_11 = torch.ops.aten.full.default([], 0, dtype = torch.int64, layout = torch.strided, device = device(type='cuda', index=0), pin_memory = False)
+        full_default_11 = torch.ops.aten.full.default([], 0, dtype = torch.int64, layout = torch.strided, device = device(type='cpu'), pin_memory = False)
         where_12 = torch.ops.aten.where.self(logical_and_11, convert_element_type_11, full_default_11);  convert_element_type_11 = full_default_11 = None
-        full_default_12 = torch.ops.aten.full.default([], 0.0, dtype = torch.float32, layout = torch.strided, device = device(type='cuda', index=0), pin_memory = False)
+        full_default_12 = torch.ops.aten.full.default([], 0.0, dtype = torch.float32, layout = torch.strided, device = device(type='cpu'), pin_memory = False)
         where_13 = torch.ops.aten.where.self(logical_and_11, mul_10, full_default_12);  logical_and_11 = mul_10 = full_default_12 = None
         index_3 = torch.ops.aten.index.Tensor(arg0_1, [view_5, view_6, where_12, where_11]);  arg0_1 = view_5 = view_6 = where_12 = where_11 = None
         mul_14 = torch.ops.aten.mul.Tensor(index_3, where_13);  index_3 = where_13 = None
@@ -181,9 +179,9 @@ class Repro(torch.nn.Module):
         return (add_10,)
         
 def load_args(reader):
-    buf0 = reader.storage(None, 3775680, device=device(type='cuda', index=0))
+    buf0 = reader.storage(None, 3775680)
     reader.tensor(buf0, (2, 3, 345, 456), is_leaf=True)  # arg0_1
-    buf1 = reader.storage(None, 48, device=device(type='cuda', index=0))
+    buf1 = reader.storage(None, 48)
     reader.tensor(buf1, (2, 2, 3), is_leaf=True)  # arg1_1
 load_args._version = 0
 mod = Repro()

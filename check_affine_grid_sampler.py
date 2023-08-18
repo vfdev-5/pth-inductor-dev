@@ -22,7 +22,6 @@ torch.set_printoptions(precision=7)
 def transform(img, theta, align_corners, mode):
     n, c, h, w = img.shape
     grid = affine_grid(theta, size=(n, c, h, w), align_corners=align_corners)
-
     output = grid_sample(img, grid, align_corners=align_corners, mode=mode)
     return output
 
@@ -32,8 +31,8 @@ s1 = 1.23
 s2 = 1.34
 ca, sa = torch.cos(a), torch.sin(a)
 
-# device = "cpu"
-device = "cuda"
+device = "cpu"
+# device = "cuda"
 
 torch.manual_seed(12)
 num_threads = 1
@@ -45,8 +44,9 @@ memory_format = torch.contiguous_format
 dtype = torch.float32
 
 align_corners = False
-# mode = "bicubic"
-mode = "bilinear"
+# mode = "nearest"
+mode = "bicubic"
+# mode = "bilinear"
 
 n, c, h, w = 2, 3, 345, 456
 theta = torch.tensor([[
@@ -65,6 +65,11 @@ c_transform = torch.compile(transform)
 output = c_transform(x, theta, align_corners, mode)
 expected = transform(x, theta, align_corners, mode)
 
+print("input:", x.shape, x.stride(), x.dtype)
+print("output:", output.shape, output.stride(), output.dtype)
+print("expected:", expected.shape, expected.stride(), expected.dtype)
+
+assert x.stride() == output.stride(), (x.stride(), output.stride())
 
 adiff = (output.float() - expected.float()).abs()
 m = adiff > 1e-3

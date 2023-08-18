@@ -19,7 +19,7 @@ async_compile = AsyncCompile()
 
 
 cpp_fused_affine_grid_generator_grid_sampler_2d_0 = async_compile.cpp('''
-#include "/tmp/torchinductor_root/zr/czrrhd67iy62iqdam5uwroq4ibq3i5oo4yzl6euetoa7k25vfk35.h"
+#include "/tmp/torchinductor_root/i5/ci5uspp363v3ky6jkccllm3bxudy2fkdpqinkqhmpehfihejs7ko.h"
 extern "C" void kernel(float* in_out_ptr0,
                        const float* in_ptr0,
                        const float* in_ptr1,
@@ -373,5 +373,5 @@ def benchmark_compiled_module(times=10, repeat=10):
 
 
 if __name__ == "__main__":
-    from torch._inductor.utils import compiled_module_main
+    from torch._inductor.wrapper_benchmark import compiled_module_main
     compiled_module_main('None', benchmark_compiled_module)

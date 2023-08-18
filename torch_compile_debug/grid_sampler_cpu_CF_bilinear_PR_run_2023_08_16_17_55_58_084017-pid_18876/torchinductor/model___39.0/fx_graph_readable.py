@@ -29,19 +29,20 @@ class <lambda>(torch.nn.Module):
         constant_pad_nd_2: f32[1, 1, 3] = torch.ops.aten.constant_pad_nd.default(full_default, [2, 0], 0.0);  full_default = None
         add_2: f32[345, 456, 3] = torch.ops.aten.add.Tensor(constant_pad_nd, constant_pad_nd_1);  constant_pad_nd = constant_pad_nd_1 = None
         add_3: f32[345, 456, 3] = torch.ops.aten.add.Tensor(add_2, constant_pad_nd_2);  add_2 = constant_pad_nd_2 = None
-        unsqueeze: f32[345, 456, 3, 1] = torch.ops.aten.unsqueeze.default(add_3, -1);  add_3 = None
+        view_2: f32[157320, 3, 1] = torch.ops.aten.view.default(add_3, [-1, 3, 1]);  add_3 = None
         permute: f32[2, 3, 2] = torch.ops.aten.permute.default(arg1_1, [0, 2, 1]);  arg1_1 = None
-        view_2: f32[2, 1, 1, 3, 2] = torch.ops.aten.view.default(permute, [2, 1, 1, 3, 2]);  permute = None
-        mul_4: f32[2, 345, 456, 3, 2] = torch.ops.aten.mul.Tensor(unsqueeze, view_2);  unsqueeze = view_2 = None
-        sum_1: f32[2, 345, 456, 2] = torch.ops.aten.sum.dim_IntList(mul_4, [-2]);  mul_4 = None
+        unsqueeze: f32[2, 1, 3, 2] = torch.ops.aten.unsqueeze.default(permute, 1);  permute = None
+        mul_4: f32[2, 157320, 3, 2] = torch.ops.aten.mul.Tensor(view_2, unsqueeze);  view_2 = unsqueeze = None
+        sum_1: f32[2, 157320, 2] = torch.ops.aten.sum.dim_IntList(mul_4, [-2]);  mul_4 = None
+        view_3: f32[2, 345, 456, 2] = torch.ops.aten.view.default(sum_1, [2, 345, 456, 2]);  sum_1 = None
         
-        # File: check_affine_grid_sampler.py:26, code: output = grid_sample(img, grid, align_corners=align_corners, mode=mode)
-        view_3: f32[2, 1, 345, 456, 2] = torch.ops.aten.view.default(sum_1, [2, 1, 345, 456, 2]);  sum_1 = None
-        expand: f32[2, 3, 345, 456, 2] = torch.ops.aten.expand.default(view_3, [2, 3, 345, 456, 2]);  view_3 = None
+        # File: check_affine_grid_sampler.py:25, code: output = grid_sample(img, grid, align_corners=align_corners, mode=mode)
+        view_4: f32[2, 1, 345, 456, 2] = torch.ops.aten.view.default(view_3, [2, 1, 345, 456, 2]);  view_3 = None
+        expand: f32[2, 3, 345, 456, 2] = torch.ops.aten.expand.default(view_4, [2, 3, 345, 456, 2]);  view_4 = None
         iota_2: i64[2] = torch.ops.prims.iota.default(2, start = 0, step = 1, dtype = torch.int64, device = device(type='cpu'), requires_grad = False)
-        view_4: i64[2, 1, 1, 1] = torch.ops.aten.view.default(iota_2, [2, 1, 1, 1]);  iota_2 = None
+        view_5: i64[2, 1, 1, 1] = torch.ops.aten.view.default(iota_2, [2, 1, 1, 1]);  iota_2 = None
         iota_3: i64[3] = torch.ops.prims.iota.default(3, start = 0, step = 1, dtype = torch.int64, device = device(type='cpu'), requires_grad = False)
-        view_5: i64[1, 3, 1, 1] = torch.ops.aten.view.default(iota_3, [1, 3, 1, 1]);  iota_3 = None
+        view_6: i64[1, 3, 1, 1] = torch.ops.aten.view.default(iota_3, [1, 3, 1, 1]);  iota_3 = None
         select: f32[2, 3, 345, 456] = torch.ops.aten.select.int(expand, 4, 0)
         select_1: f32[2, 3, 345, 456] = torch.ops.aten.select.int(expand, 4, 1);  expand = None
         mul_5: f32[2, 3, 345, 456] = torch.ops.aten.mul.Tensor(select, 228.0);  select = None
@@ -79,7 +80,7 @@ class <lambda>(torch.nn.Module):
         where_3: i64[2, 3, 345, 456] = torch.ops.aten.where.self(logical_and_2, convert_element_type_5, full_default_2);  convert_element_type_5 = full_default_2 = None
         full_default_3: f32[] = torch.ops.aten.full.default([], 0.0, dtype = torch.float32, layout = torch.strided, device = device(type='cpu'), pin_memory = False)
         where_4: f32[2, 3, 345, 456] = torch.ops.aten.where.self(logical_and_2, mul_7, full_default_3);  logical_and_2 = mul_7 = full_default_3 = None
-        index: f32[2, 3, 345, 456] = torch.ops.aten.index.Tensor(arg0_1, [view_4, view_5, where_3, where_2]);  where_3 = where_2 = None
+        index: f32[2, 3, 345, 456] = torch.ops.aten.index.Tensor(arg0_1, [view_5, view_6, where_3, where_2]);  where_3 = where_2 = None
         mul_11: f32[2, 3, 345, 456] = torch.ops.aten.mul.Tensor(index, where_4);  index = where_4 = None
         ge_2: b8[2, 3, 345, 456] = torch.ops.aten.ge.Scalar(add_6, 0)
         lt_4: b8[2, 3, 345, 456] = torch.ops.aten.lt.Scalar(add_6, 456)
@@ -96,7 +97,7 @@ class <lambda>(torch.nn.Module):
         where_6: i64[2, 3, 345, 456] = torch.ops.aten.where.self(logical_and_5, convert_element_type_7, full_default_5);  convert_element_type_7 = full_default_5 = None
         full_default_6: f32[] = torch.ops.aten.full.default([], 0.0, dtype = torch.float32, layout = torch.strided, device = device(type='cpu'), pin_memory = False)
         where_7: f32[2, 3, 345, 456] = torch.ops.aten.where.self(logical_and_5, mul_8, full_default_6);  logical_and_5 = mul_8 = full_default_6 = None
-        index_1: f32[2, 3, 345, 456] = torch.ops.aten.index.Tensor(arg0_1, [view_4, view_5, where_6, where_5]);  where_6 = where_5 = None
+        index_1: f32[2, 3, 345, 456] = torch.ops.aten.index.Tensor(arg0_1, [view_5, view_6, where_6, where_5]);  where_6 = where_5 = None
         mul_12: f32[2, 3, 345, 456] = torch.ops.aten.mul.Tensor(index_1, where_7);  index_1 = where_7 = None
         add_8: f32[2, 3, 345, 456] = torch.ops.aten.add.Tensor(mul_11, mul_12);  mul_11 = mul_12 = None
         ge_4: b8[2, 3, 345, 456] = torch.ops.aten.ge.Scalar(floor, 0)
@@ -114,7 +115,7 @@ class <lambda>(torch.nn.Module):
         where_9: i64[2, 3, 345, 456] = torch.ops.aten.where.self(logical_and_8, convert_element_type_9, full_default_8);  convert_element_type_9 = full_default_8 = None
         full_default_9: f32[] = torch.ops.aten.full.default([], 0.0, dtype = torch.float32, layout = torch.strided, device = device(type='cpu'), pin_memory = False)
         where_10: f32[2, 3, 345, 456] = torch.ops.aten.where.self(logical_and_8, mul_9, full_default_9);  logical_and_8 = mul_9 = full_default_9 = None
-        index_2: f32[2, 3, 345, 456] = torch.ops.aten.index.Tensor(arg0_1, [view_4, view_5, where_9, where_8]);  where_9 = where_8 = None
+        index_2: f32[2, 3, 345, 456] = torch.ops.aten.index.Tensor(arg0_1, [view_5, view_6, where_9, where_8]);  where_9 = where_8 = None
         mul_13: f32[2, 3, 345, 456] = torch.ops.aten.mul.Tensor(index_2, where_10);  index_2 = where_10 = None
         add_9: f32[2, 3, 345, 456] = torch.ops.aten.add.Tensor(add_8, mul_13);  add_8 = mul_13 = None
         ge_6: b8[2, 3, 345, 456] = torch.ops.aten.ge.Scalar(add_6, 0)
@@ -132,7 +133,7 @@ class <lambda>(torch.nn.Module):
         where_12: i64[2, 3, 345, 456] = torch.ops.aten.where.self(logical_and_11, convert_element_type_11, full_default_11);  convert_element_type_11 = full_default_11 = None
         full_default_12: f32[] = torch.ops.aten.full.default([], 0.0, dtype = torch.float32, layout = torch.strided, device = device(type='cpu'), pin_memory = False)
         where_13: f32[2, 3, 345, 456] = torch.ops.aten.where.self(logical_and_11, mul_10, full_default_12);  logical_and_11 = mul_10 = full_default_12 = None
-        index_3: f32[2, 3, 345, 456] = torch.ops.aten.index.Tensor(arg0_1, [view_4, view_5, where_12, where_11]);  arg0_1 = view_4 = view_5 = where_12 = where_11 = None
+        index_3: f32[2, 3, 345, 456] = torch.ops.aten.index.Tensor(arg0_1, [view_5, view_6, where_12, where_11]);  arg0_1 = view_5 = view_6 = where_12 = where_11 = None
         mul_14: f32[2, 3, 345, 456] = torch.ops.aten.mul.Tensor(index_3, where_13);  index_3 = where_13 = None
         add_10: f32[2, 3, 345, 456] = torch.ops.aten.add.Tensor(add_9, mul_14);  add_9 = mul_14 = None
         return (add_10,)
