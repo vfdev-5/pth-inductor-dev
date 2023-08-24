@@ -37,7 +37,7 @@ def transform(img, theta, mode, align_corners):
     return output
 
 
-def run_benchmark(mode, align_corners, memory_format, dtype, device, tag="", min_run_time=5.0):
+def run_benchmark(mode, align_corners, memory_format, dtype, device, tag="", min_run_time=5.0, n=2):
     results = []
     torch.manual_seed(12)
 
@@ -46,7 +46,7 @@ def run_benchmark(mode, align_corners, memory_format, dtype, device, tag="", min
     s1 = 1.23
     s2 = 1.34
 
-    n, c, h, w = 2, 3, 345, 456
+    c, h, w = 3, 345, 456
 
     theta = torch.tensor([[
         [ca / s1, sa, 0.0],
@@ -123,15 +123,16 @@ def main(
 
     test_results = []
 
-    for device in ["cpu", "cuda"]:
-        for mode in ["bilinear", "nearest", "bicubic"]:
-            for align_corners in [True, False]:
-                for memory_format in [torch.contiguous_format, torch.channels_last]:
-                    for dtype in [torch.float32, ]:
+    for n in [2, 1]:
+        for device in ["cpu", "cuda"]:
+            for mode in ["bilinear", "nearest", "bicubic"]:
+                for align_corners in [True, False]:
+                    for memory_format in [torch.contiguous_format, torch.channels_last]:
+                        for dtype in [torch.float32, ]:
 
-                        test_results += run_benchmark(
-                            mode, align_corners, memory_format, dtype, device, tag, min_run_time
-                        )
+                            test_results += run_benchmark(
+                                mode, align_corners, memory_format, dtype, device, tag, min_run_time, n=n
+                            )
 
     with open(output_filepath, "wb") as handler:
         output = {

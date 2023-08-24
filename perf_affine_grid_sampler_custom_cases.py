@@ -52,7 +52,6 @@ def run_benchmark(mode, align_corners, memory_format, dtype, device, tag="", min
     ]])
     theta = theta.expand(n, 2, 3).contiguous()
 
-
     x = torch.arange(n * c * h * w, device=device).reshape(n, c, h, w).to(torch.uint8)
     x = x.to(dtype=dtype)
     x = x.contiguous(memory_format=memory_format)
@@ -101,7 +100,7 @@ def run_benchmark(mode, align_corners, memory_format, dtype, device, tag="", min
 
 
 def main(
-    min_run_time: float = 5.0,
+    min_run_time: float = 10.0,
     tag: str = "",
     num_threads: int = 1,
 ):
@@ -119,14 +118,17 @@ def main(
 
     test_results = []
 
-    for n in [1, 2]:
+    for n in [2, 1]:
+    # for n in [1, 2]:
+    # for n in [2, ]:
         # for device in ["cpu", "cuda"]:
-        # for device in ["cuda", ]:
-        for device in ["cpu", ]:
-            # for mode in ["bicubic", ]:
+        for device in ["cuda", ]:
+        # for device in ["cpu", ]:
+            for mode in ["bicubic", ]:
             # for mode in ["bilinear", ]:
-            for mode in ["nearest", "bilinear", "bicubic"]:
-                for align_corners in [True, False]:
+            # for mode in ["nearest", "bilinear", "bicubic"]:
+                # for align_corners in [True, False]:
+                for align_corners in [False, ]:
                     for memory_format in [torch.contiguous_format, torch.channels_last]:
                     # for memory_format in [torch.channels_last, ]:
                         for dtype in [torch.float32, ]:

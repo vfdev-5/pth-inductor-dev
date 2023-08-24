@@ -362,3 +362,29 @@ Times are in microseconds (us).
 ```
 pytest -vvv test/test_meta.py::TestMetaCUDA::test_dispatch_symbolic_meta_outplace_all_strides_grid_sampler_2d_cuda_float32
 ```
+
+
+### Triton code dynamic vs static bs=2
+
+```
+root@server:/tmp/pth/inductor# python -u /tmp/pth/inductor/torch_compile_debug/grid_sampler_cuda_CL_bicubic_bs_1_2_run_2023_08_24_12_18_19_449318-pid_2816/torchinductor/model__14_inference_40.1/output_code_updated.py
+0.001443
+root@server:/tmp/pth/inductor# python -u /tmp/pth/inductor/torch_compile_debug/grid_sampler_cuda_CL_bicubic_bs_2_1_run_2023_08_24_12_10_00_590042-pid_2685/torchinductor/model___39.0/output_code_updated.py
+0.001367
+```
+
+- Install the latest triton from pytorch requirements:
+```
+# setup.py:
+
+        triton_pin_file = os.path.join(
+            cwd, ".ci", "docker", "ci_commit_pins", triton_text_file
+        )
+        triton_version_file = os.path.join(cwd, ".ci", "docker", "triton_version.txt")
+
+```
+
+```
+pip install 'pytorch-triton==2.1.0+440fd1bf20' --index-url https://download.pytorch.org/whl/nightly/cu117
+pip install 'pytorch-triton==2.1.0+e6216047b8' --index-url https://download.pytorch.org/whl/nightly/cu117
+```

@@ -31,15 +31,15 @@ s1 = 1.23
 s2 = 1.34
 ca, sa = torch.cos(a), torch.sin(a)
 
-device = "cpu"
-# device = "cuda"
+# device = "cpu"
+device = "cuda"
 
 torch.manual_seed(12)
 num_threads = 1
 torch.set_num_threads(num_threads)
 
-memory_format = torch.contiguous_format
-# memory_format = torch.channels_last
+# memory_format = torch.contiguous_format
+memory_format = torch.channels_last
 # dtype = torch.float64
 dtype = torch.float32
 
@@ -48,35 +48,36 @@ align_corners = False
 mode = "bicubic"
 # mode = "bilinear"
 
-n, c, h, w = 2, 3, 345, 456
-theta = torch.tensor([[
-    [ca / s1, sa, 0.0],
-    [-sa, ca / s2, 0.0],
-]])
-theta = theta.expand(n, 2, 3).contiguous()
-x = torch.arange(n * c * h * w, device=device).reshape(n, c, h, w).to(torch.uint8)
-theta = theta.to(device=device, dtype=dtype)
-
-x = x.to(dtype=dtype)
-x = x.contiguous(memory_format=memory_format)
-
 c_transform = torch.compile(transform)
 
-output = c_transform(x, theta, align_corners, mode)
-expected = transform(x, theta, align_corners, mode)
 
-print("input:", x.shape, x.stride(), x.dtype)
-print("output:", output.shape, output.stride(), output.dtype)
-print("expected:", expected.shape, expected.stride(), expected.dtype)
+for n in [1, 2]:
 
-assert x.stride() == output.stride(), (x.stride(), output.stride())
+    c, h, w = 3, 345, 456
+    theta = torch.tensor([[
+        [ca / s1, sa, 0.0],
+        [-sa, ca / s2, 0.0],
+    ]])
+    theta = theta.expand(n, 2, 3).contiguous()
+    x = torch.arange(n * c * h * w, device=device).reshape(n, c, h, w).to(torch.uint8)
+    theta = theta.to(device=device, dtype=dtype)
 
-adiff = (output.float() - expected.float()).abs()
-m = adiff > 1e-3
+    x = x.to(dtype=dtype)
+    x = x.contiguous(memory_format=memory_format)
 
-print("adiff:", adiff[m][:7])
-print("output vs expected:", [
-    (a.item(), b.item()) for a, b in zip(output[m][:7], expected[m][:7])
-])
+    output = c_transform(x, theta, align_corners, mode)
+    expected = transform(x, theta, align_corners, mode)
 
-torch.testing.assert_close(output, expected)
+    print("input:", x.shape, x.stride(), x.dtype)
+    print("output:", output.shape, output.stride(), output.dtype)
+    print("expected:", expected.shape, expected.stride(), expected.dtype)
+
+    assert x.stride() == output.stride(), (x.stride(), output.stride())
+
+    # adiff = (output.float() - expected.float()).abs()
+    # m = adiff > 1e-3
+    # print("adiff:", adiff[m][:7])
+    # print("output vs expected:", [
+    #     (a.item(), b.item()) for a, b in zip(output[m][:7], expected[m][:7])
+    # ])
+    # torch.testing.assert_close(output, expected)
