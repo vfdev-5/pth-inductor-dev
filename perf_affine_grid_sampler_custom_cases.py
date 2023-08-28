@@ -118,17 +118,18 @@ def main(
 
     test_results = []
 
-    for n in [2, 1]:
+    for n in [8, ]:
+    # for n in [2, 1]:
     # for n in [1, 2]:
     # for n in [2, ]:
         # for device in ["cpu", "cuda"]:
-        for device in ["cuda", ]:
-        # for device in ["cpu", ]:
-            for mode in ["bicubic", ]:
+        # for device in ["cuda", ]:
+        for device in ["cpu", ]:
+            # for mode in ["bicubic", ]:
             # for mode in ["bilinear", ]:
-            # for mode in ["nearest", "bilinear", "bicubic"]:
-                # for align_corners in [True, False]:
-                for align_corners in [False, ]:
+            for mode in ["nearest", "bilinear", "bicubic"]:
+                for align_corners in [True, False]:
+                # for align_corners in [False, ]:
                     for memory_format in [torch.contiguous_format, torch.channels_last]:
                     # for memory_format in [torch.channels_last, ]:
                         for dtype in [torch.float32, ]:

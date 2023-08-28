@@ -123,7 +123,7 @@ def main(
 
     test_results = []
 
-    for n in [2, 1]:
+    for n in [8, ]:
         for device in ["cpu", "cuda"]:
             for mode in ["bilinear", "nearest", "bicubic"]:
                 for align_corners in [True, False]:

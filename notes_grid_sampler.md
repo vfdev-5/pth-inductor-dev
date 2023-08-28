@@ -357,6 +357,184 @@ Times are in milliseconds (ms).
 Times are in microseconds (us).
 ```
 
+
+#### Always grid expand
+
+```
+Num threads: 1
+
+[----------------------------------------------------------------------- Affine grid sampling, cpu -----------------------------------------------------------------------]
+                                                                                                          |  Eager (2.1.0a0+gite91e17c)   |  Compiled (2.1.0a0+gite91e17c)
+1 threads: ----------------------------------------------------------------------------------------------------------------------------------------------------------------
+      Input: (4, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=True, mode=nearest    |        10.920 (+-0.094)       |         12.420 (+-0.129)
+      Input: (4, 3, 345, 456) torch.float32, torch.channels_last, align_corners=True, mode=nearest        |        9.079 (+-0.131)        |         12.040 (+-0.139)
+      Input: (4, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=False, mode=nearest   |        11.493 (+-0.213)       |         11.880 (+-0.187)
+      Input: (4, 3, 345, 456) torch.float32, torch.channels_last, align_corners=False, mode=nearest       |        8.709 (+-0.100)        |         11.379 (+-0.189)
+
+      Input: (4, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=True, mode=bilinear   |        16.098 (+-0.077)       |         30.952 (+-0.072)
+      Input: (4, 3, 345, 456) torch.float32, torch.channels_last, align_corners=True, mode=bilinear       |        15.612 (+-0.071)       |         24.676 (+-0.178)
+      Input: (4, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=False, mode=bilinear  |        16.268 (+-0.073)       |         50.222 (+-0.116)
+      Input: (4, 3, 345, 456) torch.float32, torch.channels_last, align_corners=False, mode=bilinear      |        15.648 (+-0.067)       |         24.503 (+-0.173)
+
+      Input: (4, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=True, mode=bicubic    |        55.915 (+-0.205)       |         56.649 (+-0.376)
+      Input: (4, 3, 345, 456) torch.float32, torch.channels_last, align_corners=True, mode=bicubic        |        56.323 (+-0.519)       |         62.259 (+-0.580)
+      Input: (4, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=False, mode=bicubic   |        55.144 (+-0.197)       |         55.687 (+-0.159)
+      Input: (4, 3, 345, 456) torch.float32, torch.channels_last, align_corners=False, mode=bicubic       |        54.224 (+-1.279)       |         63.099 (+-0.421)
+
+Times are in milliseconds (ms).
+
+
+Num threads: 1
+
+[----------------------------------------------------------------------- Affine grid sampling, cpu -----------------------------------------------------------------------]
+                                                                                                          |  Eager (2.1.0a0+gite91e17c)   |  Compiled (2.1.0a0+gite91e17c)
+1 threads: ----------------------------------------------------------------------------------------------------------------------------------------------------------------
+      Input: (8, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=True, mode=nearest    |        24.223 (+-0.190)       |         27.524 (+-0.068)
+      Input: (8, 3, 345, 456) torch.float32, torch.channels_last, align_corners=True, mode=nearest        |        19.387 (+-0.111)       |         26.169 (+-0.139)
+      Input: (8, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=False, mode=nearest   |        24.454 (+-0.173)       |         26.196 (+-0.091)
+      Input: (8, 3, 345, 456) torch.float32, torch.channels_last, align_corners=False, mode=nearest       |        19.353 (+-0.154)       |         25.377 (+-0.086)
+
+      Input: (8, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=True, mode=bilinear   |        33.420 (+-0.705)       |        76.058 (+-10.213)
+      Input: (8, 3, 345, 456) torch.float32, torch.channels_last, align_corners=True, mode=bilinear       |        32.944 (+-0.093)       |         52.262 (+-0.161)
+      Input: (8, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=False, mode=bilinear  |        33.582 (+-0.189)       |         62.485 (+-0.641)
+      Input: (8, 3, 345, 456) torch.float32, torch.channels_last, align_corners=False, mode=bilinear      |        34.328 (+-0.216)       |         51.800 (+-0.176)
+
+      Input: (8, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=True, mode=bicubic    |       114.433 (+-0.585)       |        113.452 (+-1.224)
+      Input: (8, 3, 345, 456) torch.float32, torch.channels_last, align_corners=True, mode=bicubic        |       117.342 (+-0.618)       |        127.084 (+-0.627)
+      Input: (8, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=False, mode=bicubic   |       110.853 (+-0.804)       |        111.042 (+-0.547)
+      Input: (8, 3, 345, 456) torch.float32, torch.channels_last, align_corners=False, mode=bicubic       |       110.162 (+-0.647)       |        133.352 (+-1.416)
+
+Times are in milliseconds (ms).
+```
+
+
+
+#### Always not expand grid on CPU
+
+```
+Num threads: 1
+
+[----------------------------------------------------------------------- Affine grid sampling, cpu -----------------------------------------------------------------------]
+                                                                                                          |  Eager (2.1.0a0+gite91e17c)   |  Compiled (2.1.0a0+gite91e17c)
+1 threads: ----------------------------------------------------------------------------------------------------------------------------------------------------------------
+      Input: (4, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=True, mode=nearest    |        11.661 (+-0.068)       |         12.543 (+-0.116)
+      Input: (4, 3, 345, 456) torch.float32, torch.channels_last, align_corners=True, mode=nearest        |        9.074 (+-0.041)        |         12.010 (+-0.105)
+      Input: (4, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=False, mode=nearest   |        11.727 (+-0.047)       |         11.944 (+-0.115)
+      Input: (4, 3, 345, 456) torch.float32, torch.channels_last, align_corners=False, mode=nearest       |        9.135 (+-0.047)        |         11.564 (+-0.696)
+
+      Input: (4, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=True, mode=bilinear   |        16.087 (+-0.069)       |         24.029 (+-0.060)
+      Input: (4, 3, 345, 456) torch.float32, torch.channels_last, align_corners=True, mode=bilinear       |        15.581 (+-0.066)       |         29.575 (+-0.087)
+      Input: (4, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=False, mode=bilinear  |        16.175 (+-0.208)       |         22.890 (+-0.066)
+      Input: (4, 3, 345, 456) torch.float32, torch.channels_last, align_corners=False, mode=bilinear      |        15.611 (+-0.072)       |         28.795 (+-0.100)
+
+      Input: (4, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=True, mode=bicubic    |        56.105 (+-0.181)       |        133.074 (+-2.646)
+      Input: (4, 3, 345, 456) torch.float32, torch.channels_last, align_corners=True, mode=bicubic        |        56.418 (+-0.146)       |        142.892 (+-1.271)
+      Input: (4, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=False, mode=bicubic   |        55.227 (+-0.151)       |        126.880 (+-1.181)
+      Input: (4, 3, 345, 456) torch.float32, torch.channels_last, align_corners=False, mode=bicubic       |        55.264 (+-0.709)       |        145.390 (+-0.947)
+
+Times are in milliseconds (ms).
+
+
+```
+
+#### Do not expand grid on CPU bilinear only:
+```
+Num threads: 1
+
+[----------------------------------------------------------------------- Affine grid sampling, cpu -----------------------------------------------------------------------]
+                                                                                                          |  Eager (2.1.0a0+gite91e17c)   |  Compiled (2.1.0a0+gite91e17c)
+1 threads: ----------------------------------------------------------------------------------------------------------------------------------------------------------------
+      Input: (4, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=True, mode=nearest    |        12.619 (+-0.182)       |         12.689 (+-0.128)
+      Input: (4, 3, 345, 456) torch.float32, torch.channels_last, align_corners=True, mode=nearest        |        9.074 (+-0.046)        |         12.054 (+-0.105)
+      Input: (4, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=False, mode=nearest   |        11.598 (+-0.062)       |         11.907 (+-0.137)
+      Input: (4, 3, 345, 456) torch.float32, torch.channels_last, align_corners=False, mode=nearest       |        8.701 (+-0.110)        |         11.402 (+-0.608)
+
+      Input: (4, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=True, mode=bilinear   |        18.488 (+-0.065)       |         23.981 (+-0.074)
+      Input: (4, 3, 345, 456) torch.float32, torch.channels_last, align_corners=True, mode=bilinear       |        17.129 (+-0.064)       |         29.581 (+-0.088)
+      Input: (4, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=False, mode=bilinear  |        18.468 (+-0.291)       |         22.946 (+-0.072)
+      Input: (4, 3, 345, 456) torch.float32, torch.channels_last, align_corners=False, mode=bilinear      |        17.024 (+-0.113)       |         28.770 (+-0.092)
+
+      Input: (4, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=True, mode=bicubic    |        56.364 (+-0.289)       |         56.793 (+-2.661)
+      Input: (4, 3, 345, 456) torch.float32, torch.channels_last, align_corners=True, mode=bicubic        |        56.534 (+-1.954)       |         62.395 (+-1.448)
+      Input: (4, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=False, mode=bicubic   |        54.886 (+-0.462)       |         55.666 (+-0.128)
+      Input: (4, 3, 345, 456) torch.float32, torch.channels_last, align_corners=False, mode=bicubic       |        55.268 (+-0.155)       |         63.214 (+-0.993)
+
+Times are in milliseconds (ms).
+
+Num threads: 1
+
+[----------------------------------------------------------------------- Affine grid sampling, cpu -----------------------------------------------------------------------]
+                                                                                                          |  Eager (2.1.0a0+gite91e17c)   |  Compiled (2.1.0a0+gite91e17c)
+1 threads: ----------------------------------------------------------------------------------------------------------------------------------------------------------------q
+      Input: (8, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=True, mode=nearest    |        24.144 (+-0.073)       |         27.548 (+-0.229)
+      Input: (8, 3, 345, 456) torch.float32, torch.channels_last, align_corners=True, mode=nearest        |        19.260 (+-0.094)       |         26.073 (+-0.533)
+      Input: (8, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=False, mode=nearest   |        24.347 (+-0.093)       |         26.131 (+-0.051)
+      Input: (8, 3, 345, 456) torch.float32, torch.channels_last, align_corners=False, mode=nearest       |        19.799 (+-0.598)       |         25.193 (+-0.056)
+
+      Input: (8, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=True, mode=bilinear   |        38.580 (+-0.109)       |         47.850 (+-0.092)
+      Input: (8, 3, 345, 456) torch.float32, torch.channels_last, align_corners=True, mode=bilinear       |        35.901 (+-0.105)       |         59.056 (+-0.105)
+      Input: (8, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=False, mode=bilinear  |        38.426 (+-0.130)       |         45.719 (+-0.100)
+      Input: (8, 3, 345, 456) torch.float32, torch.channels_last, align_corners=False, mode=bilinear      |        35.793 (+-0.126)       |         57.566 (+-0.262)
+
+      Input: (8, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=True, mode=bicubic    |       114.401 (+-0.732)       |        113.088 (+-1.171)
+      Input: (8, 3, 345, 456) torch.float32, torch.channels_last, align_corners=True, mode=bicubic        |       116.188 (+-0.629)       |        126.037 (+-0.385)
+      Input: (8, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=False, mode=bicubic   |       110.960 (+-0.439)       |        111.481 (+-0.340)
+      Input: (8, 3, 345, 456) torch.float32, torch.channels_last, align_corners=False, mode=bicubic       |       110.528 (+-0.569)       |        130.246 (+-0.784)
+
+Times are in milliseconds (ms).
+```
+
+#### Do not expand the grid on CPU bilinear CL only:
+```
+Num threads: 1
+
+[------------------------------------------------------------------------- Affine grid sampling, cpu -------------------------------------------------------------------------]
+                                                                                                          |  Eager (2.1.0a0+gite91e17c) PR  |  Compiled (2.1.0a0+gite91e17c) PR
+1 threads: --------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      Input: (8, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=True, mode=nearest    |         24.304 (+-0.070)        |          27.507 (+-0.057)
+      Input: (8, 3, 345, 456) torch.float32, torch.channels_last, align_corners=True, mode=nearest        |         19.306 (+-0.072)        |          26.129 (+-0.085)
+      Input: (8, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=False, mode=nearest   |         24.262 (+-0.103)        |          26.130 (+-0.063)
+      Input: (8, 3, 345, 456) torch.float32, torch.channels_last, align_corners=False, mode=nearest       |         19.406 (+-0.139)        |          25.253 (+-0.096)
+
+      Input: (8, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=True, mode=bilinear   |         37.987 (+-0.105)        |          47.825 (+-0.075)
+      Input: (8, 3, 345, 456) torch.float32, torch.channels_last, align_corners=True, mode=bilinear       |         35.563 (+-0.103)        |          52.158 (+-0.104)
+      Input: (8, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=False, mode=bilinear  |         38.219 (+-0.506)        |          46.043 (+-0.971)
+      Input: (8, 3, 345, 456) torch.float32, torch.channels_last, align_corners=False, mode=bilinear      |         35.347 (+-0.116)        |          52.029 (+-0.125)
+
+      Input: (8, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=True, mode=bicubic    |        114.398 (+-1.256)        |         113.026 (+-0.663)
+      Input: (8, 3, 345, 456) torch.float32, torch.channels_last, align_corners=True, mode=bicubic        |        115.565 (+-0.520)        |         124.275 (+-0.512)
+      Input: (8, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=False, mode=bicubic   |        111.645 (+-2.343)        |         111.035 (+-0.483)
+      Input: (8, 3, 345, 456) torch.float32, torch.channels_last, align_corners=False, mode=bicubic       |        112.581 (+-0.818)        |         127.205 (+-0.961)
+
+Times are in milliseconds (ms).
+```
+
+
+#### Nightly:
+```
+[------------------------------------------------------------------------------ Affine grid sampling, cpu ------------------------------------------------------------------------------]
+                                                                                                          |  Eager (2.1.0a0+gitcf76938) Nightly  |  Compiled (2.1.0a0+gitcf76938) Nightly
+1 threads: ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      Input: (8, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=True, mode=nearest    |           24.367 (+-0.074)           |             27.937 (+-0.081)
+      Input: (8, 3, 345, 456) torch.float32, torch.channels_last, align_corners=True, mode=nearest        |           20.144 (+-0.064)           |             26.092 (+-0.054)
+      Input: (8, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=False, mode=nearest   |           24.515 (+-0.095)           |             26.575 (+-0.061)
+      Input: (8, 3, 345, 456) torch.float32, torch.channels_last, align_corners=False, mode=nearest       |           19.770 (+-0.070)           |             25.259 (+-0.051)
+
+      Input: (8, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=True, mode=bilinear   |           33.654 (+-0.411)           |             47.867 (+-0.124)
+      Input: (8, 3, 345, 456) torch.float32, torch.channels_last, align_corners=True, mode=bilinear       |           32.543 (+-0.198)           |             58.979 (+-0.206)
+      Input: (8, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=False, mode=bilinear  |           33.752 (+-0.116)           |             45.833 (+-0.081)
+      Input: (8, 3, 345, 456) torch.float32, torch.channels_last, align_corners=False, mode=bilinear      |           32.576 (+-0.751)           |             58.360 (+-0.108)
+
+      Input: (8, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=True, mode=bicubic    |          114.609 (+-0.515)           |            248.679 (+-1.431)
+      Input: (8, 3, 345, 456) torch.float32, torch.channels_last, align_corners=True, mode=bicubic        |          115.368 (+-0.652)           |            282.187 (+-2.418)
+      Input: (8, 3, 345, 456) torch.float32, torch.contiguous_format, align_corners=False, mode=bicubic   |          111.285 (+-1.226)           |            253.899 (+-2.226)
+      Input: (8, 3, 345, 456) torch.float32, torch.channels_last, align_corners=False, mode=bicubic       |          110.910 (+-0.969)           |            294.124 (+-1.963)
+
+Times are in milliseconds (ms).
+```
+
+
+
 ### Run Test checking strides between eager vs meta
 
 ```
