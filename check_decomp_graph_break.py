@@ -1,10 +1,11 @@
-# TORCH_COMPILE_DEBUG=1 python check_affine_grid_sampler.py
+# TORCH_COMPILE_DEBUG=1 python check_affine_grid_sampler_fused.py
 
 import os
 
 import torch
 
-from torch.nn.functional import grid_sample, affine_grid
+# from torch.nn.functional import grid_sample, affine_grid
+from torch._decomp.decompositions import _affine_grid_generator_4d as _affine_grid, _grid_sampler_2d as _grid_sample
 
 
 if not ("OMP_NUM_THREADS" in os.environ):
@@ -21,8 +22,8 @@ torch.set_printoptions(precision=7)
 
 def transform(img, theta, align_corners, mode):
     n, c, h, w = img.shape
-    grid = affine_grid(theta, size=(n, c, h, w), align_corners=align_corners)
-    output = grid_sample(img, grid, align_corners=align_corners, mode=mode)
+    grid = _affine_grid(theta, size=(n, c, h, w), align_corners=align_corners)
+    output = _grid_sample(img, grid, align_corners=align_corners, interpolation_mode=mode)
     return output
 
 
@@ -46,7 +47,8 @@ dtype = torch.float32
 align_corners = False
 # mode = "nearest"
 # mode = "bicubic"
-mode = "bilinear"
+# mode = "bilinear"
+mode = 0
 
 c_transform = torch.compile(transform)
 
@@ -66,13 +68,13 @@ for n in [8, ]:
     x = x.contiguous(memory_format=memory_format)
 
     output = c_transform(x, theta, align_corners, mode)
-    expected = transform(x, theta, align_corners, mode)
+    # expected = transform(x, theta, align_corners, mode)
 
     print("input:", x.shape, x.stride(), x.dtype)
     print("output:", output.shape, output.stride(), output.dtype)
-    print("expected:", expected.shape, expected.stride(), expected.dtype)
+    # print("expected:", expected.shape, expected.stride(), expected.dtype)
 
-    assert x.stride() == output.stride(), (x.stride(), output.stride())
+    # assert x.stride() == output.stride(), (x.stride(), output.stride())
 
     # adiff = (output.float() - expected.float()).abs()
     # m = adiff > 1e-3

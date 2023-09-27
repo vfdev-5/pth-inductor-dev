@@ -473,3 +473,45 @@ Times are in microseconds (us).
 
 Times are in microseconds (us).
 ```
+
+
+## MPS failing tests
+
+```
+Job: macos-12-py3-arm64-mps / test (default, 1, 1)
+
+Mismatched elements: 206447 / 437400 (47.2%)
+Greatest absolute difference: 0.0009098052978515625 at index (1, 1, 255, 228) (up to 1e-05 allowed)
+Greatest relative difference: 5.863010883331299 at index (1, 1, 72, 82) (up to 1.3e-06 allowed)
+
+To execute this test, run the following from the base repo dir:
+     python test/test_mps.py -k test_output_grad_match_nn_functional_interpolate_bilinear_cpu_float32
+
+
+Mismatched elements: 219120 / 437400 (50.1%)
+Greatest absolute difference: 1 at index (0, 0, 0, 4)
+Greatest relative difference: 1.0 at index (0, 0, 203, 0)
+
+To execute this test, run the following from the base repo dir:
+     python test/test_mps.py -k test_output_match_nn_functional_upsample_bilinear_cpu_uint8
+
+
+
+Mismatched elements: 52 / 437400 (0.0%)
+Greatest absolute difference: 2 at index (0, 0, 25, 202) (up to 1 allowed)
+Greatest relative difference: 0.0714285746216774 at index (1, 1, 168, 67) (up to 0 allowed)
+
+To execute this test, run the following from the base repo dir:
+     python test/test_mps.py -k test_output_match_nn_functional_interpolate_bilinear_cpu_uint8
+
+
+
+Job: macos-13-py3-arm64-mps / test (default, 1, 1)
+
+Mismatched elements: 52 / 437400 (0.0%)
+Greatest absolute difference: 2 at index (0, 0, 25, 202) (up to 1 allowed)
+Greatest relative difference: 0.0714285746216774 at index (1, 1, 168, 67) (up to 0 allowed)
+
+To execute this test, run the following from the base repo dir:
+     python test/test_mps.py -k test_output_match_nn_functional_interpolate_bilinear_cpu_uint8
+```

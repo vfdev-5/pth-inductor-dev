@@ -566,3 +566,14 @@ root@server:/tmp/pth/inductor# python -u /tmp/pth/inductor/torch_compile_debug/g
 pip install 'pytorch-triton==2.1.0+440fd1bf20' --index-url https://download.pytorch.org/whl/nightly/cu117
 pip install 'pytorch-triton==2.1.0+e6216047b8' --index-url https://download.pytorch.org/whl/nightly/cu117
 ```
+
+
+### Run tests for grid_sampler_3d
+
+
+```
+pytest -vvv test/test_decomp.py -k grid_sample
+pytest -vvv test/functorch/test_aotdispatch.py -k grid_sample
+pytest -vvv test/functorch/test_ops.py -k grid_sample
+pytest -vvv test/test_meta.py -k grid_sample
+```

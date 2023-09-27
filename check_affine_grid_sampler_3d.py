@@ -1,4 +1,4 @@
-# TORCH_COMPILE_DEBUG=1 python check_affine_grid_sampler.py
+# TORCH_COMPILE_DEBUG=1 python check_affine_grid_sampler_3d.py
 
 import os
 
@@ -20,8 +20,8 @@ torch.set_printoptions(precision=7)
 
 
 def transform(img, theta, align_corners, mode):
-    n, c, h, w = img.shape
-    grid = affine_grid(theta, size=(n, c, h, w), align_corners=align_corners)
+    n, c, d, h, w = img.shape
+    grid = affine_grid(theta, size=(n, c, d, h, w), align_corners=align_corners)
     output = grid_sample(img, grid, align_corners=align_corners, mode=mode)
     return output
 
@@ -29,6 +29,7 @@ def transform(img, theta, align_corners, mode):
 a = torch.deg2rad(torch.tensor(45.0))
 s1 = 1.23
 s2 = 1.34
+s3 = 1.45
 ca, sa = torch.cos(a), torch.sin(a)
 
 # device = "cpu"
@@ -53,15 +54,23 @@ c_transform = torch.compile(transform)
 
 for n in [8, ]:
 
-    c, h, w = 3, 345, 456
+    a = torch.deg2rad(torch.tensor(45.0))
+    ca, sa = torch.cos(a), torch.sin(a)
+    s1 = 1.23
+    s2 = 1.34
+    s3 = 1.45
+
+    c, d, h, w = 3, 250, 250, 250
+
     theta = torch.tensor([[
-        [ca / s1, sa, 0.0],
-        [-sa, ca / s2, 0.0],
+        [ca / s1, sa,   sa,   0.1],
+        [-sa, ca / s2,  sa,   0.2],
+        [-sa, -sa, ca / s3,   0.3],
     ]])
-    theta = theta.expand(n, 2, 3).contiguous()
-    x = torch.arange(n * c * h * w, device=device).reshape(n, c, h, w).to(torch.uint8)
+    theta = theta.expand(n, 3, 4).contiguous()
     theta = theta.to(device=device, dtype=dtype)
 
+    x = torch.arange(n * c * d * h * w, device=device).reshape(n, c, d, h, w).to(torch.uint8)
     x = x.to(dtype=dtype)
     x = x.contiguous(memory_format=memory_format)
 

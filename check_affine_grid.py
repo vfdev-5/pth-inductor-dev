@@ -1,10 +1,10 @@
-# TORCH_COMPILE_DEBUG=1 python check_affine_grid_sampler.py
+# TORCH_COMPILE_DEBUG=1 python check_affine_grid.py
 
 import os
 
 import torch
 
-from torch.nn.functional import grid_sample, affine_grid
+from torch.nn.functional import affine_grid
 
 
 if not ("OMP_NUM_THREADS" in os.environ):
@@ -19,11 +19,10 @@ print("")
 torch.set_printoptions(precision=7)
 
 
-def transform(img, theta, align_corners, mode):
+def transform(img, theta, align_corners):
     n, c, h, w = img.shape
     grid = affine_grid(theta, size=(n, c, h, w), align_corners=align_corners)
-    output = grid_sample(img, grid, align_corners=align_corners, mode=mode)
-    return output
+    return grid
 
 
 a = torch.deg2rad(torch.tensor(45.0))
@@ -31,8 +30,8 @@ s1 = 1.23
 s2 = 1.34
 ca, sa = torch.cos(a), torch.sin(a)
 
-# device = "cpu"
-device = "cuda"
+device = "cpu"
+# device = "cuda"
 
 torch.manual_seed(12)
 num_threads = 1
@@ -53,26 +52,32 @@ c_transform = torch.compile(transform)
 
 for n in [8, ]:
 
-    c, h, w = 3, 345, 456
+    a = torch.deg2rad(torch.tensor(45.0))
+    ca, sa = torch.cos(a), torch.sin(a)
+    s1 = 1.23
+    s2 = 1.34
+
+    c, h, w = 5, 10, 10
+
     theta = torch.tensor([[
-        [ca / s1, sa, 0.0],
-        [-sa, ca / s2, 0.0],
+        [ca / s1, sa,  0.1],
+        [-sa, ca / s2, 0.2],
     ]])
     theta = theta.expand(n, 2, 3).contiguous()
-    x = torch.arange(n * c * h * w, device=device).reshape(n, c, h, w).to(torch.uint8)
     theta = theta.to(device=device, dtype=dtype)
 
+    x = torch.arange(n * c * h * w, device=device).reshape(n, c, h, w).to(torch.uint8)
     x = x.to(dtype=dtype)
     x = x.contiguous(memory_format=memory_format)
 
-    output = c_transform(x, theta, align_corners, mode)
-    expected = transform(x, theta, align_corners, mode)
+    output = c_transform(x, theta, align_corners)
+    expected = transform(x, theta, align_corners)
 
     print("input:", x.shape, x.stride(), x.dtype)
     print("output:", output.shape, output.stride(), output.dtype)
     print("expected:", expected.shape, expected.stride(), expected.dtype)
 
-    assert x.stride() == output.stride(), (x.stride(), output.stride())
+    # assert x.stride() == output.stride(), (x.stride(), output.stride())
 
     # adiff = (output.float() - expected.float()).abs()
     # m = adiff > 1e-3
