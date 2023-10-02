@@ -13,8 +13,8 @@ def main():
     results = []
     min_run_time = 10
 
-
-    for bs in [1, 4]:
+    # for bs in [1, 4]:
+    for bs in [4, 1]:
 
         for device in ["cpu", "cuda"]:
 
@@ -24,8 +24,8 @@ def main():
                 torch.set_num_threads(num_threads)
                 for memory_format in [torch.contiguous_format, torch.channels_last]:
                 # for memory_format in [torch.contiguous_format, ]:
-                    # for dtype in [torch.uint8, torch.float32]:
-                    for dtype in [torch.float32, ]:
+                    for dtype in [torch.uint8, torch.float32]:
+                    # for dtype in [torch.float32, ]:
 
                         if device == "cuda" and dtype == torch.uint8:
                             continue

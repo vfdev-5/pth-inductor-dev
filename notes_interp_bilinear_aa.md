@@ -3,6 +3,71 @@
 
 ### Perf results
 
+```bash
+python -u perf_interp_bilinear_aa.py
+```
+
+
+- 28/09/2023
+```
+[---------------------------------- Interpolate bilinear, AA=true, cpu ----------------------------------]
+                                                                                    |  Eager   |  Compiled
+1 threads: -----------------------------------------------------------------------------------------------
+      Input (1, 3, 345, 456) -> (270, 270), torch.uint8, torch.contiguous_format    |   696.9  |   2285.9
+      Input (1, 3, 345, 456) -> (270, 270), torch.float32, torch.contiguous_format  |  1097.5  |   1666.2
+      Input (1, 3, 345, 456) -> (270, 270), torch.uint8, torch.channels_last        |   254.6  |   2851.5
+      Input (1, 3, 345, 456) -> (270, 270), torch.float32, torch.channels_last      |  1571.6  |   1938.2
+      Input (4, 3, 345, 456) -> (270, 270), torch.uint8, torch.contiguous_format    |  2878.1  |  10878.4
+      Input (4, 3, 345, 456) -> (270, 270), torch.float32, torch.contiguous_format  |  4482.9  |   6808.3
+      Input (4, 3, 345, 456) -> (270, 270), torch.uint8, torch.channels_last        |   918.0  |    930.2
+      Input (4, 3, 345, 456) -> (270, 270), torch.float32, torch.channels_last      |  6339.2  |   6391.5
+
+Times are in microseconds (us).
+
+[--------------------------------- Interpolate bilinear, AA=true, cuda ---------------------------------]
+                                                                                    |  Eager  |  Compiled
+1 threads: ----------------------------------------------------------------------------------------------
+      Input (1, 3, 345, 456) -> (270, 270), torch.float32, torch.contiguous_format  |   12.2  |   149.3
+      Input (1, 3, 345, 456) -> (270, 270), torch.float32, torch.channels_last      |   31.9  |   148.4
+      Input (4, 3, 345, 456) -> (270, 270), torch.float32, torch.contiguous_format  |   42.6  |    42.8
+      Input (4, 3, 345, 456) -> (270, 270), torch.float32, torch.channels_last      |   85.0  |    85.3
+
+Times are in microseconds (us).
+
+
+[---------------------------------- Interpolate bilinear, AA=true, cpu ----------------------------------]
+                                                                                    |  Eager   |  Compiled
+1 threads: -----------------------------------------------------------------------------------------------
+      Input (4, 3, 345, 456) -> (270, 270), torch.uint8, torch.contiguous_format    |  3027.9  |  11655.1
+      Input (4, 3, 345, 456) -> (270, 270), torch.float32, torch.contiguous_format  |  4534.1  |   6801.3
+      Input (4, 3, 345, 456) -> (270, 270), torch.uint8, torch.channels_last        |   910.6  |  14586.6
+      Input (4, 3, 345, 456) -> (270, 270), torch.float32, torch.channels_last      |  6346.8  |  10062.5
+      Input (1, 3, 345, 456) -> (270, 270), torch.uint8, torch.contiguous_format    |   639.4  |   2299.0
+      Input (1, 3, 345, 456) -> (270, 270), torch.float32, torch.contiguous_format  |  1136.7  |   1672.4
+      Input (1, 3, 345, 456) -> (270, 270), torch.uint8, torch.channels_last        |   256.7  |    268.4
+      Input (1, 3, 345, 456) -> (270, 270), torch.float32, torch.channels_last      |  1607.1  |   1593.1
+
+Times are in microseconds (us).
+
+[--------------------------------- Interpolate bilinear, AA=true, cuda ---------------------------------]
+                                                                                    |  Eager  |  Compiled
+1 threads: ----------------------------------------------------------------------------------------------
+      Input (4, 3, 345, 456) -> (270, 270), torch.float32, torch.contiguous_format  |   42.4  |   140.3
+      Input (4, 3, 345, 456) -> (270, 270), torch.float32, torch.channels_last      |   85.0  |   140.5
+      Input (1, 3, 345, 456) -> (270, 270), torch.float32, torch.contiguous_format  |   11.9  |    24.2
+      Input (1, 3, 345, 456) -> (270, 270), torch.float32, torch.channels_last      |   29.3  |    44.3
+
+Times are in microseconds (us).
+```
+
+Reported warnings:
+```
+[2023-09-28 14:50:06,548] torch._dynamo.convert_frame: [WARNING] torch._dynamo hit config.cache_size_limit (8)
+[2023-09-28 14:50:06,548] torch._dynamo.convert_frame: [WARNING]    function: 'transform' (perf_interp_bilinear_aa.py:5)
+[2023-09-28 14:50:06,548] torch._dynamo.convert_frame: [WARNING] to diagnose recompilation issues, set env variable TORCHDYNAMO_REPORT_GUARD_FAILURES=1 and also see https://pytorch.org/docs/master/compile/troubleshooting.html.
+```
+
+
 - 27/09/2023
 ```
 Torch version: 2.2.0a0+gitea20db8
@@ -46,14 +111,26 @@ pytest -vvv test/inductor/test_torchinductor_opinfo.py -k "interp or upsampl"
 pytest -vvv test/functorch/test_aotdispatch.py -k "interp or upsampl"
 pytest -vvv test/functorch/test_ops.py -k "interp or upsampl"
 pytest -vvv test/test_meta.py -k "interp or upsampl"
-
+pytest -vvv test/test_proxy_tensor.py -k "interp or upsampl"
 pytest -vvv test/test_decomp.py::HasDecompTest::test_has_decomposition
+pytest -vvv test/functorch/test_vmap.py -k "interp or upsampl"
 
 
 pytest -vvv test/test_proxy_tensor.py::TestProxyTensorOpInfoCPU::test_make_fx_symbolic_exhaustive_nn_functional_interpolate_bilinear_cpu_float32
 pytest -vvv test/test_proxy_tensor.py::TestProxyTensorOpInfoCPU::test_make_fx_symbolic_exhaustive_nn_functional_interpolate_bicubic_cpu_float32
+
+pytest -vvv test/functorch/test_vmap.py::TestVmapOperatorsOpInfoCUDA::test_op_has_batch_rule_nn_functional_interpolate_bicubic_cuda_float32
 ```
 
+
+
+```
+FAILED [1.4041s] test/functorch/test_vmap.py::TestVmapOperatorsOpInfoCUDA::test_op_has_batch_rule_nn_functional_interpolate_bicubic_cuda_float32 - RuntimeError: aten::_upsample_bicubic2d_aa.vec hit the vmap fallback which is currently disabled
+
+FAILED [6.6944s] test/functorch/test_aotdispatch.py::TestEagerFusionOpInfoCPU::test_aot_autograd_symbolic_exhaustive__upsample_bilinear2d_aa_cpu_float32 - Failed: Unexpected success
+FAILED [10.3795s] test/functorch/test_aotdispatch.py::TestEagerFusionOpInfoCPU::test_aot_autograd_symbolic_exhaustive_nn_functional_interpolate_bilinear_cpu_float32 - Failed: Unexpected success
+FAILED [7.5643s] test/test_proxy_tensor.py::TestProxyTensorOpInfoCPU::test_make_fx_symbolic_exhaustive_nn_functional_interpolate_bicubic_cpu_float32 - RuntimeError: Cannot call sizes() on tensor with symbolic sizes/strides
+```
 
 
 ```

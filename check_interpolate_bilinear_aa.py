@@ -21,13 +21,13 @@ c_transform = torch.compile(transform)
 # memory_format = torch.channels_last
 memory_format = torch.contiguous_format
 
-# x = torch.randint(0, 256, size=(2, 3, 345, 456), dtype=torch.uint8)  # Not Yet Supported
+x = torch.randint(0, 256, size=(2, 3, 345, 456), dtype=torch.uint8)  # Not Yet Supported
 # x = torch.arange(3 * 345 * 456, device=device).reshape(1, 3, 345, 456).to(torch.uint8)
 # x = torch.arange(3 * 345 * 456, device=device).reshape(1, 3, 345, 456).to(torch.uint8)
 # x = x.to(torch.float32)
 # x = x.contiguous(memory_format=memory_format)[0]
 
-x = torch.rand(2, 3, 345, 456, device=device)
+# x = torch.rand(2, 3, 345, 456, device=device)
 
 output = c_transform(x)
 expected = transform(x)
@@ -47,13 +47,10 @@ print(expected_f[0, 0, :3, :5])
 # print(output[m][:10])
 # print(expected[m][:10])
 
-kwargs = {
-    "atol": 0.0 if x.is_floating_point() else 1.0,
-    "rtol": 0.0,
-}
-
-torch.testing.assert_close(output, expected)
-
+if x.is_floating_point():
+    torch.testing.assert_close(output, expected)
+else:
+    torch.testing.assert_close(output.float(), expected_f, atol=1.0, rtol=0.0)
 
 ## Check backward pass
 
