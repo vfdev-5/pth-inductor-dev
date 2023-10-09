@@ -1,6 +1,9 @@
 import torch
 import torch.utils.benchmark as benchmark
 
+# We need to set cache size very large to avoid benchmarking eager mode as compiled
+torch._dynamo.config.cache_size_limit = 100000
+
 
 def transform(img):
     img = torch.nn.functional.interpolate(img, size=(270, 270), mode="bilinear", antialias=True)
@@ -11,21 +14,18 @@ def transform(img):
 def main():
 
     results = []
-    min_run_time = 10
+    min_run_time = 10.0
 
-    # for bs in [1, 4]:
-    for bs in [4, 1]:
+    for bs in [1, 4]:
 
-        for device in ["cpu", "cuda"]:
+        # for device in ["cpu", "cuda"]:
+        for device in ["cpu", ]:
 
             torch.manual_seed(12)
-            # for num_threads in [1, 4]:
             for num_threads in [1,]:
                 torch.set_num_threads(num_threads)
                 for memory_format in [torch.contiguous_format, torch.channels_last]:
-                # for memory_format in [torch.contiguous_format, ]:
                     for dtype in [torch.uint8, torch.float32]:
-                    # for dtype in [torch.float32, ]:
 
                         if device == "cuda" and dtype == torch.uint8:
                             continue
@@ -36,7 +36,11 @@ def main():
                         c_transform = torch.compile(transform)
                         output = c_transform(x)
                         expected = transform(x)
-                        # torch.testing.assert_close(output, expected)
+
+                        if x.is_floating_point():
+                            torch.testing.assert_close(output, expected, atol=5e-3, rtol=0.0)
+                        else:
+                            torch.testing.assert_close(output.float(), expected.float(), atol=1.0, rtol=0.0)
 
                         results.append(
                             benchmark.Timer(
