@@ -18,8 +18,7 @@ def main():
 
     for bs in [1, 4]:
 
-        # for device in ["cpu", "cuda"]:
-        for device in ["cpu", ]:
+        for device in ["cpu", "cuda"]:
 
             torch.manual_seed(12)
             for num_threads in [1,]:
