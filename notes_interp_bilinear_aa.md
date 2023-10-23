@@ -1,5 +1,245 @@
 ## Notes on upsample_bilinear_aa decomposition
 
+### Questions and feedback from Mario
+
+```
+python -u perf_interp_bilinear_aa_custom.py
+
+[---------------------------------- Interpolate bilinear, AA=true, cuda ----------------------------------]
+                                                                                      |  Eager  |  Compiled
+1 threads: ------------------------------------------------------------------------------------------------
+      Input (1, 3, (500, 400)) -> (256, 256), torch.float32, torch.contiguous_format  |   11.0  |    63.2
+      Input (4, 3, (500, 400)) -> (256, 256), torch.float32, torch.contiguous_format  |   42.4  |    74.4
+
+Times are in microseconds (us).
+```
+
+- Check contig load
+- Check if RBLOCK reduction is contig
+- Why reduction hint is DEFAULT and not INNER or OUTER... ?
+- Do bisecting to see where the slowest part of the code vs cuda impl
+- Write manual triton kernel equivalent to cuda impl
+
+
+
+Benchmarking triton compiled code vs Aten
+```
+python /tmp/pth/inductor/torch_compile_debug/upsample_aa_bs1_single_kernel_and_WIP_run_2023_10_23_13_33_12_638970-pid_93744/torchinductor/model___9.0/output_code_bench.py
+
+[----------------------------- Interpolate bilinear, AA=true, cuda ------------------------------]
+                                                             |  Eager  |  Compiled  |  Compiled v2
+1 threads: ---------------------------------------------------------------------------------------
+      Input (1, 3, 500, 400) -> 256, 256, torch.float32, CF  |   11.8  |    22.9    |      22.6
+
+
+python -u /tmp/pth/inductor/torch_compile_debug/upsample_aa_bs4_single_kernel_and_WIP_run_2023_10_20_10_20_26_241925-pid_74696/torchinductor/model___9.0/output_code_bench.py
+
+[----------------------------- Interpolate bilinear, AA=true, cuda ------------------------------]
+                                                             |  Eager  |  Compiled  |  Compiled v2
+1 threads: ---------------------------------------------------------------------------------------
+      Input (4, 3, 500, 400) -> 256, 256, torch.float32, CF  |   42.7  |    35.8    |      33.9
+
+
+Times are in microseconds (us).
+```
+
+
+
+### Check
+
+> Most of the speed-up is already there with 512, so let's add 512. Put up a PR and trigger a perf run from https://github.com/pytorch/pytorch/actions/workflows/inductor-perf-test-nightly.yml
+> Click on run workflow -> your branch with the default settings
+> once it finishes, you'll be able to see the results in https://hud.pytorch.org/benchmark/compilers
+
+- https://github.com/pytorch/pytorch/pull/111656
+- https://github.com/pytorch/pytorch/actions/runs/6589467661
+- https://hud.pytorch.org/benchmark/compilers
+
+
+### Other decomp versions
+
+
+```python
+@register_decomposition(aten._upsample_bilinear2d_aa.default)
+@aten._upsample_bilinear2d_aa.default.py_impl(DispatchKey.Autograd)
+@pw_cast_for_opmath
+def _upsample_bilinear2d_aa(
+    input: Tensor,
+    output_size: List[int],
+    align_corners: bool,
+    scales_h: Optional[float] = None,
+    scales_w: Optional[float] = None,
+) -> Tensor:
+    _upsample_2d_common_check(input, output_size)
+
+    in_h, in_w = input.shape[-2:]
+    interp_size = 2  # bilinear
+
+    memory_format = utils.suggest_memory_format(input)
+
+    src_x_min, x_weights = _compute_indices_weights_aa(
+        output_size[1],
+        in_w,
+        scales_w,
+        interp_size,
+        align_corners,
+        device=input.device,
+    )
+
+    src_y_min, y_weights = _compute_indices_weights_aa(
+        output_size[0],
+        in_h,
+        scales_h,
+        interp_size,
+        align_corners,
+        device=input.device,
+    )
+
+    x_max_interp_size = x_weights.shape[-1]
+    y_max_interp_size = y_weights.shape[-1]
+
+    kx = torch.arange(x_max_interp_size, device=input.device)
+    ky = torch.arange(y_max_interp_size, device=input.device)
+
+    src_x_min = src_x_min.unsqueeze(dim=-1)
+    src_y_min = src_y_min.unsqueeze(dim=-1)
+
+    x_indices = torch.clamp(src_x_min + kx, max=in_w - 1)
+    y_indices = torch.clamp(src_y_min + ky, max=in_h - 1)
+
+    y_indices = y_indices.view(*y_indices.shape, 1, 1)
+    input_selected = input[:, :, y_indices, x_indices]
+
+    # # This is slow:
+    # two kernels: 1) create yx_weights, 2) matmul yx_weights, input_selected
+    # [---------------------------------- Interpolate bilinear, AA=true, cuda ----------------------------------]
+    #                                                                                     |  Eager  |  Compiled
+    # 1 threads: ------------------------------------------------------------------------------------------------
+    #     Input (1, 3, (345, 456)) -> (271, 272), torch.float32, torch.channels_last      |   29.3  |   165.3
+    #     Input (1, 3, (345, 456)) -> (271, 272), torch.float32, torch.contiguous_format  |   12.1  |   152.1
+    # y_weights = y_weights.view(*y_weights.shape, 1, 1)
+    # yx_weights = y_weights * x_weights.unsqueeze(dim=0)
+    # output = (yx_weights * input_selected).sum(dim=(-3, -1))
+
+    # input_selected.shape: (N, C, oH, y_max_interp_size, oW, x_max_interp_size) -> (N, C, oH, oW, y_max_interp_size, x_max_interp_size)
+    # # y_weights.shape: (oH, y_max_interp_size) -> (oH, 1, y_max_interp_size)
+    # # x_weights.shape: (oW, x_max_interp_size) -> (oW, 1, x_max_interp_size)
+    # [---------------------------------- Interpolate bilinear, AA=true, cuda ----------------------------------]
+    #                                                                                       |  Eager  |  Compiled
+    # 1 threads: ------------------------------------------------------------------------------------------------
+    #       Input (4, 3, (345, 456)) -> (271, 272), torch.float32, torch.channels_last      |   84.5  |   167.5
+    #       Input (4, 3, (345, 456)) -> (271, 272), torch.float32, torch.contiguous_format  |   43.1  |   160.6
+    #       Input (1, 3, (345, 456)) -> (271, 272), torch.float32, torch.channels_last      |   30.2  |    81.4
+    #       Input (1, 3, (345, 456)) -> (271, 272), torch.float32, torch.contiguous_format  |   12.1  |    79.5
+    # input_selected = input_selected.transpose(-3, -2)
+    # x_weights = x_weights.view(output_size[1], 1, x_max_interp_size)
+    # y_weights = y_weights.view(output_size[0], 1, y_max_interp_size)
+
+    # output = (x_weights * input_selected).sum(dim=-1)
+    # output = (y_weights * output).sum(dim=-1)
+
+    # # Two kernels:
+    # # 1) to compute (x_weights.unsqueeze(0) * input_selected).sum(dim=-1)
+    # # 2) to compute final output
+    # output = (x_weights.unsqueeze(0) * input_selected).sum(dim=-1)
+    # output = (y_weights.unsqueeze(-1) * output).sum(dim=-2)
+
+    # # One kernel faster on N=1 and slower with N=4 on cuda
+    # [---------------------------------- Interpolate bilinear, AA=true, cuda ----------------------------------]
+    #                                                                                       |  Eager  |  Compiled
+    # 1 threads: ------------------------------------------------------------------------------------------------
+    #       Input (4, 3, (345, 456)) -> (271, 272), torch.float32, torch.channels_last      |   84.4  |   216.9
+    #       Input (4, 3, (345, 456)) -> (271, 272), torch.float32, torch.contiguous_format  |   43.0  |   209.5
+    #       Input (1, 3, (345, 456)) -> (271, 272), torch.float32, torch.channels_last      |   29.3  |    60.4
+    #       Input (1, 3, (345, 456)) -> (271, 272), torch.float32, torch.contiguous_format  |   12.0  |    60.9
+    # y_weights = y_weights.view(output_size[0], y_max_interp_size, 1, 1)
+    # x_weights = x_weights.view(1, output_size[1], x_max_interp_size)
+    # output = (y_weights * (x_weights * input_selected)).sum(dim=(-1, -3))
+
+    # SAME AS PREVIOUS
+    # y_weights = y_weights.view(output_size[0], y_max_interp_size, 1, 1).expand(
+    #     output_size[0], y_max_interp_size, output_size[1], 1
+    # )
+    # x_weights = x_weights.view(1, 1, output_size[1], x_max_interp_size).expand(
+    #     output_size[0], 1, output_size[1], x_max_interp_size
+    # )
+    # output = (y_weights * (x_weights * input_selected)).sum(dim=(-1, -3))
+
+    # SAME AS PREVIOUS
+    # # input_selected.shape: (N, C, oH, y_max_interp_size, oW, x_max_interp_size) -> (N, C, oH, oW, y_max_interp_size, x_max_interp_size)
+    # # y_weights.shape: (oH, y_max_interp_size) -> (oH, 1, y_max_interp_size, 1)
+    # # x_weights.shape: (oW, x_max_interp_size) -> (1, oW, 1, x_max_interp_size)
+    # input_selected = input_selected.transpose(-3, -2)
+    # y_weights = y_weights.view(y_weights.shape[0], 1, y_weights.shape[1], 1).expand(
+    #     y_weights.shape[0], output_size[1], y_weights.shape[1], x_max_interp_size
+    # )
+    # x_weights = x_weights.view(1, x_weights.shape[0], 1, x_weights.shape[1]).expand(
+    #     output_size[0], x_weights.shape[0], y_max_interp_size, x_weights.shape[1]
+    # )
+    # output = (y_weights * (x_weights * input_selected)).sum(dim=(-1, -2))
+
+
+    # SAME AS SEPARABLE VERSION
+    x_weights = x_weights.view(1, output_size[1], x_max_interp_size)
+    y_weights = y_weights.view(output_size[0], y_max_interp_size, 1)
+    output = (x_weights * input_selected).sum(dim=-1)
+    output = (y_weights * output).sum(dim=-2)
+
+    output = output.contiguous(memory_format=memory_format)
+
+    if not input.is_floating_point():
+        output = output.round()
+
+    return output
+```
+
+### Debug Vertical Pass
+
+```
+TORCH_COMPILE_DEBUG=1 python -m debugpy --wait-for-client --listen 5678 check_interpolate_bilinear_aa.py
+```
+
+- TritonScheduling can fuse buf3 and buf4, but CppScheduling can't. In `_can_fuse_horizontal_impl`
+```python
+#     vars1, vars2: ((4, 3, 271, 456), (4, 3, 123576))
+#     reduce1, reduce2: ((), ())
+
+    def _can_fuse_horizontal_impl(self, node1, node2):
+        _, (vars1, reduce1) = node1.group
+        _, (vars2, reduce2) = node2.group
+        if vars1 == vars2 and reduce1 == reduce2:
+            return True
+        if reduce1 == () and vars1 == vars2 + reduce2:
+            return True
+        # TODO(jansel): allow fusion pointwise (vars1, ()) suffix?
+        return False
+```
+- Loop order in C++ is better to be `(4, 271, 456, 3)`
+
+
+- `group_fn = CppScheduling.group_fn`
+
+
+```
+                    in_suffix = True
+                    if node.group[1] == (group, ()):
+                        # we can fuse in some extra pointwise into the suffix
+                        with kernel.write_to_suffix():
+                            node.run(vars, ())
+                    else:
+                        from torch._inductor.ir import LoopBody
+                        node.group = (node.group[0], (group, ()))
+                        node._sizes = ([4, 3, 271, 456], [])
+                        node._body = LoopBody(node._body, ((4, 3, 271 * 456), ), {"z0": 4, "z1": 3, "z2": 271, "z3": 456})
+
+                        with kernel.write_to_suffix():
+                            node.run(vars, ())
+
+                        # assert False, f"unexpected group: {node.group[1]} != {group}, {reduction_group}"
+```
+
+
+
 ### Debug channels last buffers
 
 - Why intermediate buffer is CF even if input is CL -> indexing outputs CF
@@ -16,6 +256,56 @@ Debug code:
 TORCH_COMPILE_DEBUG=1 python -m debugpy --wait-for-client --listen 5678 check_interpolate_bilinear_aa.py
 ```
 
+- output -> finalize -> get_fill_order
+```
+get_fill_order (/home/vfdev-5/pytorch/torch/_inductor/ir.py:2688)
+decide_layout (/home/vfdev-5/pytorch/torch/_inductor/ir.py:2721)
+finalize (/home/vfdev-5/pytorch/torch/_inductor/graph.py:724)
+output (/home/vfdev-5/pytorch/torch/_inductor/graph.py:715)
+run_node (/home/vfdev-5/pytorch/torch/fx/interpreter.py:195)
+run_node (/home/vfdev-5/pytorch/torch/_inductor/graph.py:757)
+run (/home/vfdev-5/pytorch/torch/fx/interpreter.py:138)
+run (/home/vfdev-5/pytorch/torch/_inductor/graph.py:464)
+time_wrapper (/home/vfdev-5/pytorch/torch/_dynamo/utils.py:221)
+fx_codegen_and_compile (/home/vfdev-5/pytorch/torch/_inductor/compile_fx.py:547)
+compile_fx_inner (/home/vfdev-5/pytorch/torch/_inductor/compile_fx.py:350)
+inner (/home/vfdev-5/usr/lib/python3.8/contextlib.py:75)
+inner (/home/vfdev-5/pytorch/torch/_inductor/debug.py:297)
+debug_wrapper (/home/vfdev-5/pytorch/torch/_dynamo/repro/after_aot.py:80)
+fw_compiler_base (/home/vfdev-5/pytorch/torch/_inductor/compile_fx.py:1108)
+time_wrapper (/home/vfdev-5/pytorch/torch/_dynamo/utils.py:221)
+aot_dispatch_base (/home/vfdev-5/pytorch/torch/_functorch/aot_autograd.py:1604)
+aot_wrapper_synthetic_base (/home/vfdev-5/pytorch/torch/_functorch/aot_autograd.py:2423)
+aot_wrapper_dedupe (/home/vfdev-5/pytorch/torch/_functorch/aot_autograd.py:2243)
+create_aot_dispatcher_function (/home/vfdev-5/pytorch/torch/_functorch/aot_autograd.py:3460)
+time_wrapper (/home/vfdev-5/pytorch/torch/_dynamo/utils.py:221)
+aot_module_simplified (/home/vfdev-5/pytorch/torch/_functorch/aot_autograd.py:3922)
+compiler_fn (/home/vfdev-5/pytorch/torch/_dynamo/backends/common.py:55)
+compile_fx (/home/vfdev-5/pytorch/torch/_inductor/compile_fx.py:1171)
+__call__ (/home/vfdev-5/pytorch/torch/__init__.py:1604)
+debug_wrapper (/home/vfdev-5/pytorch/torch/_dynamo/repro/after_dynamo.py:117)
+call_user_compiler (/home/vfdev-5/pytorch/torch/_dynamo/output_graph.py:1039)
+time_wrapper (/home/vfdev-5/pytorch/torch/_dynamo/utils.py:221)
+compile_and_call_fx_graph (/home/vfdev-5/pytorch/torch/_dynamo/output_graph.py:987)
+inner (/home/vfdev-5/usr/lib/python3.8/contextlib.py:75)
+compile_subgraph (/home/vfdev-5/pytorch/torch/_dynamo/output_graph.py:859)
+RETURN_VALUE (/home/vfdev-5/pytorch/torch/_dynamo/symbolic_convert.py:2217)
+step (/home/vfdev-5/pytorch/torch/_dynamo/symbolic_convert.py:710)
+run (/home/vfdev-5/pytorch/torch/_dynamo/symbolic_convert.py:747)
+run (/home/vfdev-5/pytorch/torch/_dynamo/symbolic_convert.py:2107)
+transform (/home/vfdev-5/pytorch/torch/_dynamo/convert_frame.py:462)
+transform_code_object (/home/vfdev-5/pytorch/torch/_dynamo/bytecode_transformation.py:1028)
+compile_inner (/home/vfdev-5/pytorch/torch/_dynamo/convert_frame.py:492)
+time_wrapper (/home/vfdev-5/pytorch/torch/_dynamo/utils.py:221)
+```
+for buf3
+```
+
+```
+
+
+
+- buf3 is chosen as a CF tensor even if it is hinted in the decomp to be CL
 ```
     def realize(self):
         if isinstance(
@@ -119,13 +409,308 @@ Times are in microseconds (us).
 ```
 
 
+
+
+
+
 ### Perf results
 
 ```bash
 python -u perf_interp_bilinear_aa.py
 ```
 
-- 09/10/2023
+- 20/10/2023 - single kernel
+
+
+```
+- persistent_reduction, xblock in (1, 8, 32, 128, 512)
+[---------------------------------- Interpolate bilinear, AA=true, cuda ----------------------------------]
+                                                                                      |  Eager  |  Compiled
+1 threads: ------------------------------------------------------------------------------------------------
+      Input (1, 3, (345, 456)) -> (123, 124), torch.float32, torch.channels_last      |   28.4  |   102.2
+      Input (1, 3, (345, 456)) -> (123, 124), torch.float32, torch.contiguous_format  |   12.7  |   100.8
+      Input (4, 3, (345, 456)) -> (123, 124), torch.float32, torch.channels_last      |   82.1  |   284.6
+      Input (4, 3, (345, 456)) -> (123, 124), torch.float32, torch.contiguous_format  |   49.8  |   268.3
+
+      Input (1, 3, (500, 400)) -> (256, 256), torch.float32, torch.channels_last      |   28.6  |    70.1
+      Input (1, 3, (500, 400)) -> (256, 256), torch.float32, torch.contiguous_format  |   11.4  |    64.1
+      Input (4, 3, (500, 400)) -> (256, 256), torch.float32, torch.channels_last      |   91.9  |    70.8
+      Input (4, 3, (500, 400)) -> (256, 256), torch.float32, torch.contiguous_format  |   43.4  |    70.8
+
+- persistent_reduction, xblock in (1, 8, 32, 128)
+
+[---------------------------------- Interpolate bilinear, AA=true, cuda ----------------------------------]
+                                                                                      |  Eager  |  Compiled
+1 threads: ------------------------------------------------------------------------------------------------
+      Input (1, 3, (345, 456)) -> (123, 124), torch.float32, torch.channels_last      |   28.1  |   103.0
+      Input (1, 3, (345, 456)) -> (123, 124), torch.float32, torch.contiguous_format  |   12.8  |   110.2
+      Input (4, 3, (345, 456)) -> (123, 124), torch.float32, torch.channels_last      |   82.4  |   288.4
+      Input (4, 3, (345, 456)) -> (123, 124), torch.float32, torch.contiguous_format  |   49.6  |   270.6
+
+      Input (1, 3, (500, 400)) -> (256, 256), torch.float32, torch.channels_last      |   28.3  |    61.6
+      Input (1, 3, (500, 400)) -> (256, 256), torch.float32, torch.contiguous_format  |   11.4  |    62.3
+      Input (4, 3, (500, 400)) -> (256, 256), torch.float32, torch.channels_last      |   92.0  |   102.4
+      Input (4, 3, (500, 400)) -> (256, 256), torch.float32, torch.contiguous_format  |   43.4  |   100.5
+
+- persistent_reduction, xblock in (1, 8, 32, 128, 256, 512)
+
+[---------------------------------- Interpolate bilinear, AA=true, cuda ----------------------------------]
+                                                                                      |  Eager  |  Compiled
+1 threads: ------------------------------------------------------------------------------------------------
+      Input (1, 3, (345, 456)) -> (123, 124), torch.float32, torch.channels_last      |   28.3  |   100.5
+      Input (1, 3, (345, 456)) -> (123, 124), torch.float32, torch.contiguous_format  |   12.7  |    99.7
+      Input (4, 3, (345, 456)) -> (123, 124), torch.float32, torch.channels_last      |   83.0  |   289.0
+      Input (4, 3, (345, 456)) -> (123, 124), torch.float32, torch.contiguous_format  |   50.1  |   271.5
+
+      Input (1, 3, (500, 400)) -> (256, 256), torch.float32, torch.channels_last      |   29.9  |    69.3
+      Input (1, 3, (500, 400)) -> (256, 256), torch.float32, torch.contiguous_format  |   11.4  |    68.0
+      Input (4, 3, (500, 400)) -> (256, 256), torch.float32, torch.channels_last      |   91.9  |    73.9
+      Input (4, 3, (500, 400)) -> (256, 256), torch.float32, torch.contiguous_format  |   43.3  |    69.8
+
+
+```
+
+
+- 17/10/2023 - v2
+```
+[----------------------------------- Interpolate bilinear, AA=true, cpu ----------------------------------]
+                                                                                    |   Eager   |  Compiled
+1 threads: ------------------------------------------------------------------------------------------------
+      Input (1, 3, 500, 400) -> (256, 256), torch.uint8, torch.contiguous_format    |    830.6  |   5549.4
+      Input (1, 3, 500, 400) -> (256, 256), torch.float32, torch.contiguous_format  |   1732.6  |   5068.2
+      Input (1, 3, 500, 400) -> (256, 256), torch.uint8, torch.channels_last        |    339.4  |   5541.5
+      Input (1, 3, 500, 400) -> (256, 256), torch.float32, torch.channels_last      |   2196.4  |   5900.1
+      Input (4, 3, 500, 400) -> (256, 256), torch.uint8, torch.contiguous_format    |   3262.9  |  21497.6
+      Input (4, 3, 500, 400) -> (256, 256), torch.float32, torch.contiguous_format  |   7372.4  |  20353.8
+      Input (4, 3, 500, 400) -> (256, 256), torch.uint8, torch.channels_last        |   1362.3  |  22442.0
+      Input (4, 3, 500, 400) -> (256, 256), torch.float32, torch.channels_last      |   8943.1  |  21495.9
+      Input (1, 3, 345, 456) -> (123, 124), torch.uint8, torch.contiguous_format    |    406.0  |   1078.6
+      Input (1, 3, 345, 456) -> (123, 124), torch.float32, torch.contiguous_format  |   1049.4  |    958.4
+      Input (1, 3, 345, 456) -> (123, 124), torch.uint8, torch.channels_last        |    151.7  |   1574.9
+      Input (1, 3, 345, 456) -> (123, 124), torch.float32, torch.channels_last      |   1145.9  |   1423.8
+      Input (4, 3, 345, 456) -> (123, 124), torch.uint8, torch.contiguous_format    |   1534.1  |   4224.0
+      Input (4, 3, 345, 456) -> (123, 124), torch.float32, torch.contiguous_format  |   4177.4  |   3801.6
+      Input (4, 3, 345, 456) -> (123, 124), torch.uint8, torch.channels_last        |    514.6  |   6131.6
+      Input (4, 3, 345, 456) -> (123, 124), torch.float32, torch.channels_last      |   4621.8  |   5427.6
+      Input (1, 3, 345, 456) -> (567, 678), torch.uint8, torch.contiguous_format    |   2099.2  |   5614.6
+      Input (1, 3, 345, 456) -> (567, 678), torch.float32, torch.contiguous_format  |   2708.4  |   4988.2
+      Input (1, 3, 345, 456) -> (567, 678), torch.uint8, torch.channels_last        |    536.6  |   6111.1
+      Input (1, 3, 345, 456) -> (567, 678), torch.float32, torch.channels_last      |   5181.2  |   5923.8
+      Input (4, 3, 345, 456) -> (567, 678), torch.uint8, torch.contiguous_format    |   8754.6  |  22512.5
+      Input (4, 3, 345, 456) -> (567, 678), torch.float32, torch.contiguous_format  |  11052.0  |  19678.4
+      Input (4, 3, 345, 456) -> (567, 678), torch.uint8, torch.channels_last        |   2025.3  |  24570.5
+      Input (4, 3, 345, 456) -> (567, 678), torch.float32, torch.channels_last      |  20539.0  |  23203.3
+
+Times are in microseconds (us).
+
+[--------------------------------- Interpolate bilinear, AA=true, cuda ---------------------------------]
+                                                                                    |  Eager  |  Compiled
+1 threads: ----------------------------------------------------------------------------------------------
+      Input (1, 3, 500, 400) -> (256, 256), torch.float32, torch.contiguous_format  |   11.6  |    81.5
+      Input (1, 3, 500, 400) -> (256, 256), torch.float32, torch.channels_last      |   30.4  |    82.2
+      Input (4, 3, 500, 400) -> (256, 256), torch.float32, torch.contiguous_format  |   42.1  |    87.9
+      Input (4, 3, 500, 400) -> (256, 256), torch.float32, torch.channels_last      |   90.8  |    89.3
+      Input (1, 3, 345, 456) -> (123, 124), torch.float32, torch.contiguous_format  |   12.4  |   115.6
+      Input (1, 3, 345, 456) -> (123, 124), torch.float32, torch.channels_last      |   32.7  |   113.6
+      Input (4, 3, 345, 456) -> (123, 124), torch.float32, torch.contiguous_format  |   48.3  |   113.9
+      Input (4, 3, 345, 456) -> (123, 124), torch.float32, torch.channels_last      |   81.7  |   123.9
+      Input (1, 3, 345, 456) -> (567, 678), torch.float32, torch.contiguous_format  |   29.5  |    92.3
+      Input (1, 3, 345, 456) -> (567, 678), torch.float32, torch.channels_last      |   53.1  |   100.3
+      Input (4, 3, 345, 456) -> (567, 678), torch.float32, torch.contiguous_format  |   94.3  |   210.8
+      Input (4, 3, 345, 456) -> (567, 678), torch.float32, torch.channels_last      |  187.3  |   145.8
+
+
+[--------------------------------- Interpolate bilinear, AA=true, cuda ---------------------------------]
+                                                                                    |  Eager  |  Compiled
+1 threads: ----------------------------------------------------------------------------------------------
+      Input (1, 3, 500, 400) -> (256, 256), torch.float32, torch.contiguous_format  |   11.1  |    84.1
+      Input (1, 3, 500, 400) -> (256, 256), torch.float32, torch.channels_last      |   27.9  |    84.0
+      Input (4, 3, 500, 400) -> (256, 256), torch.float32, torch.contiguous_format  |   42.7  |    92.1
+      Input (4, 3, 500, 400) -> (256, 256), torch.float32, torch.channels_last      |   91.9  |    92.4
+      Input (1, 3, 345, 456) -> (123, 124), torch.float32, torch.contiguous_format  |   12.8  |   115.4
+      Input (1, 3, 345, 456) -> (123, 124), torch.float32, torch.channels_last      |   27.5  |   115.6
+      Input (4, 3, 345, 456) -> (123, 124), torch.float32, torch.contiguous_format  |   49.4  |   116.4
+      Input (4, 3, 345, 456) -> (123, 124), torch.float32, torch.channels_last      |   83.1  |   128.4
+      Input (1, 3, 345, 456) -> (567, 678), torch.float32, torch.contiguous_format  |   29.7  |    94.9
+      Input (1, 3, 345, 456) -> (567, 678), torch.float32, torch.channels_last      |   53.1  |    94.9
+      Input (4, 3, 345, 456) -> (567, 678), torch.float32, torch.contiguous_format  |   94.8  |   216.0
+      Input (4, 3, 345, 456) -> (567, 678), torch.float32, torch.channels_last      |  189.2  |   150.3
+
+Times are in microseconds (us).
+```
+
+
+- 16/10/2023 - v4, single cuda kernel
+```
+[----------------------------------- Interpolate bilinear, AA=true, cpu ----------------------------------]
+                                                                                      |  Eager  |  Compiled
+1 threads: ------------------------------------------------------------------------------------------------
+      Input (1, 3, (345, 456)) -> (271, 272), torch.float32, torch.channels_last      |   1.6   |    26.9
+      Input (1, 3, (345, 456)) -> (271, 272), torch.float32, torch.contiguous_format  |   1.1   |    28.9
+      Input (4, 3, (345, 456)) -> (271, 272), torch.float32, torch.channels_last      |   6.5   |   104.1
+      Input (4, 3, (345, 456)) -> (271, 272), torch.float32, torch.contiguous_format  |   4.4   |   107.4
+
+Times are in milliseconds (ms).
+
+[---------------------------------- Interpolate bilinear, AA=true, cuda ----------------------------------]
+                                                                                      |  Eager  |  Compiled
+1 threads: ------------------------------------------------------------------------------------------------
+      Input (1, 3, (345, 456)) -> (271, 272), torch.float32, torch.channels_last      |   30.0  |    62.3
+      Input (1, 3, (345, 456)) -> (271, 272), torch.float32, torch.contiguous_format  |   11.9  |    62.4
+      Input (4, 3, (345, 456)) -> (271, 272), torch.float32, torch.channels_last      |   84.4  |   227.1
+      Input (4, 3, (345, 456)) -> (271, 272), torch.float32, torch.contiguous_format  |   43.2  |   211.3
+
+Times are in microseconds (us).
+```
+
+
+- 13/10/2023 - v3 no split as separable code
+
+```
+[--------------------------------- Interpolate bilinear, AA=true, cuda ---------------------------------]
+                                                                                    |  Eager  |  Compiled
+1 threads: ----------------------------------------------------------------------------------------------
+      Input (4, 3, 345, 456) -> (271, 272), torch.float32, torch.channels_last      |   84.2  |    82.1
+      Input (4, 3, 345, 456) -> (271, 272), torch.float32, torch.contiguous_format  |   43.1  |    81.3
+
+      Input (1, 3, 345, 456) -> (271, 272), torch.float32, torch.channels_last      |   29.4  |    82.2
+      Input (1, 3, 345, 456) -> (271, 272), torch.float32, torch.contiguous_format  |   12.0  |    81.9
+
+Times are in microseconds (us).
+```
+
+- 12/10/2023 - v2
+
+```
+[-------------------------------- Interpolate bilinear, AA=true, cuda ----------------------------------]
+                                                                                    |  Eager  |  Compiled
+1 threads: ----------------------------------------------------------------------------------------------
+      Input (4, 3, 345, 456) -> (34, 35), torch.float32, torch.channels_last        |  339.9  |   124.4
+      Input (4, 3, 345, 456) -> (34, 35), torch.float32, torch.contiguous_format    |  308.1  |   116.4
+      Input (1, 3, 345, 456) -> (34, 35), torch.float32, torch.channels_last        |   75.6  |   116.8
+      Input (1, 3, 345, 456) -> (34, 35), torch.float32, torch.contiguous_format    |   69.0  |   125.7
+
+      Input (4, 3, 345, 456) -> (271, 272), torch.float32, torch.channels_last      |   84.3  |    82.3
+      Input (4, 3, 345, 456) -> (271, 272), torch.float32, torch.contiguous_format  |   43.1  |    87.6
+      Input (1, 3, 345, 456) -> (271, 272), torch.float32, torch.channels_last      |   29.9  |    88.7
+      Input (1, 3, 345, 456) -> (271, 272), torch.float32, torch.contiguous_format  |   12.0  |    80.9
+
+Times are in microseconds (us).
+```
+
+```
+Torch version: 2.2.0a0+git38bb283
+Torch config: PyTorch built with:
+  - GCC 9.4
+  - C++ Version: 201703
+  - OpenMP 201511 (a.k.a. OpenMP 4.5)
+  - CPU capability usage: AVX2
+  - CUDA Runtime 12.1
+  - NVCC architecture flags: -gencode;arch=compute_61,code=sm_61;-gencode;arch=compute_75,code=sm_75;-gencode;arch=compute_89,code=sm_89
+  - CuDNN 8.9
+  - Build settings: BUILD_TYPE=Release, CUDA_VERSION=12.1, CUDNN_VERSION=8.9.0, CXX_COMPILER=/usr/lib/ccache/c++, CXX_FLAGS= -D_GLIBCXX_USE_CXX11_ABI=1 -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -DNDEBUG -DUSE_KINETO -DLIBKINETO_NOROCTRACER -DUSE_PYTORCH_QNNPACK -DSYMBOLICATE_MOBILE_DEBUG_HANDLE -O2 -fPIC -Wall -Wextra -Werror=return-type -Werror=non-virtual-dtor -Werror=bool-operation -Wnarrowing -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-unused-parameter -Wno-unused-function -Wno-unused-result -Wno-strict-overflow -Wno-strict-aliasing -Wno-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=old-style-cast -Wno-missing-braces -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Wno-stringop-overflow, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_DISABLE_GPU_ASSERTS=ON, TORCH_VERSION=2.2.0, USE_CUDA=1, USE_CUDNN=1, USE_EIGEN_FOR_BLAS=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=OFF, USE_MKLDNN=0, USE_MPI=OFF, USE_NCCL=0, USE_NNPACK=0, USE_OPENMP=ON, USE_ROCM=OFF,
+
+
+[2023-10-12 14:41:29,485] [0/10] torch._inductor.scheduler: [ERROR] Generating code for node buf5 with estimated runtime 0.0
+[2023-10-12 14:41:29,573] [0/10] torch._inductor.scheduler: [ERROR] Generating code for node buf7 with estimated runtime 0.0
+[2023-10-12 14:41:53,799] [0/11] torch._inductor.scheduler: [ERROR] Generating code for node buf5 with estimated runtime 0.0
+[2023-10-12 14:43:51,322] [0/16] torch._inductor.scheduler: [ERROR] Generating code for node buf4 with estimated runtime 0.0
+[2023-10-12 14:43:51,452] [0/16] torch._inductor.scheduler: [ERROR] Generating code for node buf5 with estimated runtime 0.0
+[2023-10-12 14:43:51,518] [0/16] torch._inductor.scheduler: [ERROR] Generating code for node buf7 with estimated runtime 0.0
+[2023-10-12 14:44:15,213] [0/17] torch._inductor.scheduler: [ERROR] Generating code for node buf4 with estimated runtime 0.0
+[2023-10-12 14:44:15,322] [0/17] torch._inductor.scheduler: [ERROR] Generating code for node buf5 with estimated runtime 0.0
+[2023-10-12 14:46:11,799] [0/22] torch._inductor.scheduler: [ERROR] Generating code for node buf4 with estimated runtime 0.0
+[2023-10-12 14:46:11,911] [0/22] torch._inductor.scheduler: [ERROR] Generating code for node buf5 with estimated runtime 0.0
+[2023-10-12 14:46:12,025] [0/22] torch._inductor.scheduler: [ERROR] Generating code for node buf7 with estimated runtime 0.0
+[2023-10-12 14:46:35,438] [0/23] torch._inductor.scheduler: [ERROR] Generating code for node buf4 with estimated runtime 0.0
+[2023-10-12 14:46:35,543] [0/23] torch._inductor.scheduler: [ERROR] Generating code for node buf5 with estimated runtime 0.0[----------------------------------- Interpolate bilinear, AA=true, cpu ----------------------------------]
+                                                                                    |   Eager   |  Compiled
+1 threads: ------------------------------------------------------------------------------------------------
+      Input (1, 3, 345, 456) -> (271, 272), torch.uint8, torch.contiguous_format    |    623.0  |   1882.2
+      Input (1, 3, 345, 456) -> (271, 272), torch.float32, torch.contiguous_format  |   1014.1  |   1466.0
+      Input (1, 3, 345, 456) -> (271, 272), torch.uint8, torch.channels_last        |    251.3  |   2232.1
+      Input (1, 3, 345, 456) -> (271, 272), torch.float32, torch.channels_last      |   1537.4  |   1764.9
+      Input (4, 3, 345, 456) -> (271, 272), torch.uint8, torch.contiguous_format    |   2333.5  |   7733.9
+      Input (4, 3, 345, 456) -> (271, 272), torch.float32, torch.contiguous_format  |   4366.2  |   5806.6
+      Input (4, 3, 345, 456) -> (271, 272), torch.uint8, torch.channels_last        |    925.6  |   8910.6
+      Input (4, 3, 345, 456) -> (271, 272), torch.float32, torch.channels_last      |   6194.6  |   7525.3
+
+      Input (1, 3, 345, 456) -> (567, 678), torch.uint8, torch.contiguous_format    |   2170.2  |   3020.9
+      Input (1, 3, 345, 456) -> (567, 678), torch.float32, torch.contiguous_format  |   2483.4  |   2512.8
+      Input (1, 3, 345, 456) -> (567, 678), torch.uint8, torch.channels_last        |    534.7  |   4060.9
+      Input (1, 3, 345, 456) -> (567, 678), torch.float32, torch.channels_last      |   5169.1  |   3782.0
+      Input (4, 3, 345, 456) -> (567, 678), torch.uint8, torch.contiguous_format    |   7954.9  |  12137.4
+      Input (4, 3, 345, 456) -> (567, 678), torch.float32, torch.contiguous_format  |   9919.4  |   9874.2
+      Input (4, 3, 345, 456) -> (567, 678), torch.uint8, torch.channels_last        |   2021.2  |  16475.9
+      Input (4, 3, 345, 456) -> (567, 678), torch.float32, torch.channels_last      |  20689.3  |  14815.4
+
+Times are in microseconds (us).
+
+[--------------------------------- Interpolate bilinear, AA=true, cuda ---------------------------------]
+                                                                                    |  Eager  |  Compiled
+1 threads: ----------------------------------------------------------------------------------------------
+      Input (1, 3, 345, 456) -> (271, 272), torch.float32, torch.contiguous_format  |   11.7  |    92.8
+      Input (1, 3, 345, 456) -> (271, 272), torch.float32, torch.channels_last      |   31.8  |   101.2
+      Input (4, 3, 345, 456) -> (271, 272), torch.float32, torch.contiguous_format  |   42.2  |   100.5
+      Input (4, 3, 345, 456) -> (271, 272), torch.float32, torch.channels_last      |   84.8  |   109.9
+
+      Input (1, 3, 345, 456) -> (567, 678), torch.float32, torch.contiguous_format  |   29.3  |   109.3
+      Input (1, 3, 345, 456) -> (567, 678), torch.float32, torch.channels_last      |   52.8  |   109.6
+      Input (4, 3, 345, 456) -> (567, 678), torch.float32, torch.contiguous_format  |   94.8  |   144.2
+      Input (4, 3, 345, 456) -> (567, 678), torch.float32, torch.channels_last      |  187.4  |   112.3
+
+Times are in microseconds (us).
+```
+
+
+- 09/10/2023 - v2
+```
+
+Torch version: 2.2.0a0+git38bb283
+Torch config: PyTorch built with:
+  - GCC 9.4
+  - C++ Version: 201703
+  - OpenMP 201511 (a.k.a. OpenMP 4.5)
+  - CPU capability usage: AVX2
+  - CUDA Runtime 12.1
+  - NVCC architecture flags: -gencode;arch=compute_61,code=sm_61;-gencode;arch=compute_75,code=sm_75;-gencode;arch=compute_89,code=sm_89
+  - CuDNN 8.9
+  - Build settings: BUILD_TYPE=Release, CUDA_VERSION=12.1, CUDNN_VERSION=8.9.0, CXX_COMPILER=/usr/lib/ccache/c++, CXX_FLAGS= -D_GLIBCXX_USE_CXX11_ABI=1 -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -DNDEBUG -DUSE_KINETO -DLIBKINETO_NOROCTRACER -DUSE_PYTORCH_QNNPACK -DSYMBOLICATE_MOBILE_DEBUG_HANDLE -O2 -fPIC -Wall -Wextra -Werror=return-type -Werror=non-virtual-dtor -Werror=bool-operation -Wnarrowing -Wno-missing-field-initializers
+-Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-unused-parameter -Wno-unused-function -Wno-unused-result -Wno-strict-overflow -Wno-strict-aliasing -Wno-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=old-style-cast -Wno-missing-braces -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Wno-stringop-overflow, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_DISABLE_GPU_ASSERTS=ON, TORCH_VERSION=2.2.0, USE_CUDA=1, USE_CUDNN=1, USE_EIGEN_FOR_BLAS=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=OFF, USE_MKLDNN=0, USE_MPI=OFF, USE_NCCL=0, USE_NNPACK=0, USE_OPENMP=ON, USE_ROCM=OFF,
+
+
+[2023-10-09 16:51:59,320] [0/10] torch._inductor.scheduler: [ERROR] Generating code for node buf5 with estimated runtime 0.0, Error: cannot determine truth value of Relational
+[2023-10-09 16:51:59,436] [0/10] torch._inductor.scheduler: [ERROR] Generating code for node buf7 with estimated runtime 0.0, Error: cannot determine truth value of Relational
+[2023-10-09 16:52:23,743] [0/11] torch._inductor.scheduler: [ERROR] Generating code for node buf5 with estimated runtime 0.0, Error: cannot determine truth value of Relational
+[---------------------------------- Interpolate bilinear, AA=true, cpu ----------------------------------]
+                                                                                    |  Eager   |  Compiled
+1 threads: -----------------------------------------------------------------------------------------------
+      Input (1, 3, 345, 456) -> (270, 270), torch.uint8, torch.contiguous_format    |   655.0  |   1849.6
+      Input (1, 3, 345, 456) -> (270, 270), torch.float32, torch.contiguous_format  |  1097.5  |   1466.2
+
+      Input (1, 3, 345, 456) -> (270, 270), torch.uint8, torch.channels_last        |   255.4  |   2208.8
+      Input (1, 3, 345, 456) -> (270, 270), torch.float32, torch.channels_last      |  1607.5  |   1741.7
+
+      Input (4, 3, 345, 456) -> (270, 270), torch.uint8, torch.contiguous_format    |  2785.3  |   7473.9
+      Input (4, 3, 345, 456) -> (270, 270), torch.float32, torch.contiguous_format  |  4393.0  |   5825.3
+
+      Input (4, 3, 345, 456) -> (270, 270), torch.uint8, torch.channels_last        |   919.6  |   8868.9
+      Input (4, 3, 345, 456) -> (270, 270), torch.float32, torch.channels_last      |  6479.0  |   7480.9
+
+Times are in microseconds (us).
+
+[--------------------------------- Interpolate bilinear, AA=true, cuda ---------------------------------]
+                                                                                    |  Eager  |  Compiled
+1 threads: ----------------------------------------------------------------------------------------------
+      Input (1, 3, 345, 456) -> (270, 270), torch.float32, torch.contiguous_format  |   11.9  |   100.3
+      Input (1, 3, 345, 456) -> (270, 270), torch.float32, torch.channels_last      |   29.5  |    93.5
+      Input (4, 3, 345, 456) -> (270, 270), torch.float32, torch.contiguous_format  |   42.7  |    99.8
+      Input (4, 3, 345, 456) -> (270, 270), torch.float32, torch.channels_last      |   85.0  |   100.5
+
+Times are in microseconds (us).
+```
+
+- 09/10/2023 - v0
 ```
 [---------------------------------- Interpolate bilinear, AA=true, cpu ----------------------------------]
                                                                                     |  Eager   |  Compiled
@@ -405,4 +990,56 @@ FAILED [0.0328s] test/functorch/test_ops.py::TestOperatorsCUDA::test_vmapjvpall_
 FAILED [0.0326s] test/functorch/test_ops.py::TestOperatorsCUDA::test_vmapjvpall_has_batch_rule_nn_functional_interpolate_bilinear_cuda_float32 - RuntimeError: aten::_upsample_bilinear2d_aa hit the vmap fallback which is currently disabled
 FAILED [0.0591s] test/functorch/test_ops.py::TestOperatorsCUDA::test_vmapvjp_has_batch_rule_nn_functional_interpolate_bicubic_cuda_float32 - RuntimeError: aten::_upsample_bicubic2d_aa hit the vmap fallback which is currently disabled
 FAILED [0.0558s] test/functorch/test_ops.py::TestOperatorsCUDA::test_vmapvjp_has_batch_rule_nn_functional_interpolate_bilinear_cuda_float32 - RuntimeError: aten::_upsample_bilinear2d_aa hit the vmap fallback which is currently disabled
+```
+
+
+## Create fx graph, compile and run it and check
+
+```
+from torch._inductor.compile_fx import (
+    compile_fx,
+    compile_fx_inner,
+    complex_memory_overlap,
+)
+from torch._inductor.ir import InterpreterShim
+from torch.fx.experimental.proxy_tensor import make_fx
+
+            m = torch.nn.Conv2d(5, 6, [3, 3])
+
+            def fn(inp, weight):
+                return (
+                    F.conv2d(
+                        inp, weight, None, m.stride, m.padding, m.dilation, m.groups
+                    ),
+                )
+
+            inp = torch.randn([2, 5, 16, 16])
+            inps = [inp, m.weight.to(memory_format=fmt)]
+            fn_fx = make_fx(fn)(*inps)
+            fn_compiled = compile_fx_inner(fn_fx, inps)
+            test_self = self
+            conv_seen = False
+
+            class RecordFunctions(TorchDispatchMode):
+                def __torch_dispatch__(self, func, types, args=(), kwargs=None):
+                    kwargs = kwargs if kwargs else {}
+                    if func == torch.ops.aten.convolution.default:
+                        # For CPU and mkldnn enable, we always using channles last
+                        nonlocal fmt
+                        if (
+                            torch.backends.mkldnn.enabled
+                            and torch.backends.mkldnn.is_available()
+                        ):
+                            fmt = torch.channels_last
+                        test_self.assertTrue(args[0].is_contiguous(memory_format=fmt))
+                        test_self.assertTrue(args[1].is_contiguous(memory_format=fmt))
+                        nonlocal conv_seen
+                        conv_seen = True
+
+                    return func(*args, **kwargs)
+
+            with RecordFunctions():
+                out = fn_compiled(inps)
+
+            self.assertTrue(conv_seen)
 ```

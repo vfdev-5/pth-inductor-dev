@@ -3,31 +3,25 @@
 import os
 import torch
 
-# We need to set cache size very large to avoid benchmarking eager mode as compiled
-torch._dynamo.config.cache_size_limit = 100000
-
-
 if not ("OMP_NUM_THREADS" in os.environ):
     torch.set_num_threads(1)
 
 
-run_pass = "both"
+run_pass = "vp"
 
 
-def transform_hp(img, osize):
-    h = img.shape[-2]
-    img = torch.nn.functional.interpolate(img, size=(h, osize[1]), mode="bilinear", antialias=True)
+def transform_hp(img):
+    img = torch.nn.functional.interpolate(img, size=(345, 272), mode="bilinear", antialias=True)
     return img
 
 
-def transform_vp(img, osize):
-    w = img.shape[-1]
-    img = torch.nn.functional.interpolate(img, size=(osize[0], w), mode="bilinear", antialias=True)
+def transform_vp(img):
+    img = torch.nn.functional.interpolate(img, size=(271, 456), mode="bilinear", antialias=True)
     return img
 
 
-def transform_both(img, osize):
-    img = torch.nn.functional.interpolate(img, size=osize, mode="bilinear", antialias=True)
+def transform_both(img):
+    img = torch.nn.functional.interpolate(img, size=(271, 272), mode="bilinear", antialias=True)
     return img
 
 
@@ -37,33 +31,30 @@ tr_map = {
     "vp": transform_vp,
 }
 
-isize, osize = (500, 400), (256, 256)
-
 transform = tr_map[run_pass]
 
-device = "cuda"
-# device = "cpu"
+# device = "cuda"
+device = "cpu"
 
 c_transform = torch.compile(transform)
 
-# memory_format = torch.channels_last
-memory_format = torch.contiguous_format
+memory_format = torch.channels_last
+# memory_format = torch.contiguous_format
 
 # for n in [1, 4]:
-# for n in [4, ]:
-for n in [1, ]:
-    # x = torch.randint(0, 256, size=(n, 3, *isize), dtype=torch.uint8)
-    # x = torch.arange(3 * isize[0] * isize[1], device=device).reshape(1, 3, *isize).to(torch.uint8)
+for n in [4, ]:
+    # x = torch.randint(0, 256, size=(n, 3, 345, 456), dtype=torch.uint8)
+    # x = torch.arange(3 * 345 * 456, device=device).reshape(1, 3, 345, 456).to(torch.uint8)
 
-    # x = torch.arange(3 * isize[0] * isize[1], device=device).reshape(1, 3, *isize).to(torch.uint8)
+    # x = torch.arange(3 * 345 * 456, device=device).reshape(1, 3, 345, 456).to(torch.uint8)
     # x = x.to(torch.float32)
 
-    x = torch.rand(n, 3, *isize, device=device)
+    x = torch.rand(n, 3, 345, 456, device=device)
     x = x.contiguous(memory_format=memory_format)
 
-    output = c_transform(x, osize)
-    expected = transform(x, osize)
-    expected_f = transform(x.float(), osize)
+    output = c_transform(x)
+    expected = transform(x)
+    expected_f = transform(x.float())
 
     if x.is_floating_point():
         torch.testing.assert_close(output, expected)
