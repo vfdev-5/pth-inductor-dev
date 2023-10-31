@@ -3,7 +3,7 @@ import torch.utils.benchmark as benchmark
 
 
 def transform(img, osize):
-    img = torch.nn.functional.interpolate(img, size=osize, mode="bilinear", antialias=True, align_corners=False)
+    img = torch.nn.functional.interpolate(img, size=osize, mode="nearest")
 
     return img
 
@@ -16,17 +16,14 @@ def main():
     # for isize in [(256, 256), (345, 456), ]:
     # for isize in [(345, 456), ]:
     # for isize in [(256, 256), ]:
-    for isize in [(2345, 2456), ]:
+    for isize in [(500, 400), ]:
 
         # for osize in [(34, 35), ]:
         # for osize in [(123, 124), ]:
         # for osize in [(224, 224), ]:
         # for osize in [(271, 272), ]:
         # for osize in [(345, 272), ]:
-
-        for osize in [(1234, 1345), ]:
-        # for osize in [(isize[0] // 2, isize[1] // 2), ]:
-        # for osize in [(isize[0] // 5, isize[1] // 5), ]:
+        for osize in [(256, 256), ]:
 
             # for bs in [1, ]:
             # for bs in [4, ]:
@@ -42,9 +39,9 @@ def main():
                     for num_threads in [1,]:
                         torch.set_num_threads(num_threads)
                         # for memory_format in [torch.contiguous_format, torch.channels_last]:
-                        for memory_format in [torch.channels_last, torch.contiguous_format]:
+                        # for memory_format in [torch.channels_last, torch.contiguous_format]:
                         # for memory_format in [torch.channels_last, ]:
-                        # for memory_format in [torch.contiguous_format, ]:
+                        for memory_format in [torch.contiguous_format, ]:
                             # for dtype in [torch.uint8, torch.float32]:
                             # for dtype in [torch.uint8, ]:
                             for dtype in [torch.float32, ]:
@@ -69,8 +66,8 @@ def main():
                                             "osize": osize,
                                         },
                                         num_threads=torch.get_num_threads(),
-                                        label=f"Interpolate bilinear, AA=true, {device}",
-                                        sub_label=f"Input ({bs}, 3, {isize[0]}, {isize[1]}) -> {osize}, {x.dtype}, {memory_format}",
+                                        label=f"Interpolate nearest, {device}",
+                                        sub_label=f"Input ({bs}, 3, {isize[0], isize[1]}) -> {osize}, {x.dtype}, {memory_format}",
                                         description=f"Eager",
                                     ).blocked_autorange(min_run_time=min_run_time)
                                 )
@@ -83,8 +80,8 @@ def main():
                                             "osize": osize,
                                         },
                                         num_threads=torch.get_num_threads(),
-                                        label=f"Interpolate bilinear, AA=true, {device}",
-                                        sub_label=f"Input ({bs}, 3, {isize[0]}, {isize[1]}) -> {osize}, {x.dtype}, {memory_format}",
+                                        label=f"Interpolate nearest, {device}",
+                                        sub_label=f"Input ({bs}, 3, {isize[0], isize[1]}) -> {osize}, {x.dtype}, {memory_format}",
                                         description=f"Compiled",
                                     ).blocked_autorange(min_run_time=min_run_time)
                                 )

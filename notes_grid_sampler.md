@@ -15,6 +15,19 @@ python -u perf_affine_grid_sampler.py output --tag=PR
 python -u perf_results_compute_speedup_v2.py output/20230706-135210-affine-grid-sampler-PR-vs-Nightly-speedup.md 'output/20230706-135210-affine-grid-sampler-PR.pkl' 'output/20230706-135210-affine-grid-sampler-Nightly.pkl' --compare "Compiled (2.1.0a0+gitd20adf4) PR;Compiled (2.1.0a0+gitd3ba890) Nightly;speed-up PR vs Nightly"
 ```
 
+## Various results
+
+- On large input
+```
+[------------------------------------------------------------------------ Affine grid sampling, cuda -----------------------------------------------------------------------]
+                                                                                                            |  Eager (2.2.0a0+gitb1bf15b)   |  Compiled (2.2.0a0+gitb1bf15b)
+1 threads: ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      Input: (8, 3, 1234, 1345) torch.float32, torch.contiguous_format, align_corners=False, mode=nearest   |        5.958 (+-0.039)        |         1.226 (+-0.001)
+      Input: (8, 3, 1234, 1345) torch.float32, torch.contiguous_format, align_corners=False, mode=bilinear  |        6.605 (+-0.128)        |         2.359 (+-0.024)
+      Input: (8, 3, 1234, 1345) torch.float32, torch.contiguous_format, align_corners=False, mode=bicubic   |        10.912 (+-0.138)       |         9.002 (+-0.146)
+
+Times are in milliseconds (ms).
+```
 
 ## Notes
 

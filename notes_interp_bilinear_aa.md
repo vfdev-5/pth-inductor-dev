@@ -21,7 +21,6 @@ Times are in microseconds (us).
 - Write manual triton kernel equivalent to cuda impl
 
 
-
 Benchmarking triton compiled code vs Aten
 ```
 python /tmp/pth/inductor/torch_compile_debug/upsample_aa_bs1_single_kernel_and_WIP_run_2023_10_23_13_33_12_638970-pid_93744/torchinductor/model___9.0/output_code_bench.py
@@ -43,6 +42,38 @@ python -u /tmp/pth/inductor/torch_compile_debug/upsample_aa_bs4_single_kernel_an
 Times are in microseconds (us).
 ```
 
+
+Compared to nearest
+```
+python -u /tmp/pth/inductor/torch_compile_debug/upsample_nearest_bs1_and_bench_run_2023_10_23_16_27_11_509611-pid_106293/torchinductor/model___9.0/output_code_bench.py
+
+[-------------------------- Interpolate nearest, cuda ---------------------------]
+                                                             |  Eager  |  Compiled
+1 threads: -----------------------------------------------------------------------
+      Input (1, 3, 500, 400) -> 256, 256, torch.float32, CF  |   10.4  |    21.2
+
+
+python -u /tmp/pth/inductor/torch_compile_debug/upsample_nearest_bs1_and_bench_run_2023_10_23_16_27_11_509611-pid_106293/torchinductor/model___9.0/output_code_bench_bs4.py
+[-------------------------- Interpolate nearest, cuda ---------------------------]
+                                                             |  Eager  |  Compiled
+1 threads: -----------------------------------------------------------------------
+      Input (4, 3, 500, 400) -> 256, 256, torch.float32, CF  |   15.4  |    22.7
+
+Times are in microseconds (us).
+```
+
+or
+```
+python -u perf_interp_nearest_custom.py
+
+[--------------------------------------- Interpolate nearest, cuda ---------------------------------------]
+                                                                                      |  Eager  |  Compiled
+1 threads: ------------------------------------------------------------------------------------------------
+      Input (1, 3, (500, 400)) -> (256, 256), torch.float32, torch.contiguous_format  |    9.4  |    61.9
+      Input (4, 3, (500, 400)) -> (256, 256), torch.float32, torch.contiguous_format  |   15.4  |    70.1
+
+Times are in microseconds (us).
+```
 
 
 ### Check
@@ -419,8 +450,201 @@ Times are in microseconds (us).
 python -u perf_interp_bilinear_aa.py
 ```
 
-- 20/10/2023 - single kernel
 
+- 31/10/2023
+
+```
+[-------------------------------------- Interpolate bilinear, AA=true, cpu -------------------------------------]
+                                                                                        |   Eager    |   Compiled
+1 threads: ------------------------------------------------------------------------------------------------------
+      Input (1, 3, 500, 400) -> (256, 256), torch.uint8, torch.contiguous_format        |     781.2  |    21108.9
+      Input (1, 3, 500, 400) -> (256, 256), torch.float32, torch.contiguous_format      |    1778.5  |    19700.3
+      Input (1, 3, 500, 400) -> (256, 256), torch.uint8, torch.channels_last            |     345.2  |    21828.4
+      Input (1, 3, 500, 400) -> (256, 256), torch.float32, torch.channels_last          |    2205.2  |    19920.4
+      Input (4, 3, 500, 400) -> (256, 256), torch.uint8, torch.contiguous_format        |    3209.1  |    83616.7
+      Input (4, 3, 500, 400) -> (256, 256), torch.float32, torch.contiguous_format      |    7223.8  |    78743.0
+      Input (4, 3, 500, 400) -> (256, 256), torch.uint8, torch.channels_last            |    1256.2  |    85531.4
+      Input (4, 3, 500, 400) -> (256, 256), torch.float32, torch.channels_last          |    9109.1  |    84752.4
+      Input (1, 3, 1200, 1300) -> (200, 300), torch.uint8, torch.contiguous_format      |    3637.7  |    14309.8
+      Input (1, 3, 1200, 1300) -> (200, 300), torch.float32, torch.contiguous_format    |    9563.9  |    11811.8
+      Input (1, 3, 1200, 1300) -> (200, 300), torch.uint8, torch.channels_last          |    1163.4  |    15422.5
+      Input (1, 3, 1200, 1300) -> (200, 300), torch.float32, torch.channels_last        |   10460.3  |    15002.3
+      Input (4, 3, 1200, 1300) -> (200, 300), torch.uint8, torch.contiguous_format      |   14182.1  |    59483.3
+      Input (4, 3, 1200, 1300) -> (200, 300), torch.float32, torch.contiguous_format    |   39320.1  |    46651.1
+      Input (4, 3, 1200, 1300) -> (200, 300), torch.uint8, torch.channels_last          |    4546.3  |    65145.2
+      Input (4, 3, 1200, 1300) -> (200, 300), torch.float32, torch.channels_last        |   42109.3  |    60124.6
+      Input (1, 3, 300, 400) -> (600, 700), torch.uint8, torch.contiguous_format        |    1738.6  |    44463.2
+      Input (1, 3, 300, 400) -> (600, 700), torch.float32, torch.contiguous_format      |    2700.5  |    43180.9
+      Input (1, 3, 300, 400) -> (600, 700), torch.uint8, torch.channels_last            |     527.5  |    47896.3
+      Input (1, 3, 300, 400) -> (600, 700), torch.float32, torch.channels_last          |    5484.3  |    46661.8
+      Input (4, 3, 300, 400) -> (600, 700), torch.uint8, torch.contiguous_format        |    8982.0  |   181817.3
+      Input (4, 3, 300, 400) -> (600, 700), torch.float32, torch.contiguous_format      |   10760.4  |   177425.0
+      Input (4, 3, 300, 400) -> (600, 700), torch.uint8, torch.channels_last            |    1956.4  |   191670.2
+      Input (4, 3, 300, 400) -> (600, 700), torch.float32, torch.channels_last          |   21916.1  |   192327.0
+
+Times are in microseconds (us).
+
+
+[----------------------------------- Interpolate bilinear, AA=true, cuda ------------------------------------]
+                                                                                        |  Eager   |  Compiled
+1 threads: ---------------------------------------------------------------------------------------------------
+      Input (1, 3, 500, 400) -> (256, 256), torch.float32, torch.contiguous_format      |    11.1  |     68.6
+      Input (1, 3, 500, 400) -> (256, 256), torch.float32, torch.channels_last          |    28.6  |     68.8
+      Input (4, 3, 500, 400) -> (256, 256), torch.float32, torch.contiguous_format      |    42.4  |     71.4
+      Input (4, 3, 500, 400) -> (256, 256), torch.float32, torch.channels_last          |    92.0  |     71.2
+      Input (1, 3, 1200, 1300) -> (200, 300), torch.float32, torch.contiguous_format    |    85.2  |    148.8
+      Input (1, 3, 1200, 1300) -> (200, 300), torch.float32, torch.channels_last        |   217.3  |    204.0
+      Input (4, 3, 1200, 1300) -> (200, 300), torch.float32, torch.contiguous_format    |   327.2  |    664.4
+      Input (4, 3, 1200, 1300) -> (200, 300), torch.float32, torch.channels_last        |   838.4  |    792.5
+      Input (1, 3, 300, 400) -> (600, 700), torch.float32, torch.contiguous_format      |    30.3  |     73.8
+      Input (1, 3, 300, 400) -> (600, 700), torch.float32, torch.channels_last          |    54.4  |     72.6
+      Input (4, 3, 300, 400) -> (600, 700), torch.float32, torch.contiguous_format      |    93.3  |    165.0
+      Input (4, 3, 300, 400) -> (600, 700), torch.float32, torch.channels_last          |   187.7  |    233.8
+      Input (1, 3, 2345, 2456) -> (1234, 1345), torch.float32, torch.contiguous_format  |   239.0  |    302.7
+      Input (1, 3, 2345, 2456) -> (1234, 1345), torch.float32, torch.channels_last      |   775.8  |    575.5
+      Input (4, 3, 2345, 2456) -> (1234, 1345), torch.float32, torch.contiguous_format  |   842.1  |   1232.0
+      Input (4, 3, 2345, 2456) -> (1234, 1345), torch.float32, torch.channels_last      |  2989.4  |   2290.6
+      Input (1, 3, 1234, 1345) -> (2345, 2456), torch.float32, torch.contiguous_format  |   410.3  |    564.7
+      Input (1, 3, 1234, 1345) -> (2345, 2456), torch.float32, torch.channels_last      |   789.4  |    917.0
+      Input (4, 3, 1234, 1345) -> (2345, 2456), torch.float32, torch.contiguous_format  |  1286.7  |   2259.9
+      Input (4, 3, 1234, 1345) -> (2345, 2456), torch.float32, torch.channels_last      |  2775.5  |   3660.6
+      Input (1, 3, 2345, 2456) -> (120, 200), torch.float32, torch.contiguous_format    |   455.2  |    634.8
+      Input (1, 3, 2345, 2456) -> (120, 200), torch.float32, torch.channels_last        |   937.1  |    971.4
+      Input (4, 3, 2345, 2456) -> (120, 200), torch.float32, torch.contiguous_format    |  1796.5  |   2546.5
+      Input (4, 3, 2345, 2456) -> (120, 200), torch.float32, torch.channels_last        |  3719.6  |   4157.1
+
+Times are in microseconds (us).
+```
+
+
+
+```bash
+root@qgpu1:/tmp/pth/inductor# python -u profile_interp_bilinear_aa.py
+torch.Size([4, 3, 2345, 3456]) torch.float32 True
+STAGE:2023-10-30 16:06:28 16591:16591 ActivityProfilerController.cpp:312] Completed Stage: Warm Up
+STAGE:2023-10-30 16:07:29 16591:16591 ActivityProfilerController.cpp:318] Completed Stage: Collection
+STAGE:2023-10-30 16:07:29 16591:16591 ActivityProfilerController.cpp:322] Completed Stage: Post Processing
+------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------
+                                Name    Self CPU %      Self CPU   CPU total %     CPU total  CPU time avg     Self CUDA   Self CUDA %    CUDA total  CUDA time avg    # of Calls
+------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------
+        loop_interp_bilinear_aa_cuda         0.29%     177.805ms        89.80%       55.193s       55.193s       0.000us         0.00%       66.164s       66.164s             1
+               Torch-Compiled Region         0.75%     458.558ms        89.43%       54.961s       5.496ms       0.000us         0.00%       66.164s       6.616ms         10000
+    triton_per_fused_index_mul_sum_0         0.19%     116.583ms        88.56%       54.429s       5.443ms       61.440s        99.99%       66.146s       6.615ms         10000
+                    triton__0d1d2de3         0.00%       0.000us         0.00%       0.000us       0.000us       61.446s       100.00%       61.446s       6.145ms         10000
+                      cuLaunchKernel        88.37%       54.313s        88.37%       54.313s       5.431ms        4.724s         7.69%        4.724s     472.427us         10000
+            TorchDynamo Cache Lookup         0.09%      54.039ms         0.09%      54.039ms       5.404us       0.000us         0.00%       0.000us       0.000us         10000
+                         aten::empty         0.12%      73.508ms         0.12%      73.508ms       7.351us       0.000us         0.00%       0.000us       0.000us         10000
+               cudaDeviceSynchronize        10.20%        6.266s        10.20%        6.266s        6.266s       0.000us         0.00%       0.000us       0.000us             1
+------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------
+Self CPU time total: 61.459s
+Self CUDA time total: 61.446s
+
+STAGE:2023-10-30 16:07:33 16591:16591 ActivityProfilerController.cpp:312] Completed Stage: Warm Up
+STAGE:2023-10-30 16:08:35 16591:16591 ActivityProfilerController.cpp:318] Completed Stage: Collection
+STAGE:2023-10-30 16:08:35 16591:16591 ActivityProfilerController.cpp:322] Completed Stage: Post Processing
+------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------
+                                Name    Self CPU %      Self CPU   CPU total %     CPU total  CPU time avg     Self CUDA   Self CUDA %    CUDA total  CUDA time avg    # of Calls
+------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------
+                         loop_triton         0.38%     235.331ms        89.69%       55.138s       55.138s       0.000us         0.00%       61.397s       61.397s             1
+                    triton__0d1d2de3         0.00%       0.000us         0.00%       0.000us       0.000us       61.403s       100.00%       61.403s       6.140ms         10000
+    triton_per_fused_index_mul_sum_0         0.17%     107.492ms        89.20%       54.837s       5.484ms       61.397s        99.99%       61.397s       6.140ms         10000
+                         aten::empty         0.11%      66.013ms         0.11%      66.013ms       6.601us       0.000us         0.00%       0.000us       0.000us         10000
+                      cuLaunchKernel        89.03%       54.729s        89.03%       54.729s       5.473ms       0.000us         0.00%       0.000us       0.000us         10000
+               cudaDeviceSynchronize        10.31%        6.338s        10.31%        6.338s        6.338s       0.000us         0.00%       0.000us       0.000us             1
+------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------
+Self CPU time total: 61.477s
+Self CUDA time total: 61.403s
+```
+
+
+- 25/10/2023
+```
+root@qgpu1:/tmp/pth/inductor# python -u /tmp/pth/inductor/torch_compile_debug/upsample_aa_LS_bs1_single_kernel_run_2023_10_25_09_41_08_923946-pid_116566/torchinductor/model___9.0/output_code_bench.py
+Compile triton_per_fused_index_mul_sum_0
+Compile triton_per_fused_index_mul_sum_0_v2
+Compile triton_per_fused_index_mul_sum_0
+Compile triton_per_fused_index_mul_sum_0_v2
+- Check consistency v0
+- Check consistency v2
+- Start benchmarks
+[----------------------------------------------------------- Interpolate bilinear, AA=true, cuda -----------------------------------------------------------]
+                                                                 |  Eager F.interpolate  |  Compiled F.interpolate  |  Compiled Triton  |  Compiled Triton v2
+1 threads: --------------------------------------------------------------------------------------------------------------------------------------------------
+      Input (4, 3, 3456, 4567) -> 2345, 3456, torch.float32, CF  |          3.2          |           6.0            |        4.3        |         3.5
+
+Times are in milliseconds (ms).
+
+Triton Testing do_bench: rep=2000, return_mode=median
+Interpolate bilinear, AA=true, CUDA
+Input (4, 3, 3456, 4567) -> 2345, 3456, torch.float32, CF
+- Eager F.interpolate 3.2055039405822754
+- Compiled F.interpolate 5.966815948486328
+- Compiled Triton 4.24729585647583
+- Compiled Triton v2 3.433568000793457
+```
+
+Why "Compiled F.interpolate" is 6.0 vs "Compiled Triton" is 4.3 ms?
+
+Profiling shows:
+```
+186002 function calls (183002 primitive calls) in 0.116 seconds
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+2000/1000    0.014    0.000    0.115    0.000 /pytorch/torch/_dynamo/eval_frame.py:378(_fn)
+     1000    0.009    0.000    0.009    0.000 {built-in method torch.empty}
+     1000    0.007    0.000    0.007    0.000 {built-in method __triton_launcher.launch}
+     1000    0.004    0.000    0.042    0.000 /tmp/torchinductor_root/rh/crhpk4gxlssj4zvvpvul7lvvldvun5bs6bkrtikcu5fjhavxivxb.py:258(call)
+     1000    0.004    0.000    0.023    0.000 /pytorch/torch/_inductor/triton_heuristics.py:490(run)
+     1000    0.004    0.000    0.061    0.000 /pytorch/torch/_functorch/aot_autograd.py:2883(runtime_wrapper)
+9000/7000    0.003    0.000    0.004    0.000 /usr/local/lib/python3.8/dist-packages/triton/compiler/compiler.py:702(__getattribute__)
+     4000    0.003    0.000    0.004    0.000 /usr/lib/python3.8/contextlib.py:82(__init__)
+     1000    0.003    0.000    0.008    0.000 <string>:2(guard)
+     1000    0.003    0.000    0.018    0.000 <string>:1(launcher)
+     4000    0.003    0.000    0.010    0.000 /pytorch/torch/_dynamo/eval_frame.py:113(backend_cache_wrapper)
+     4000    0.003    0.000    0.003    0.000 /pytorch/torch/_dynamo/eval_frame.py:131(_set_current_backend)
+     8000    0.002    0.000    0.013    0.000 {built-in method builtins.next}
+     1000    0.002    0.000    0.050    0.000 /pytorch/torch/_functorch/aot_autograd.py:1802(call_func_with_args)
+```
+
+
+
+
+
+- 24/10/2023 - single kernel and added (256, 512, 1024) to reduction_hint configs
+```
+[----------------------------------- Interpolate bilinear, AA=true, cuda ------------------------------------]
+                                                                                        |  Eager   |  Compiled
+1 threads: ---------------------------------------------------------------------------------------------------
+      Input (1, 3, 3456, 4567) -> (2345, 3456), torch.float32, torch.contiguous_format  |   922.5  |   1034.7
+      Input (4, 3, 3456, 4567) -> (2345, 3456), torch.float32, torch.contiguous_format  |  3201.2  |   5961.9
+
+Without adding to reduction_hint configs
+[----------------------------------- Interpolate bilinear, AA=true, cuda ------------------------------------]
+                                                                                        |  Eager   |  Compiled
+1 threads: ---------------------------------------------------------------------------------------------------
+      Input (1, 3, 3456, 4567) -> (2345, 3456), torch.float32, torch.contiguous_format  |   927.1  |   2896.0
+      Input (4, 3, 3456, 4567) -> (2345, 3456), torch.float32, torch.contiguous_format  |  3185.2  |  14785.8
+
+
+[--------------------------------- Interpolate bilinear, AA=true, cuda ---------------------------------]
+                                                                                    |  Eager  |  Compiled
+1 threads: ----------------------------------------------------------------------------------------------
+      Input (1, 3, 500, 400) -> (256, 256), torch.float32, torch.contiguous_format  |   11.2  |    63.5
+      Input (4, 3, 500, 400) -> (256, 256), torch.float32, torch.contiguous_format  |   42.8  |    72.0
+
+Times are in microseconds (us).
+
+[--------------------------------------- Interpolate nearest, cuda ---------------------------------------]
+                                                                                      |  Eager  |  Compiled
+1 threads: ------------------------------------------------------------------------------------------------
+      Input (1, 3, (500, 400)) -> (256, 256), torch.float32, torch.contiguous_format  |    9.1  |    67.0
+      Input (4, 3, (500, 400)) -> (256, 256), torch.float32, torch.contiguous_format  |   15.4  |    70.5
+
+Times are in microseconds (us).
+```
+
+
+- 20/10/2023 - single kernel
 
 ```
 - persistent_reduction, xblock in (1, 8, 32, 128, 512)
@@ -623,7 +847,8 @@ Torch config: PyTorch built with:
 [2023-10-12 14:46:11,911] [0/22] torch._inductor.scheduler: [ERROR] Generating code for node buf5 with estimated runtime 0.0
 [2023-10-12 14:46:12,025] [0/22] torch._inductor.scheduler: [ERROR] Generating code for node buf7 with estimated runtime 0.0
 [2023-10-12 14:46:35,438] [0/23] torch._inductor.scheduler: [ERROR] Generating code for node buf4 with estimated runtime 0.0
-[2023-10-12 14:46:35,543] [0/23] torch._inductor.scheduler: [ERROR] Generating code for node buf5 with estimated runtime 0.0[----------------------------------- Interpolate bilinear, AA=true, cpu ----------------------------------]
+[2023-10-12 14:46:35,543] [0/23] torch._inductor.scheduler: [ERROR] Generating code for node buf5 with estimated runtime 0.0
+[----------------------------------- Interpolate bilinear, AA=true, cpu ----------------------------------]
                                                                                     |   Eager   |  Compiled
 1 threads: ------------------------------------------------------------------------------------------------
       Input (1, 3, 345, 456) -> (271, 272), torch.uint8, torch.contiguous_format    |    623.0  |   1882.2

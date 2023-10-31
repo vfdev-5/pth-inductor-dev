@@ -37,7 +37,9 @@ tr_map = {
     "vp": transform_vp,
 }
 
-isize, osize = (500, 400), (256, 256)
+# isize, osize = (500, 400), (256, 256)
+# isize, osize = (500, 400), (500 // 5, 400 // 5)
+isize, osize = (3456, 4567), (2345, 3456)
 
 transform = tr_map[run_pass]
 
@@ -50,8 +52,8 @@ c_transform = torch.compile(transform)
 memory_format = torch.contiguous_format
 
 # for n in [1, 4]:
-# for n in [4, ]:
-for n in [1, ]:
+for n in [4, ]:
+# for n in [1, ]:
     # x = torch.randint(0, 256, size=(n, 3, *isize), dtype=torch.uint8)
     # x = torch.arange(3 * isize[0] * isize[1], device=device).reshape(1, 3, *isize).to(torch.uint8)
 
@@ -64,6 +66,11 @@ for n in [1, ]:
     output = c_transform(x, osize)
     expected = transform(x, osize)
     expected_f = transform(x.float(), osize)
+
+    from torch._inductor.codecache import PyCodeCache
+
+    for key in PyCodeCache.cache:
+        print(key, PyCodeCache.cache[key].__file__)
 
     if x.is_floating_point():
         torch.testing.assert_close(output, expected)

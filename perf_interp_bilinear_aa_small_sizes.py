@@ -17,21 +17,16 @@ def main():
     min_run_time = 10.0
     # min_run_time = 0.01
 
-    for isize, osize, skip_devices in [
-        [(500, 400), (256, 256), ()],
-        [(1200, 1300), (200, 300), ()],
-        [(300, 400), (600, 700), ()],
-        [(2345, 2456), (1234, 1345), ("cpu", )],
-        [(1234, 1345), (2345, 2456), ("cpu", )],
-        [(2345, 2456), (120, 200),("cpu", )],
+    for isize, osize in [
+        [(500, 400), (256, 256)],
+        [(345, 456), (123, 124)],
+        [(345, 456), (567, 678)],
     ]:
 
         for bs in [1, 4]:
 
-            for device in ["cpu", "cuda"]:
-            # for device in ["cuda", ]:
-                if device in skip_devices:
-                    continue
+            # for device in ["cpu", "cuda"]:
+            for device in ["cuda", ]:
 
                 torch.manual_seed(12)
                 for num_threads in [1,]:
@@ -49,10 +44,10 @@ def main():
                             output = c_transform(x, osize)
                             expected = transform(x, osize)
 
-                            # if x.is_floating_point():
-                            #     torch.testing.assert_close(output, expected, atol=5e-3, rtol=0.0)
-                            # else:
-                            #     torch.testing.assert_close(output.float(), expected.float(), atol=1.0, rtol=0.0)
+                            if x.is_floating_point():
+                                torch.testing.assert_close(output, expected, atol=5e-3, rtol=0.0)
+                            else:
+                                torch.testing.assert_close(output.float(), expected.float(), atol=1.0, rtol=0.0)
 
                             results.append(
                                 benchmark.Timer(
