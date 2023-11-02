@@ -17,7 +17,8 @@ def main():
     # for isize in [(256, 256), (345, 456), ]:
     # for isize in [(345, 456), ]:
     # for isize in [(256, 256), ]:
-    for isize in [(3456, 4567), ]:
+    # for isize in [(3456, 4567), ]:
+    for isize in [(500, 400), ]:
 
         # for osize in [(34, 35), ]:
         # for osize in [(123, 124), ]:
@@ -25,7 +26,8 @@ def main():
         # for osize in [(271, 272), ]:
         # for osize in [(345, 272), ]:
 
-        for osize in [(2345, 3456), ]:
+        # for osize in [(2345, 3456), ]:
+        for osize in [(256, 256), ]:
         # for osize in [(isize[0] // 2, isize[1] // 2), ]:
         # for osize in [(isize[0] // 5, isize[1] // 5), ]:
 
@@ -62,6 +64,9 @@ def main():
                                 c_transform = torch.compile(transform)
                                 _ = c_transform(x, osize)
                                 _ = transform(x, osize)
+
+                                for _ in range(10):
+                                    _ = c_transform(x, osize)
 
                                 assert len(PyCodeCache.cache) == 2, f"{[(k, v.__file__) for k, v in PyCodeCache.cache.items()]}"
 

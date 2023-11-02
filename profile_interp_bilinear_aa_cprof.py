@@ -12,8 +12,8 @@ def main():
     if not ("OMP_NUM_THREADS" in os.environ):
         torch.set_num_threads(1)
 
-    # c_interp_bilinear_aa = torch.compile(transform)
-    c_interp_bilinear_aa = transform
+    c_interp_bilinear_aa = torch.compile(transform)
+    # c_interp_bilinear_aa = transform
 
     x = torch.randint(0, 256, size=(4, 3, 3456, 4567), dtype=torch.float32, device="cuda")
 

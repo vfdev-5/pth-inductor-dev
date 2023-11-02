@@ -67,6 +67,10 @@ for n in [4, ]:
     expected = transform(x, osize)
     expected_f = transform(x.float(), osize)
 
+    # for _ in range(10):
+    #     _ = c_transform(x, osize)
+    # _ = c_transform(x, osize)
+
     from torch._inductor.codecache import PyCodeCache
 
     for key in PyCodeCache.cache:

@@ -16,18 +16,25 @@ def main():
     c_interp_bilinear_aa = torch.compile(transform)
     # c_interp_bilinear_aa = transform
 
-    x = torch.randint(0, 256, size=(4, 3, 3456, 4567), dtype=torch.float32, device="cuda")
+    # isize = (3456, 4567)
+    # osize = (2345, 3456)
+
+    n = 4
+    isize = (500, 400)
+    osize = (256, 256)
+
+    x = torch.randint(0, 256, size=(n, 3, *isize), dtype=torch.float32, device="cuda")
 
     # warm-up
-    y = c_interp_bilinear_aa(x, (2345, 3456))
+    y = c_interp_bilinear_aa(x, osize)
     print(y.shape, y.dtype, y.is_contiguous())
 
     for _ in range(10):
-        _ = c_interp_bilinear_aa(x, (2345, 3456))
+        _ = c_interp_bilinear_aa(x, osize)
 
     torch.cuda.synchronize()
 
-    n = 10000
+    n = 1000
 
     with profile(
         activities=[
@@ -37,7 +44,7 @@ def main():
     ) as prof:
         with record_function("loop_interp_bilinear_aa_cuda"):
             for _ in range(n):
-                c_interp_bilinear_aa(x, (2345, 3456))
+                c_interp_bilinear_aa(x, osize)
 
     print(prof.key_averages().table(sort_by="cuda_time_total", row_limit=10))
 

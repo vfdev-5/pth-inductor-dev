@@ -454,64 +454,64 @@ python -u perf_interp_bilinear_aa.py
 - 31/10/2023
 
 ```
-[-------------------------------------- Interpolate bilinear, AA=true, cpu -------------------------------------]
-                                                                                        |   Eager    |   Compiled
-1 threads: ------------------------------------------------------------------------------------------------------
-      Input (1, 3, 500, 400) -> (256, 256), torch.uint8, torch.contiguous_format        |     781.2  |    21108.9
-      Input (1, 3, 500, 400) -> (256, 256), torch.float32, torch.contiguous_format      |    1778.5  |    19700.3
-      Input (1, 3, 500, 400) -> (256, 256), torch.uint8, torch.channels_last            |     345.2  |    21828.4
-      Input (1, 3, 500, 400) -> (256, 256), torch.float32, torch.channels_last          |    2205.2  |    19920.4
-      Input (4, 3, 500, 400) -> (256, 256), torch.uint8, torch.contiguous_format        |    3209.1  |    83616.7
-      Input (4, 3, 500, 400) -> (256, 256), torch.float32, torch.contiguous_format      |    7223.8  |    78743.0
-      Input (4, 3, 500, 400) -> (256, 256), torch.uint8, torch.channels_last            |    1256.2  |    85531.4
-      Input (4, 3, 500, 400) -> (256, 256), torch.float32, torch.channels_last          |    9109.1  |    84752.4
-      Input (1, 3, 1200, 1300) -> (200, 300), torch.uint8, torch.contiguous_format      |    3637.7  |    14309.8
-      Input (1, 3, 1200, 1300) -> (200, 300), torch.float32, torch.contiguous_format    |    9563.9  |    11811.8
-      Input (1, 3, 1200, 1300) -> (200, 300), torch.uint8, torch.channels_last          |    1163.4  |    15422.5
-      Input (1, 3, 1200, 1300) -> (200, 300), torch.float32, torch.channels_last        |   10460.3  |    15002.3
-      Input (4, 3, 1200, 1300) -> (200, 300), torch.uint8, torch.contiguous_format      |   14182.1  |    59483.3
-      Input (4, 3, 1200, 1300) -> (200, 300), torch.float32, torch.contiguous_format    |   39320.1  |    46651.1
-      Input (4, 3, 1200, 1300) -> (200, 300), torch.uint8, torch.channels_last          |    4546.3  |    65145.2
-      Input (4, 3, 1200, 1300) -> (200, 300), torch.float32, torch.channels_last        |   42109.3  |    60124.6
-      Input (1, 3, 300, 400) -> (600, 700), torch.uint8, torch.contiguous_format        |    1738.6  |    44463.2
-      Input (1, 3, 300, 400) -> (600, 700), torch.float32, torch.contiguous_format      |    2700.5  |    43180.9
-      Input (1, 3, 300, 400) -> (600, 700), torch.uint8, torch.channels_last            |     527.5  |    47896.3
-      Input (1, 3, 300, 400) -> (600, 700), torch.float32, torch.channels_last          |    5484.3  |    46661.8
-      Input (4, 3, 300, 400) -> (600, 700), torch.uint8, torch.contiguous_format        |    8982.0  |   181817.3
-      Input (4, 3, 300, 400) -> (600, 700), torch.float32, torch.contiguous_format      |   10760.4  |   177425.0
-      Input (4, 3, 300, 400) -> (600, 700), torch.uint8, torch.channels_last            |    1956.4  |   191670.2
-      Input (4, 3, 300, 400) -> (600, 700), torch.float32, torch.channels_last          |   21916.1  |   192327.0
+[-------------------------------------------- Interpolate bilinear, AA=true, cpu -------------------------------------------]
+                                                                                      |   Eager   |  Compiled  |  Just C++
+1 threads: ------------------------------------------------------------------------------------------------------------------
+      Input (1, 3, 500, 400) -> (256, 256), torch.uint8, torch.contiguous_format      |    766.0  |   20620.2  |     20677.3
+      Input (1, 3, 500, 400) -> (256, 256), torch.float32, torch.contiguous_format    |   1719.6  |   19530.7  |     19497.4
+      Input (1, 3, 500, 400) -> (256, 256), torch.uint8, torch.channels_last          |    333.1  |   20856.8  |     21364.1
+      Input (1, 3, 500, 400) -> (256, 256), torch.float32, torch.channels_last        |   2199.4  |   19880.4  |     19793.3
+      Input (4, 3, 500, 400) -> (256, 256), torch.uint8, torch.contiguous_format      |   3217.5  |   83345.9  |     83517.6
+      Input (4, 3, 500, 400) -> (256, 256), torch.float32, torch.contiguous_format    |   7111.5  |   75855.2  |     75608.2
+      Input (4, 3, 500, 400) -> (256, 256), torch.uint8, torch.channels_last          |   1300.4  |   83555.3  |     83619.2
+      Input (4, 3, 500, 400) -> (256, 256), torch.float32, torch.channels_last        |   8881.5  |   86082.9  |     85837.3
+      Input (1, 3, 1200, 1300) -> (200, 300), torch.uint8, torch.contiguous_format    |   3577.0  |   15391.7  |     15341.8
+      Input (1, 3, 1200, 1300) -> (200, 300), torch.float32, torch.contiguous_format  |   9438.9  |   12377.3  |     12249.9
+      Input (1, 3, 1200, 1300) -> (200, 300), torch.uint8, torch.channels_last        |   1130.9  |   12413.4  |     12326.8
+      Input (1, 3, 1200, 1300) -> (200, 300), torch.float32, torch.channels_last      |  10247.6  |    8201.1  |      8060.1
+      Input (4, 3, 1200, 1300) -> (200, 300), torch.uint8, torch.contiguous_format    |  13913.0  |   62827.1  |     62963.2
+      Input (4, 3, 1200, 1300) -> (200, 300), torch.float32, torch.contiguous_format  |  37462.7  |   48888.1  |     48815.6
+      Input (4, 3, 1200, 1300) -> (200, 300), torch.uint8, torch.channels_last        |   4723.9  |   51666.5  |     51516.6
+      Input (4, 3, 1200, 1300) -> (200, 300), torch.float32, torch.channels_last      |  41864.6  |   34116.5  |     33966.8
+      Input (1, 3, 300, 400) -> (600, 700), torch.uint8, torch.contiguous_format      |   1864.5  |   35455.5  |     35566.7
+      Input (1, 3, 300, 400) -> (600, 700), torch.float32, torch.contiguous_format    |   2653.1  |   35303.6  |     35455.9
+      Input (1, 3, 300, 400) -> (600, 700), torch.uint8, torch.channels_last          |    510.8  |   35767.9  |     35901.2
+      Input (1, 3, 300, 400) -> (600, 700), torch.float32, torch.channels_last        |   5365.5  |   33153.8  |     33548.8
+      Input (4, 3, 300, 400) -> (600, 700), torch.uint8, torch.contiguous_format      |   8824.6  |  141773.7  |    139218.2
+      Input (4, 3, 300, 400) -> (600, 700), torch.float32, torch.contiguous_format    |  10564.3  |  140867.2  |    140051.1
+      Input (4, 3, 300, 400) -> (600, 700), torch.uint8, torch.channels_last          |   2093.3  |  153663.1  |    154263.3
+      Input (4, 3, 300, 400) -> (600, 700), torch.float32, torch.channels_last        |  21512.9  |  132679.4  |    132839.2
 
 Times are in microseconds (us).
 
 
-[----------------------------------- Interpolate bilinear, AA=true, cuda ------------------------------------]
-                                                                                        |  Eager   |  Compiled
-1 threads: ---------------------------------------------------------------------------------------------------
-      Input (1, 3, 500, 400) -> (256, 256), torch.float32, torch.contiguous_format      |    11.1  |     68.6
-      Input (1, 3, 500, 400) -> (256, 256), torch.float32, torch.channels_last          |    28.6  |     68.8
-      Input (4, 3, 500, 400) -> (256, 256), torch.float32, torch.contiguous_format      |    42.4  |     71.4
-      Input (4, 3, 500, 400) -> (256, 256), torch.float32, torch.channels_last          |    92.0  |     71.2
-      Input (1, 3, 1200, 1300) -> (200, 300), torch.float32, torch.contiguous_format    |    85.2  |    148.8
-      Input (1, 3, 1200, 1300) -> (200, 300), torch.float32, torch.channels_last        |   217.3  |    204.0
-      Input (4, 3, 1200, 1300) -> (200, 300), torch.float32, torch.contiguous_format    |   327.2  |    664.4
-      Input (4, 3, 1200, 1300) -> (200, 300), torch.float32, torch.channels_last        |   838.4  |    792.5
-      Input (1, 3, 300, 400) -> (600, 700), torch.float32, torch.contiguous_format      |    30.3  |     73.8
-      Input (1, 3, 300, 400) -> (600, 700), torch.float32, torch.channels_last          |    54.4  |     72.6
-      Input (4, 3, 300, 400) -> (600, 700), torch.float32, torch.contiguous_format      |    93.3  |    165.0
-      Input (4, 3, 300, 400) -> (600, 700), torch.float32, torch.channels_last          |   187.7  |    233.8
-      Input (1, 3, 2345, 2456) -> (1234, 1345), torch.float32, torch.contiguous_format  |   239.0  |    302.7
-      Input (1, 3, 2345, 2456) -> (1234, 1345), torch.float32, torch.channels_last      |   775.8  |    575.5
-      Input (4, 3, 2345, 2456) -> (1234, 1345), torch.float32, torch.contiguous_format  |   842.1  |   1232.0
-      Input (4, 3, 2345, 2456) -> (1234, 1345), torch.float32, torch.channels_last      |  2989.4  |   2290.6
-      Input (1, 3, 1234, 1345) -> (2345, 2456), torch.float32, torch.contiguous_format  |   410.3  |    564.7
-      Input (1, 3, 1234, 1345) -> (2345, 2456), torch.float32, torch.channels_last      |   789.4  |    917.0
-      Input (4, 3, 1234, 1345) -> (2345, 2456), torch.float32, torch.contiguous_format  |  1286.7  |   2259.9
-      Input (4, 3, 1234, 1345) -> (2345, 2456), torch.float32, torch.channels_last      |  2775.5  |   3660.6
-      Input (1, 3, 2345, 2456) -> (120, 200), torch.float32, torch.contiguous_format    |   455.2  |    634.8
-      Input (1, 3, 2345, 2456) -> (120, 200), torch.float32, torch.channels_last        |   937.1  |    971.4
-      Input (4, 3, 2345, 2456) -> (120, 200), torch.float32, torch.contiguous_format    |  1796.5  |   2546.5
-      Input (4, 3, 2345, 2456) -> (120, 200), torch.float32, torch.channels_last        |  3719.6  |   4157.1
+[------------------------------------------- Interpolate bilinear, AA=true, cuda --------------------------------------------]
+                                                                                        |  Eager   |  Compiled  |  Just Triton
+1 threads: -------------------------------------------------------------------------------------------------------------------
+      Input (1, 3, 500, 400) -> (256, 256), torch.float32, torch.contiguous_format      |    11.3  |     65.3   |       22.3
+      Input (1, 3, 500, 400) -> (256, 256), torch.float32, torch.channels_last          |    29.3  |     70.5   |       23.8
+      Input (4, 3, 500, 400) -> (256, 256), torch.float32, torch.contiguous_format      |    42.1  |     70.1   |       33.8
+      Input (4, 3, 500, 400) -> (256, 256), torch.float32, torch.channels_last          |    91.8  |     64.9   |       47.9
+      Input (1, 3, 1200, 1300) -> (200, 300), torch.float32, torch.contiguous_format    |    85.9  |    117.2   |      117.9
+      Input (1, 3, 1200, 1300) -> (200, 300), torch.float32, torch.channels_last        |   216.9  |    163.9   |      166.0
+      Input (4, 3, 1200, 1300) -> (200, 300), torch.float32, torch.contiguous_format    |   331.8  |    471.0   |      472.0
+      Input (4, 3, 1200, 1300) -> (200, 300), torch.float32, torch.channels_last        |   841.7  |    647.4   |      650.8
+      Input (1, 3, 300, 400) -> (600, 700), torch.float32, torch.contiguous_format      |    30.1  |     64.7   |       28.4
+      Input (1, 3, 300, 400) -> (600, 700), torch.float32, torch.channels_last          |    54.2  |     65.7   |       39.3
+      Input (4, 3, 300, 400) -> (600, 700), torch.float32, torch.contiguous_format      |    95.6  |    109.8   |      109.5
+      Input (4, 3, 300, 400) -> (600, 700), torch.float32, torch.channels_last          |   187.8  |    232.8   |      232.8
+      Input (1, 3, 2345, 2456) -> (1234, 1345), torch.float32, torch.contiguous_format  |   246.0  |    225.0   |      229.2
+      Input (1, 3, 2345, 2456) -> (1234, 1345), torch.float32, torch.channels_last      |   778.7  |    575.0   |      574.9
+      Input (4, 3, 2345, 2456) -> (1234, 1345), torch.float32, torch.contiguous_format  |   872.5  |    898.3   |      898.7
+      Input (4, 3, 2345, 2456) -> (1234, 1345), torch.float32, torch.channels_last      |  2996.3  |   2289.4   |     2288.8
+      Input (1, 3, 1234, 1345) -> (2345, 2456), torch.float32, torch.contiguous_format  |   431.3  |    381.1   |      381.2
+      Input (1, 3, 1234, 1345) -> (2345, 2456), torch.float32, torch.channels_last      |   796.4  |   1042.8   |     1044.2
+      Input (4, 3, 1234, 1345) -> (2345, 2456), torch.float32, torch.contiguous_format  |  1323.6  |   1518.6   |     1515.9
+      Input (4, 3, 1234, 1345) -> (2345, 2456), torch.float32, torch.channels_last      |  2797.8  |   3728.6   |     3728.0
+      Input (1, 3, 2345, 2456) -> (120, 200), torch.float32, torch.contiguous_format    |   461.7  |    435.9   |      436.3
+      Input (1, 3, 2345, 2456) -> (120, 200), torch.float32, torch.channels_last        |   941.6  |    521.6   |      521.3
+      Input (4, 3, 2345, 2456) -> (120, 200), torch.float32, torch.contiguous_format    |  1832.3  |   1724.6   |     1725.6
+      Input (4, 3, 2345, 2456) -> (120, 200), torch.float32, torch.channels_last        |  3740.3  |   2040.9   |     2041.0
 
 Times are in microseconds (us).
 ```
