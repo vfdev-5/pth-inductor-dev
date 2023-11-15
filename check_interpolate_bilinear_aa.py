@@ -37,14 +37,14 @@ tr_map = {
     "vp": transform_vp,
 }
 
-# isize, osize = (500, 400), (256, 256)
+isize, osize = (500, 400), (256, 256)
 # isize, osize = (500, 400), (500 // 5, 400 // 5)
-isize, osize = (3456, 4567), (2345, 3456)
+# isize, osize = (3456, 4567), (2345, 3456)
 
 transform = tr_map[run_pass]
 
-device = "cuda"
-# device = "cpu"
+# device = "cuda"
+device = "cpu"
 
 c_transform = torch.compile(transform)
 
