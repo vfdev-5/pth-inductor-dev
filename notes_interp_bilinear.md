@@ -1,5 +1,228 @@
 # PR
 
+## Run benchmarks
+
+- On Nightly
+```bash
+python perf_interp_mode.py output --tag=Nightly --mode=bilinear
+```
+
+- On PR
+```bash
+python perf_interp_mode.py output --tag=PR --mode=bilinear
+
+pr_pkl=output/XYZ-pr.pkl
+ni_pkl=output/ABC-nightly.pkl
+out_name=$(date "+%Y%m%d-%H%M%S")-upsample-bilinear-pr_vs_nightly
+
+python -u make_results_table_from_pickles.py output/${out_name}.md $pr_pkl $ni_pkl
+python -u perf_results_compute_speedup_v2.py output/${out_name}-speedup.md $pr_pkl $ni_pkl --compare "Compiled .+ PR;Compiled .+ Nightly;speed-up PR vs Nightly"
+```
+
+## Perf measurements
+
+- 11/12/2023, PR use `xp1 = torch.where(x < in_w - 1, x + 1, x)` instead `xp1 = (x + 1).clamp(max=in_w - 1)`
+```
+[------------------------------------------------------------------------------------------------ Interpolate, cpu -----------------------------------------------------------------------------------------------]
+                                                                                                                                                  |  Eager (2.2.0a0+git0b5d9e3)   |  Compiled (2.2.0a0+git0b5d9e3)
+1 threads: --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      Input (1, 3, 500, 400), torch.float32, torch.contiguous_format | mode: bilinear, align_corners: False, antialias: False, osize: (256, 256)  |        1.647 (+-0.006)        |         1.329 (+-0.006)
+
+Times are in milliseconds (ms).
+
+[------------------------------------------------------------------------------------------------- Interpolate, cuda -------------------------------------------------------------------------------------------------]
+                                                                                                                                                      |  Eager (2.2.0a0+git0b5d9e3)   |  Compiled (2.2.0a0+git0b5d9e3)
+1 threads: ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      Input (1, 3, 2345, 2456), torch.float32, torch.contiguous_format | mode: bilinear, align_corners: False, antialias: False, osize: (1234, 1345)  |        98.289 (+-0.017)       |         97.402 (+-0.018)
+
+Times are in microseconds (us).
+```
+
+- 11/12/2023, PR use `xp1 = (x + 1).clamp(max=in_w - 1)`
+```
+[------------------------------------------------------------------------------------------------ Interpolate, cpu -----------------------------------------------------------------------------------------------]
+                                                                                                                                                  |  Eager (2.2.0a0+git0b5d9e3)   |  Compiled (2.2.0a0+git0b5d9e3)
+1 threads: --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      Input (1, 3, 500, 400), torch.float32, torch.contiguous_format | mode: bilinear, align_corners: False, antialias: False, osize: (256, 256)  |        1.663 (+-0.050)        |         1.320 (+-0.007)
+
+Times are in milliseconds (ms).
+
+[------------------------------------------------------------------------------------------------- Interpolate, cuda -------------------------------------------------------------------------------------------------]
+                                                                                                                                                      |  Eager (2.2.0a0+git0b5d9e3)   |  Compiled (2.2.0a0+git0b5d9e3)
+1 threads: ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      Input (1, 3, 2345, 2456), torch.float32, torch.contiguous_format | mode: bilinear, align_corners: False, antialias: False, osize: (1234, 1345)  |        98.276 (+-0.017)       |         97.456 (+-0.151)
+
+Times are in microseconds (us).
+```
+
+
+---
+
+- PR (one load)
+```
+python perf_interp_bilinear_custom.py
+
+[-------------------------------------- Interpolate bilinear, AA=false, cpu ---------------------------------------]
+                                                                                              |  Eager   |  Compiled
+1 threads: ---------------------------------------------------------------------------------------------------------
+      Input (1, 3, 500, 400) -> (256, 256), torch.uint8, torch.contiguous_format, ac=True     |   608.5  |   1012.4
+      Input (1, 3, 500, 400) -> (256, 256), torch.uint8, torch.contiguous_format, ac=False    |   605.8  |   1011.2
+      Input (1, 3, 500, 400) -> (256, 256), torch.uint8, torch.channels_last, ac=True         |   280.1  |   1188.8
+      Input (1, 3, 500, 400) -> (256, 256), torch.uint8, torch.channels_last, ac=False        |   278.9  |   1191.6
+      Input (1, 3, 1200, 1300) -> (200, 300), torch.uint8, torch.contiguous_format, ac=True   |  2548.1  |    892.3
+      Input (1, 3, 1200, 1300) -> (200, 300), torch.uint8, torch.contiguous_format, ac=False  |  2788.2  |    872.8
+      Input (1, 3, 1200, 1300) -> (200, 300), torch.uint8, torch.channels_last, ac=True       |   655.6  |   1033.6
+      Input (1, 3, 1200, 1300) -> (200, 300), torch.uint8, torch.channels_last, ac=False      |   657.8  |   1032.4
+      Input (1, 3, 300, 400) -> (600, 700), torch.uint8, torch.contiguous_format, ac=True     |  1477.1  |   4125.2
+      Input (1, 3, 300, 400) -> (600, 700), torch.uint8, torch.contiguous_format, ac=False    |  1468.6  |   4108.9
+      Input (1, 3, 300, 400) -> (600, 700), torch.uint8, torch.channels_last, ac=True         |   563.9  |   5040.0
+      Input (1, 3, 300, 400) -> (600, 700), torch.uint8, torch.channels_last, ac=False        |   565.5  |   5026.2
+
+Times are in microseconds (us).
+
+
+compile dynamic=True
+
+[-------------------------------------- Interpolate bilinear, AA=false, cpu ---------------------------------------]
+                                                                                              |  Eager   |  Compiled
+1 threads: ---------------------------------------------------------------------------------------------------------
+      Input (1, 3, 500, 400) -> (256, 256), torch.uint8, torch.contiguous_format, ac=True     |   607.8  |    929.4
+      Input (1, 3, 500, 400) -> (256, 256), torch.uint8, torch.contiguous_format, ac=False    |   608.2  |    929.6
+      Input (1, 3, 500, 400) -> (256, 256), torch.uint8, torch.channels_last, ac=True         |   278.7  |   1167.9
+      Input (1, 3, 500, 400) -> (256, 256), torch.uint8, torch.channels_last, ac=False        |   278.4  |   1168.0
+      Input (1, 3, 1200, 1300) -> (200, 300), torch.uint8, torch.contiguous_format, ac=True   |  3597.5  |    871.2
+      Input (1, 3, 1200, 1300) -> (200, 300), torch.uint8, torch.contiguous_format, ac=False  |  2604.2  |    871.4
+      Input (1, 3, 1200, 1300) -> (200, 300), torch.uint8, torch.channels_last, ac=True       |   654.7  |   1088.8
+      Input (1, 3, 1200, 1300) -> (200, 300), torch.uint8, torch.channels_last, ac=False      |   656.0  |   1086.8
+      Input (1, 3, 300, 400) -> (600, 700), torch.uint8, torch.contiguous_format, ac=True     |  1471.6  |   4102.7
+      Input (1, 3, 300, 400) -> (600, 700), torch.uint8, torch.contiguous_format, ac=False    |  1466.0  |   4122.9
+      Input (1, 3, 300, 400) -> (600, 700), torch.uint8, torch.channels_last, ac=True         |   563.6  |   5524.4
+      Input (1, 3, 300, 400) -> (600, 700), torch.uint8, torch.channels_last, ac=False        |   565.9  |   5512.6
+
+Times are in microseconds (us).
+```
+
+- Nightly (wrong result on uint8)
+```
+python perf_interp_bilinear_custom.py
+
+[-------------------------------------- Interpolate bilinear, AA=false, cpu ---------------------------------------]
+                                                                                              |  Eager   |  Compiled
+1 threads: ---------------------------------------------------------------------------------------------------------
+      Input (1, 3, 500, 400) -> (256, 256), torch.uint8, torch.contiguous_format, ac=True     |   608.5  |   1202.6
+      Input (1, 3, 500, 400) -> (256, 256), torch.uint8, torch.contiguous_format, ac=False    |   608.8  |   1202.1
+      Input (1, 3, 500, 400) -> (256, 256), torch.uint8, torch.channels_last, ac=True         |   277.1  |   1086.1
+      Input (1, 3, 500, 400) -> (256, 256), torch.uint8, torch.channels_last, ac=False        |   278.4  |   1083.7
+      Input (1, 3, 1200, 1300) -> (200, 300), torch.uint8, torch.contiguous_format, ac=True   |  3160.4  |    418.2
+      Input (1, 3, 1200, 1300) -> (200, 300), torch.uint8, torch.contiguous_format, ac=False  |  2588.4  |    417.1
+      Input (1, 3, 1200, 1300) -> (200, 300), torch.uint8, torch.channels_last, ac=True       |   652.3  |    374.3
+      Input (1, 3, 1200, 1300) -> (200, 300), torch.uint8, torch.channels_last, ac=False      |   654.4  |    374.8
+      Input (1, 3, 300, 400) -> (600, 700), torch.uint8, torch.contiguous_format, ac=True     |  1480.9  |   2465.8
+      Input (1, 3, 300, 400) -> (600, 700), torch.uint8, torch.contiguous_format, ac=False    |  1480.0  |   2462.9
+      Input (1, 3, 300, 400) -> (600, 700), torch.uint8, torch.channels_last, ac=True         |   563.4  |   2200.4
+      Input (1, 3, 300, 400) -> (600, 700), torch.uint8, torch.channels_last, ac=False        |   560.3  |   2199.6
+
+Times are in microseconds (us).
+
+
+compile dynamic=False
+[-------------------------------------- Interpolate bilinear, AA=false, cpu ---------------------------------------]
+                                                                                              |  Eager   |  Compiled
+1 threads: ---------------------------------------------------------------------------------------------------------
+      Input (1, 3, 500, 400) -> (256, 256), torch.uint8, torch.contiguous_format, ac=True     |   609.1  |   1205.1
+      Input (1, 3, 500, 400) -> (256, 256), torch.uint8, torch.contiguous_format, ac=False    |   609.6  |   1202.7
+      Input (1, 3, 500, 400) -> (256, 256), torch.uint8, torch.channels_last, ac=True         |   278.4  |   1083.5
+      Input (1, 3, 500, 400) -> (256, 256), torch.uint8, torch.channels_last, ac=False        |   277.3  |   1085.7
+      Input (1, 3, 1200, 1300) -> (200, 300), torch.uint8, torch.contiguous_format, ac=True   |  2848.1  |   1119.8
+      Input (1, 3, 1200, 1300) -> (200, 300), torch.uint8, torch.contiguous_format, ac=False  |  2580.0  |   1122.1
+      Input (1, 3, 1200, 1300) -> (200, 300), torch.uint8, torch.channels_last, ac=True       |   657.0  |    999.5
+      Input (1, 3, 1200, 1300) -> (200, 300), torch.uint8, torch.channels_last, ac=False      |   655.2  |   1001.6
+      Input (1, 3, 300, 400) -> (600, 700), torch.uint8, torch.contiguous_format, ac=True     |  1471.1  |   7396.1
+      Input (1, 3, 300, 400) -> (600, 700), torch.uint8, torch.contiguous_format, ac=False    |  1468.0  |   7427.8
+      Input (1, 3, 300, 400) -> (600, 700), torch.uint8, torch.channels_last, ac=True         |   560.6  |   6633.9
+      Input (1, 3, 300, 400) -> (600, 700), torch.uint8, torch.channels_last, ac=False        |   561.1  |   6633.8
+
+Times are in microseconds (us).
+
+
+compile dynamic=True
+[-------------------------------------- Interpolate bilinear, AA=false, cpu ---------------------------------------]
+                                                                                              |  Eager   |  Compiled
+1 threads: ---------------------------------------------------------------------------------------------------------
+      Input (1, 3, 500, 400) -> (256, 256), torch.uint8, torch.contiguous_format, ac=True     |   612.6  |    438.9
+      Input (1, 3, 500, 400) -> (256, 256), torch.uint8, torch.contiguous_format, ac=False    |   612.4  |    438.0
+      Input (1, 3, 500, 400) -> (256, 256), torch.uint8, torch.channels_last, ac=True         |   279.4  |    397.6
+      Input (1, 3, 500, 400) -> (256, 256), torch.uint8, torch.channels_last, ac=False        |   279.5  |    397.4
+      Input (1, 3, 1200, 1300) -> (200, 300), torch.uint8, torch.contiguous_format, ac=True   |  2852.3  |    417.1
+      Input (1, 3, 1200, 1300) -> (200, 300), torch.uint8, torch.contiguous_format, ac=False  |  2792.9  |    416.5
+      Input (1, 3, 1200, 1300) -> (200, 300), torch.uint8, torch.channels_last, ac=True       |   654.2  |    371.8
+      Input (1, 3, 1200, 1300) -> (200, 300), torch.uint8, torch.channels_last, ac=False      |   652.0  |    371.7
+      Input (1, 3, 300, 400) -> (600, 700), torch.uint8, torch.contiguous_format, ac=True     |  1475.5  |   2456.4
+      Input (1, 3, 300, 400) -> (600, 700), torch.uint8, torch.contiguous_format, ac=False    |  1478.5  |   2465.6
+      Input (1, 3, 300, 400) -> (600, 700), torch.uint8, torch.channels_last, ac=True         |   562.3  |   2190.2
+      Input (1, 3, 300, 400) -> (600, 700), torch.uint8, torch.channels_last, ac=False        |   560.8  |   2191.4
+
+Times are in microseconds (us).
+
+
+[-------------------------------------- Interpolate bilinear, AA=false, cpu ---------------------------------------]
+                                                                                              |  Eager   |  Compiled
+1 threads: ---------------------------------------------------------------------------------------------------------
+      Input (1, 3, 500, 400) -> (256, 256), torch.uint8, torch.contiguous_format, ac=True     |   603.1  |   1846.5
+      Input (1, 3, 500, 400) -> (256, 256), torch.uint8, torch.contiguous_format, ac=False    |   607.0  |   1847.0
+      Input (1, 3, 500, 400) -> (256, 256), torch.uint8, torch.channels_last, ac=True         |   278.0  |   2115.4
+      Input (1, 3, 500, 400) -> (256, 256), torch.uint8, torch.channels_last, ac=False        |   279.3  |   2116.0
+      Input (1, 3, 1200, 1300) -> (200, 300), torch.uint8, torch.contiguous_format, ac=True   |  2589.5  |   2542.1
+      Input (1, 3, 1200, 1300) -> (200, 300), torch.uint8, torch.contiguous_format, ac=False  |  2829.9  |   2541.1
+      Input (1, 3, 1200, 1300) -> (200, 300), torch.uint8, torch.channels_last, ac=True       |   649.4  |   2709.0
+      Input (1, 3, 1200, 1300) -> (200, 300), torch.uint8, torch.channels_last, ac=False      |   646.9  |   2709.5
+      Input (1, 3, 300, 400) -> (600, 700), torch.uint8, torch.contiguous_format, ac=True     |  1463.2  |  17421.4
+      Input (1, 3, 300, 400) -> (600, 700), torch.uint8, torch.contiguous_format, ac=False    |  1474.3  |  17435.6
+      Input (1, 3, 300, 400) -> (600, 700), torch.uint8, torch.channels_last, ac=True         |   563.7  |  18582.6
+      Input (1, 3, 300, 400) -> (600, 700), torch.uint8, torch.channels_last, ac=False        |   564.1  |  18576.9
+
+Times are in microseconds (us).
+```
+
+- PR vs Nightly
+```
+[--------------------------------------------- Interpolate bilinear, AA=false, cpu ----------------------------------------------]
+                                                                                            |  Eager  |  Compiled  |  Just call_fn
+Nightly
+1 threads: -----------------------------------------------------------------------------------------------------------------------
+      Input (2, 3, 500, 400) -> (256, 256), torch.uint8, torch.contiguous_format, ac=False  |   1.2   |    5.6     |      5.5
+      Input (1, 3, 500, 400) -> (256, 256), torch.uint8, torch.contiguous_format, ac=False  |  613.4  |   2795.4   |     2778.0
+
+PR
+1 threads: -----------------------------------------------------------------------------------------------------------------------
+      Input (2, 3, 500, 400) -> (256, 256), torch.uint8, torch.contiguous_format, ac=False  |   1.2   |    2.0     |      1.9
+      Input (1, 3, 500, 400) -> (256, 256), torch.uint8, torch.contiguous_format, ac=False  |  613.5  |   1034.6   |     978.4
+
+
+
+Times are in milliseconds (ms).
+```
+
+
+```
+python perf_interp_mode_custom.py --mode=bilinear
+
+[------------------------------------------------------------------------------------------------ Interpolate, cpu -----------------------------------------------------------------------------------------------]
+                                                                                                                                                  |  Eager (2.2.0a0+git0b5d9e3)   |  Compiled (2.2.0a0+git0b5d9e3)
+1 threads: --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      Input (1, 3, 500, 400), torch.float32, torch.contiguous_format | mode: bilinear, align_corners: False, antialias: False, osize: (256, 256)  |        1.649 (+-0.019)        |         1.072 (+-0.020)
+
+Times are in milliseconds (ms).
+
+[------------------------------------------------------------------------------------------------- Interpolate, cuda -------------------------------------------------------------------------------------------------]
+                                                                                                                                                      |  Eager (2.2.0a0+git0b5d9e3)   |  Compiled (2.2.0a0+git0b5d9e3)
+1 threads: ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      Input (1, 3, 2345, 2456), torch.float32, torch.contiguous_format | mode: bilinear, align_corners: False, antialias: False, osize: (1234, 1345)  |        98.163 (+-0.030)       |        139.391 (+-2.124)
+
+Times are in microseconds (us).
+```
+
+
 ## Generated code
 
 Code:
@@ -472,6 +695,78 @@ Times are in microseconds (us).
       Input (3, 345, 456), torch.float32, torch.channels_last      |   11.2  |    43.2
 
 Times are in microseconds (us).
+```
+
+
+
+- Using lerp
+```
+[--------------------------------- Interpolate bilinear, AA=false, cpu ---------------------------------]
+                                                                                    |  Eager  |  Compiled
+1 threads: ----------------------------------------------------------------------------------------------
+      Input (1, 3, 500, 400) -> (256, 256), torch.float32, torch.contiguous_format  |   1.7   |     1.7
+      Input (1, 3, 500, 400) -> (256, 256), torch.float32, torch.channels_last      |   1.1   |     1.5
+      Input (4, 3, 500, 400) -> (256, 256), torch.float32, torch.contiguous_format  |   7.1   |     6.4
+      Input (4, 3, 500, 400) -> (256, 256), torch.float32, torch.channels_last      |   4.5   |    11.7
+
+[--------------------------------- Interpolate bilinear, AA=false, cuda --------------------------------]
+                                                                                    |  Eager  |  Compiled
+1 threads: ----------------------------------------------------------------------------------------------
+      Input (1, 3, 500, 400) -> (256, 256), torch.float32, torch.contiguous_format  |   12.8  |   106.5
+      Input (1, 3, 500, 400) -> (256, 256), torch.float32, torch.channels_last      |   13.0  |   107.6
+      Input (4, 3, 500, 400) -> (256, 256), torch.float32, torch.contiguous_format  |   12.8  |   115.9
+      Input (4, 3, 500, 400) -> (256, 256), torch.float32, torch.channels_last      |   12.8  |   116.9
+
+Times are in microseconds (us).
+```
+
+- Without lerp
+```
+[--------------------------------- Interpolate bilinear, AA=false, cpu ---------------------------------]
+                                                                                    |  Eager  |  Compiled
+1 threads: ----------------------------------------------------------------------------------------------
+      Input (1, 3, 500, 400) -> (256, 256), torch.float32, torch.contiguous_format  |   1.7   |     1.6
+      Input (1, 3, 500, 400) -> (256, 256), torch.float32, torch.channels_last      |   1.1   |     1.5
+      Input (4, 3, 500, 400) -> (256, 256), torch.float32, torch.contiguous_format  |   7.0   |     6.3
+      Input (4, 3, 500, 400) -> (256, 256), torch.float32, torch.channels_last      |   4.3   |    10.7
+
+[--------------------------------- Interpolate bilinear, AA=false, cuda --------------------------------]
+                                                                                    |  Eager  |  Compiled
+1 threads: ----------------------------------------------------------------------------------------------
+      Input (1, 3, 500, 400) -> (256, 256), torch.float32, torch.contiguous_format  |   13.2  |    82.9
+      Input (1, 3, 500, 400) -> (256, 256), torch.float32, torch.channels_last      |   13.4  |    83.4
+      Input (4, 3, 500, 400) -> (256, 256), torch.float32, torch.contiguous_format  |   13.0  |    91.9
+      Input (4, 3, 500, 400) -> (256, 256), torch.float32, torch.channels_last      |   13.4  |    91.8
+
+Times are in microseconds (us).
+```
+
+## Test
+
+```
+pytest -vvv test/test_decomp.py -k "interpolate_bil or upsample_bil"
+pytest -vvv test/inductor/test_torchinductor_opinfo.py -k "interp or upsampl"
+pytest -vvv test/functorch/test_aotdispatch.py -k "interp or upsampl"
+pytest -vvv test/functorch/test_ops.py -k "interp or upsampl"
+pytest -vvv test/test_meta.py -k "interp or upsampl"
+pytest -vvv test/test_proxy_tensor.py -k "interp or upsampl"
+pytest -vvv test/test_decomp.py::HasDecompTest::test_has_decomposition
+pytest -vvv test/functorch/test_vmap.py -k "interp or upsampl"
+
+
+pytest -vvv test/test_proxy_tensor.py::TestProxyTensorOpInfoCPU::test_make_fx_symbolic_exhaustive_nn_functional_interpolate_bilinear_cpu_float32
+pytest -vvv test/test_proxy_tensor.py::TestProxyTensorOpInfoCPU::test_make_fx_symbolic_exhaustive_nn_functional_interpolate_bicubic_cpu_float32
+
+pytest -vvv test/functorch/test_vmap.py::TestVmapOperatorsOpInfoCUDA::test_op_has_batch_rule_nn_functional_interpolate_bicubic_cuda_float32
+```
+
+
+```
+FAILED [1.1219s] test/test_decomp.py::TestDecompCPU::test_comprehensive_nn_functional_interpolate_bilinear_cpu_uint8
+
+FAILED [0.1714s] test/test_decomp.py::TestDecompCPU::test_comprehensive_nn_functional_upsample_bilinear_cpu_uint8
+
+FAILED [1.3664s] test/test_decomp.py::TestDecompCUDA::test_comprehensive_nn_functional_interpolate_bilinear_cuda_bfloat16
 ```
 
 

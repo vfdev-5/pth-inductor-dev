@@ -1,7 +1,8 @@
 import pickle
+import re
+import unittest.mock
 from pathlib import Path
 from typing import List, Optional
-import unittest.mock
 
 import torch
 import torch.utils.benchmark as benchmark
@@ -72,10 +73,11 @@ def get_new_tables(compare, list_col1_col2_desc, debug):
 
         for col1, col2, description in list_col1_col2_desc:
             for measurement in group:
+                d1 = measurement.task_spec.description
                 if debug:
-                    print("measurement.task_spec.description:", measurement.task_spec.description)
+                    print("measurement.task_spec.description:", d1)
 
-                if measurement.task_spec.description == col1:
+                if d1 == col1 or re.match(col1, d1) is not None:
                     v1 = measurement.median
                     sub_label = measurement.task_spec.sub_label
                     if debug:
@@ -85,7 +87,7 @@ def get_new_tables(compare, list_col1_col2_desc, debug):
                 for m2 in group:
                     d2 = m2.task_spec.description
                     sl2 = m2.task_spec.sub_label
-                    if d2 == col2 and sl2 == sub_label:
+                    if (d2 == col2 or re.match(col2, d2) is not None) and sl2 == sub_label:
                         v2 = m2.median
                         if debug:
                             print("Matched col2:", col2, v2)

@@ -1,0 +1,406 @@
+buf0: SchedulerNode(ComputedBuffer)
+buf0.writes = [MemoryDep('buf0', c0, {c0: 512})]
+buf0.unmet_dependencies = []
+buf0.met_dependencies = []
+buf0.users = [NodeUser(node=SchedulerNode(name='buf3'), can_inplace=False, is_weak=False)]
+buf0.group.device = cpu
+buf0.group.iteration = ((256, 2), ())
+buf0.sizes = ([256, 2], [])
+class buf0_loop_body:
+    var_ranges = {z0: 256, z1: 2}
+    index0 = z1
+    index1 = z0
+    index2 = 2*z0 + z1
+    def body(self, ops):
+        get_index = self.get_index('index0')
+        index_expr = ops.index_expr(get_index, torch.int64)
+        constant = ops.constant(0, torch.int64)
+        ge = ops.ge(index_expr, constant)
+        get_index_1 = self.get_index('index0')
+        index_expr_1 = ops.index_expr(get_index_1, torch.int64)
+        constant_1 = ops.constant(1, torch.int64)
+        lt = ops.lt(index_expr_1, constant_1)
+        masked_subblock1 = self.masked_subblock1(lt, 0.0)
+        get_index_2 = self.get_index('index0')
+        index_expr_2 = ops.index_expr(get_index_2, torch.int64)
+        constant_2 = ops.constant(1, torch.int64)
+        ge_1 = ops.ge(index_expr_2, constant_2)
+        get_index_3 = self.get_index('index0')
+        index_expr_3 = ops.index_expr(get_index_3, torch.int64)
+        constant_3 = ops.constant(2, torch.int64)
+        lt_1 = ops.lt(index_expr_3, constant_3)
+        masked_subblock2 = self.masked_subblock2(ge_1, 0.0)
+        where = ops.where(lt, masked_subblock1, masked_subblock2)
+        get_index_4 = self.get_index('index2')
+        store = ops.store('buf0', get_index_4, where, None)
+        return store
+    def masked_subblock1(self, ops):
+        get_index = self.get_index('index1')
+        index_expr = ops.index_expr(get_index, torch.int64)
+        to_dtype = ops.to_dtype(index_expr, torch.float32, src_dtype = torch.int64)
+        constant = ops.constant(0.5, torch.float32)
+        add = ops.add(to_dtype, constant)
+        constant_1 = ops.constant(1.953125, torch.float32)
+        mul = ops.mul(add, constant_1)
+        constant_2 = ops.constant(0.5, torch.float32)
+        sub = ops.sub(mul, constant_2)
+        constant_3 = ops.constant(0.0, torch.float32)
+        maximum = ops.maximum(sub, constant_3)
+        get_index_1 = self.get_index('index1')
+        index_expr_1 = ops.index_expr(get_index_1, torch.int64)
+        to_dtype_1 = ops.to_dtype(index_expr_1, torch.float32, src_dtype = torch.int64)
+        constant_4 = ops.constant(0.5, torch.float32)
+        add_1 = ops.add(to_dtype_1, constant_4)
+        constant_5 = ops.constant(1.953125, torch.float32)
+        mul_1 = ops.mul(add_1, constant_5)
+        constant_6 = ops.constant(0.5, torch.float32)
+        sub_1 = ops.sub(mul_1, constant_6)
+        constant_7 = ops.constant(0.0, torch.float32)
+        maximum_1 = ops.maximum(sub_1, constant_7)
+        to_dtype_2 = ops.to_dtype(maximum_1, torch.int32, src_dtype = torch.float32)
+        to_dtype_3 = ops.to_dtype(to_dtype_2, torch.float32, src_dtype = torch.int32)
+        sub_2 = ops.sub(maximum, to_dtype_3)
+        constant_8 = ops.constant(0.0, torch.float32)
+        maximum_2 = ops.maximum(sub_2, constant_8)
+        constant_9 = ops.constant(1.0, torch.float32)
+        minimum = ops.minimum(maximum_2, constant_9)
+        constant_10 = ops.constant(1.0, torch.float32)
+        sub_3 = ops.sub(constant_10, minimum)
+        return sub_3
+    def masked_subblock2(self, ops):
+        get_index = self.get_index('index1')
+        index_expr = ops.index_expr(get_index, torch.int64)
+        to_dtype = ops.to_dtype(index_expr, torch.float32, src_dtype = torch.int64)
+        constant = ops.constant(0.5, torch.float32)
+        add = ops.add(to_dtype, constant)
+        constant_1 = ops.constant(1.953125, torch.float32)
+        mul = ops.mul(add, constant_1)
+        constant_2 = ops.constant(0.5, torch.float32)
+        sub = ops.sub(mul, constant_2)
+        constant_3 = ops.constant(0.0, torch.float32)
+        maximum = ops.maximum(sub, constant_3)
+        get_index_1 = self.get_index('index1')
+        index_expr_1 = ops.index_expr(get_index_1, torch.int64)
+        to_dtype_1 = ops.to_dtype(index_expr_1, torch.float32, src_dtype = torch.int64)
+        constant_4 = ops.constant(0.5, torch.float32)
+        add_1 = ops.add(to_dtype_1, constant_4)
+        constant_5 = ops.constant(1.953125, torch.float32)
+        mul_1 = ops.mul(add_1, constant_5)
+        constant_6 = ops.constant(0.5, torch.float32)
+        sub_1 = ops.sub(mul_1, constant_6)
+        constant_7 = ops.constant(0.0, torch.float32)
+        maximum_1 = ops.maximum(sub_1, constant_7)
+        to_dtype_2 = ops.to_dtype(maximum_1, torch.int32, src_dtype = torch.float32)
+        to_dtype_3 = ops.to_dtype(to_dtype_2, torch.float32, src_dtype = torch.int32)
+        sub_2 = ops.sub(maximum, to_dtype_3)
+        constant_8 = ops.constant(0.0, torch.float32)
+        maximum_2 = ops.maximum(sub_2, constant_8)
+        constant_9 = ops.constant(1.0, torch.float32)
+        minimum = ops.minimum(maximum_2, constant_9)
+        return minimum
+
+
+buf1: SchedulerNode(ComputedBuffer)
+buf1.writes = [MemoryDep('buf1', c0, {c0: 512})]
+buf1.unmet_dependencies = []
+buf1.met_dependencies = []
+buf1.users = [NodeUser(node=SchedulerNode(name='buf3'), can_inplace=False, is_weak=False)]
+buf1.group.device = cpu
+buf1.group.iteration = ((256, 2), ())
+buf1.sizes = ([256, 2], [])
+class buf1_loop_body:
+    var_ranges = {z0: 256, z1: 2}
+    index0 = z1
+    index1 = z0
+    index2 = 2*z0 + z1
+    def body(self, ops):
+        get_index = self.get_index('index0')
+        index_expr = ops.index_expr(get_index, torch.int64)
+        constant = ops.constant(0, torch.int64)
+        ge = ops.ge(index_expr, constant)
+        get_index_1 = self.get_index('index0')
+        index_expr_1 = ops.index_expr(get_index_1, torch.int64)
+        constant_1 = ops.constant(1, torch.int64)
+        lt = ops.lt(index_expr_1, constant_1)
+        masked_subblock1 = self.masked_subblock1(lt, 0.0)
+        get_index_2 = self.get_index('index0')
+        index_expr_2 = ops.index_expr(get_index_2, torch.int64)
+        constant_2 = ops.constant(1, torch.int64)
+        ge_1 = ops.ge(index_expr_2, constant_2)
+        get_index_3 = self.get_index('index0')
+        index_expr_3 = ops.index_expr(get_index_3, torch.int64)
+        constant_3 = ops.constant(2, torch.int64)
+        lt_1 = ops.lt(index_expr_3, constant_3)
+        masked_subblock2 = self.masked_subblock2(ge_1, 0.0)
+        where = ops.where(lt, masked_subblock1, masked_subblock2)
+        get_index_4 = self.get_index('index2')
+        store = ops.store('buf1', get_index_4, where, None)
+        return store
+    def masked_subblock1(self, ops):
+        get_index = self.get_index('index1')
+        index_expr = ops.index_expr(get_index, torch.int64)
+        to_dtype = ops.to_dtype(index_expr, torch.float32, src_dtype = torch.int64)
+        constant = ops.constant(0.5, torch.float32)
+        add = ops.add(to_dtype, constant)
+        constant_1 = ops.constant(1.953125, torch.float32)
+        mul = ops.mul(add, constant_1)
+        constant_2 = ops.constant(0.5, torch.float32)
+        sub = ops.sub(mul, constant_2)
+        constant_3 = ops.constant(0.0, torch.float32)
+        maximum = ops.maximum(sub, constant_3)
+        get_index_1 = self.get_index('index1')
+        index_expr_1 = ops.index_expr(get_index_1, torch.int64)
+        to_dtype_1 = ops.to_dtype(index_expr_1, torch.float32, src_dtype = torch.int64)
+        constant_4 = ops.constant(0.5, torch.float32)
+        add_1 = ops.add(to_dtype_1, constant_4)
+        constant_5 = ops.constant(1.953125, torch.float32)
+        mul_1 = ops.mul(add_1, constant_5)
+        constant_6 = ops.constant(0.5, torch.float32)
+        sub_1 = ops.sub(mul_1, constant_6)
+        constant_7 = ops.constant(0.0, torch.float32)
+        maximum_1 = ops.maximum(sub_1, constant_7)
+        to_dtype_2 = ops.to_dtype(maximum_1, torch.int32, src_dtype = torch.float32)
+        to_dtype_3 = ops.to_dtype(to_dtype_2, torch.float32, src_dtype = torch.int32)
+        sub_2 = ops.sub(maximum, to_dtype_3)
+        constant_8 = ops.constant(0.0, torch.float32)
+        maximum_2 = ops.maximum(sub_2, constant_8)
+        constant_9 = ops.constant(1.0, torch.float32)
+        minimum = ops.minimum(maximum_2, constant_9)
+        constant_10 = ops.constant(1.0, torch.float32)
+        sub_3 = ops.sub(constant_10, minimum)
+        return sub_3
+    def masked_subblock2(self, ops):
+        get_index = self.get_index('index1')
+        index_expr = ops.index_expr(get_index, torch.int64)
+        to_dtype = ops.to_dtype(index_expr, torch.float32, src_dtype = torch.int64)
+        constant = ops.constant(0.5, torch.float32)
+        add = ops.add(to_dtype, constant)
+        constant_1 = ops.constant(1.953125, torch.float32)
+        mul = ops.mul(add, constant_1)
+        constant_2 = ops.constant(0.5, torch.float32)
+        sub = ops.sub(mul, constant_2)
+        constant_3 = ops.constant(0.0, torch.float32)
+        maximum = ops.maximum(sub, constant_3)
+        get_index_1 = self.get_index('index1')
+        index_expr_1 = ops.index_expr(get_index_1, torch.int64)
+        to_dtype_1 = ops.to_dtype(index_expr_1, torch.float32, src_dtype = torch.int64)
+        constant_4 = ops.constant(0.5, torch.float32)
+        add_1 = ops.add(to_dtype_1, constant_4)
+        constant_5 = ops.constant(1.953125, torch.float32)
+        mul_1 = ops.mul(add_1, constant_5)
+        constant_6 = ops.constant(0.5, torch.float32)
+        sub_1 = ops.sub(mul_1, constant_6)
+        constant_7 = ops.constant(0.0, torch.float32)
+        maximum_1 = ops.maximum(sub_1, constant_7)
+        to_dtype_2 = ops.to_dtype(maximum_1, torch.int32, src_dtype = torch.float32)
+        to_dtype_3 = ops.to_dtype(to_dtype_2, torch.float32, src_dtype = torch.int32)
+        sub_2 = ops.sub(maximum, to_dtype_3)
+        constant_8 = ops.constant(0.0, torch.float32)
+        maximum_2 = ops.maximum(sub_2, constant_8)
+        constant_9 = ops.constant(1.0, torch.float32)
+        minimum = ops.minimum(maximum_2, constant_9)
+        return minimum
+
+
+buf2: SchedulerNode(ComputedBuffer)
+buf2.writes = [MemoryDep('buf2', c0, {c0: 1572864})]
+buf2.unmet_dependencies = []
+buf2.met_dependencies = [MemoryDep('arg0_1', 500*(tmp40) + (tmp81) + 250000*c0, {c0: 6})]
+buf2.users = [NodeUser(node=SchedulerNode(name='buf3'), can_inplace=False, is_weak=False)]
+buf2.group.device = cpu
+buf2.group.iteration = ((6, 256, 2, 256, 2), ())
+buf2.sizes = ([6, 256, 2, 256, 2], [])
+class buf2_loop_body:
+    var_ranges = {z0: 6, z1: 256, z2: 2, z3: 256, z4: 2}
+    index0 = z2
+    index1 = z1
+    index2 = z4
+    index3 = z3
+    index4 = 500*indirect0 + indirect1 + 250000*z0
+    index5 = 262144*z0 + 1024*z1 + 512*z2 + 2*z3 + z4
+    def body(self, ops):
+        get_index = self.get_index('index0')
+        index_expr = ops.index_expr(get_index, torch.int64)
+        constant = ops.constant(0, torch.int64)
+        ge = ops.ge(index_expr, constant)
+        get_index_1 = self.get_index('index0')
+        index_expr_1 = ops.index_expr(get_index_1, torch.int64)
+        constant_1 = ops.constant(1, torch.int64)
+        lt = ops.lt(index_expr_1, constant_1)
+        masked_subblock1 = self.masked_subblock1(lt, 0.0)
+        get_index_2 = self.get_index('index0')
+        index_expr_2 = ops.index_expr(get_index_2, torch.int64)
+        constant_2 = ops.constant(1, torch.int64)
+        ge_1 = ops.ge(index_expr_2, constant_2)
+        get_index_3 = self.get_index('index0')
+        index_expr_3 = ops.index_expr(get_index_3, torch.int64)
+        constant_3 = ops.constant(2, torch.int64)
+        lt_1 = ops.lt(index_expr_3, constant_3)
+        masked_subblock2 = self.masked_subblock2(ge_1, 0.0)
+        where = ops.where(lt, masked_subblock1, masked_subblock2)
+        constant_4 = ops.constant(499, torch.int32)
+        minimum = ops.minimum(where, constant_4)
+        set_indirect0 = self.set_indirect0(minimum)
+        get_index_4 = self.get_index('index2')
+        index_expr_4 = ops.index_expr(get_index_4, torch.int64)
+        constant_5 = ops.constant(0, torch.int64)
+        ge_2 = ops.ge(index_expr_4, constant_5)
+        get_index_5 = self.get_index('index2')
+        index_expr_5 = ops.index_expr(get_index_5, torch.int64)
+        constant_6 = ops.constant(1, torch.int64)
+        lt_2 = ops.lt(index_expr_5, constant_6)
+        masked_subblock4 = self.masked_subblock4(lt_2, 0.0)
+        get_index_6 = self.get_index('index2')
+        index_expr_6 = ops.index_expr(get_index_6, torch.int64)
+        constant_7 = ops.constant(1, torch.int64)
+        ge_3 = ops.ge(index_expr_6, constant_7)
+        get_index_7 = self.get_index('index2')
+        index_expr_7 = ops.index_expr(get_index_7, torch.int64)
+        constant_8 = ops.constant(2, torch.int64)
+        lt_3 = ops.lt(index_expr_7, constant_8)
+        masked_subblock5 = self.masked_subblock5(ge_3, 0.0)
+        where_1 = ops.where(lt_2, masked_subblock4, masked_subblock5)
+        constant_9 = ops.constant(499, torch.int32)
+        minimum_1 = ops.minimum(where_1, constant_9)
+        set_indirect1 = self.set_indirect1(minimum_1)
+        get_index_8 = self.get_index('index4')
+        load = ops.load('arg0_1', get_index_8)
+        get_index_9 = self.get_index('index5')
+        store = ops.store('buf2', get_index_9, load, None)
+        return store
+    def masked_subblock1(self, ops):
+        get_index = self.get_index('index1')
+        index_expr = ops.index_expr(get_index, torch.int64)
+        to_dtype = ops.to_dtype(index_expr, torch.float32, src_dtype = torch.int64)
+        constant = ops.constant(0.5, torch.float32)
+        add = ops.add(to_dtype, constant)
+        constant_1 = ops.constant(1.953125, torch.float32)
+        mul = ops.mul(add, constant_1)
+        constant_2 = ops.constant(0.5, torch.float32)
+        sub = ops.sub(mul, constant_2)
+        constant_3 = ops.constant(0.0, torch.float32)
+        maximum = ops.maximum(sub, constant_3)
+        to_dtype_1 = ops.to_dtype(maximum, torch.int32, src_dtype = torch.float32)
+        return to_dtype_1
+    def masked_subblock2(self, ops):
+        get_index = self.get_index('index1')
+        index_expr = ops.index_expr(get_index, torch.int64)
+        to_dtype = ops.to_dtype(index_expr, torch.float32, src_dtype = torch.int64)
+        constant = ops.constant(0.5, torch.float32)
+        add = ops.add(to_dtype, constant)
+        constant_1 = ops.constant(1.953125, torch.float32)
+        mul = ops.mul(add, constant_1)
+        constant_2 = ops.constant(0.5, torch.float32)
+        sub = ops.sub(mul, constant_2)
+        constant_3 = ops.constant(0.0, torch.float32)
+        maximum = ops.maximum(sub, constant_3)
+        to_dtype_1 = ops.to_dtype(maximum, torch.int32, src_dtype = torch.float32)
+        constant_4 = ops.constant(1, torch.int32)
+        add_1 = ops.add(to_dtype_1, constant_4)
+        return add_1
+    def masked_subblock4(self, ops):
+        get_index = self.get_index('index3')
+        index_expr = ops.index_expr(get_index, torch.int64)
+        to_dtype = ops.to_dtype(index_expr, torch.float32, src_dtype = torch.int64)
+        constant = ops.constant(0.5, torch.float32)
+        add = ops.add(to_dtype, constant)
+        constant_1 = ops.constant(1.953125, torch.float32)
+        mul = ops.mul(add, constant_1)
+        constant_2 = ops.constant(0.5, torch.float32)
+        sub = ops.sub(mul, constant_2)
+        constant_3 = ops.constant(0.0, torch.float32)
+        maximum = ops.maximum(sub, constant_3)
+        to_dtype_1 = ops.to_dtype(maximum, torch.int32, src_dtype = torch.float32)
+        return to_dtype_1
+    def masked_subblock5(self, ops):
+        get_index = self.get_index('index3')
+        index_expr = ops.index_expr(get_index, torch.int64)
+        to_dtype = ops.to_dtype(index_expr, torch.float32, src_dtype = torch.int64)
+        constant = ops.constant(0.5, torch.float32)
+        add = ops.add(to_dtype, constant)
+        constant_1 = ops.constant(1.953125, torch.float32)
+        mul = ops.mul(add, constant_1)
+        constant_2 = ops.constant(0.5, torch.float32)
+        sub = ops.sub(mul, constant_2)
+        constant_3 = ops.constant(0.0, torch.float32)
+        maximum = ops.maximum(sub, constant_3)
+        to_dtype_1 = ops.to_dtype(maximum, torch.int32, src_dtype = torch.float32)
+        constant_4 = ops.constant(1, torch.int32)
+        add_1 = ops.add(to_dtype_1, constant_4)
+        return add_1
+
+
+buf3: SchedulerNode(ComputedBuffer)
+buf3.writes = [MemoryDep('buf3', c0, {c0: 393216})]
+buf3.unmet_dependencies = 
+    [   MemoryDep('buf0', 2*c1 + 1, {c0: 6, c1: 256}),
+        MemoryDep('buf0', 2*c1, {c0: 6, c1: 256}),
+        MemoryDep('buf1', 2*c1 + 1, {c0: 1536, c1: 256}),
+        MemoryDep('buf1', 2*c1, {c0: 1536, c1: 256}),
+        MemoryDep('buf2', 1024*c0 + 2*c1 + 1, {c0: 1536, c1: 256}),
+        MemoryDep('buf2', 1024*c0 + 2*c1 + 512, {c0: 1536, c1: 256}),
+        MemoryDep('buf2', 1024*c0 + 2*c1 + 513, {c0: 1536, c1: 256}),
+        MemoryDep('buf2', 1024*c0 + 2*c1, {c0: 1536, c1: 256})]
+buf3.met_dependencies = []
+buf3.users = [NodeUser(node=OUTPUT, can_inplace=False, is_weak=False)]
+buf3.group.device = cpu
+buf3.group.iteration = ((6, 256, 256), ())
+buf3.sizes = ([6, 256, 256], [])
+class buf3_loop_body:
+    var_ranges = {z0: 6, z1: 256, z2: 256}
+    index0 = 2*z1
+    index1 = 2*z2
+    index2 = 262144*z0 + 1024*z1 + 2*z2
+    index3 = 2*z2 + 1
+    index4 = 262144*z0 + 1024*z1 + 2*z2 + 1
+    index5 = 2*z1 + 1
+    index6 = 262144*z0 + 1024*z1 + 2*z2 + 512
+    index7 = 262144*z0 + 1024*z1 + 2*z2 + 513
+    index8 = 65536*z0 + 256*z1 + z2
+    def body(self, ops):
+        get_index = self.get_index('index0')
+        load = ops.load('buf0', get_index)
+        get_index_1 = self.get_index('index1')
+        load_1 = ops.load('buf1', get_index_1)
+        get_index_2 = self.get_index('index2')
+        load_2 = ops.load('buf2', get_index_2)
+        to_dtype = ops.to_dtype(load_2, torch.float32, src_dtype = torch.uint8)
+        mul = ops.mul(load_1, to_dtype)
+        mul_1 = ops.mul(load, mul)
+        get_index_3 = self.get_index('index0')
+        load_3 = ops.load('buf0', get_index_3)
+        get_index_4 = self.get_index('index3')
+        load_4 = ops.load('buf1', get_index_4)
+        get_index_5 = self.get_index('index4')
+        load_5 = ops.load('buf2', get_index_5)
+        to_dtype_1 = ops.to_dtype(load_5, torch.float32, src_dtype = torch.uint8)
+        mul_2 = ops.mul(load_4, to_dtype_1)
+        mul_3 = ops.mul(load_3, mul_2)
+        add = ops.add(mul_1, mul_3)
+        get_index_6 = self.get_index('index5')
+        load_6 = ops.load('buf0', get_index_6)
+        get_index_7 = self.get_index('index1')
+        load_7 = ops.load('buf1', get_index_7)
+        get_index_8 = self.get_index('index6')
+        load_8 = ops.load('buf2', get_index_8)
+        to_dtype_2 = ops.to_dtype(load_8, torch.float32, src_dtype = torch.uint8)
+        mul_4 = ops.mul(load_7, to_dtype_2)
+        mul_5 = ops.mul(load_6, mul_4)
+        add_1 = ops.add(add, mul_5)
+        get_index_9 = self.get_index('index5')
+        load_9 = ops.load('buf0', get_index_9)
+        get_index_10 = self.get_index('index3')
+        load_10 = ops.load('buf1', get_index_10)
+        get_index_11 = self.get_index('index7')
+        load_11 = ops.load('buf2', get_index_11)
+        to_dtype_3 = ops.to_dtype(load_11, torch.float32, src_dtype = torch.uint8)
+        mul_6 = ops.mul(load_10, to_dtype_3)
+        mul_7 = ops.mul(load_9, mul_6)
+        add_2 = ops.add(add_1, mul_7)
+        round_1 = ops.round(add_2)
+        to_dtype_4 = ops.to_dtype(round_1, torch.uint8, src_dtype = torch.float32)
+        get_index_12 = self.get_index('index8')
+        store = ops.store('buf3', get_index_12, to_dtype_4, None)
+        return store
+
+

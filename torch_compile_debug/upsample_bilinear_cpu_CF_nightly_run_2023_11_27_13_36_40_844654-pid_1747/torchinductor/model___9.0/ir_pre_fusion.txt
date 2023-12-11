@@ -1,0 +1,423 @@
+buf0: SchedulerNode(ComputedBuffer)
+buf0.writes = [MemoryDep('buf0', c0, {c0: 393216})]
+buf0.unmet_dependencies = []
+buf0.met_dependencies = [MemoryDep('arg0_1', 500*(tmp10) + (tmp21) + 250000*c0, {c0: 6})]
+buf0.users = [NodeUser(node=SchedulerNode(name='buf4'), can_inplace=True, is_weak=False)]
+buf0.group.device = cpu
+buf0.group.iteration = ((6, 256, 256), ())
+buf0.sizes = ([6, 256, 256], [])
+class buf0_loop_body:
+    var_ranges = {z0: 6, z1: 256, z2: 256}
+    index0 = z1
+    index1 = z2
+    index2 = 500*indirect0 + indirect1 + 250000*z0
+    index3 = 65536*z0 + 256*z1 + z2
+    def body(self, ops):
+        get_index = self.get_index('index0')
+        index_expr = ops.index_expr(get_index, torch.uint8)
+        to_dtype = ops.to_dtype(index_expr, torch.float32, src_dtype = torch.uint8)
+        constant = ops.constant(0.5, torch.float32)
+        add = ops.add(to_dtype, constant)
+        constant_1 = ops.constant(1.953125, torch.float32)
+        mul = ops.mul(add, constant_1)
+        constant_2 = ops.constant(0.5, torch.float32)
+        sub = ops.sub(mul, constant_2)
+        constant_3 = ops.constant(0.0, torch.float32)
+        maximum = ops.maximum(sub, constant_3)
+        to_dtype_1 = ops.to_dtype(maximum, torch.int64, src_dtype = torch.float32)
+        set_indirect0 = self.set_indirect0(to_dtype_1)
+        get_index_1 = self.get_index('index1')
+        index_expr_1 = ops.index_expr(get_index_1, torch.uint8)
+        to_dtype_2 = ops.to_dtype(index_expr_1, torch.float32, src_dtype = torch.uint8)
+        constant_4 = ops.constant(0.5, torch.float32)
+        add_1 = ops.add(to_dtype_2, constant_4)
+        constant_5 = ops.constant(1.953125, torch.float32)
+        mul_1 = ops.mul(add_1, constant_5)
+        constant_6 = ops.constant(0.5, torch.float32)
+        sub_1 = ops.sub(mul_1, constant_6)
+        constant_7 = ops.constant(0.0, torch.float32)
+        maximum_1 = ops.maximum(sub_1, constant_7)
+        to_dtype_3 = ops.to_dtype(maximum_1, torch.int64, src_dtype = torch.float32)
+        set_indirect1 = self.set_indirect1(to_dtype_3)
+        get_index_2 = self.get_index('index2')
+        load = ops.load('arg0_1', get_index_2)
+        to_dtype_4 = ops.to_dtype(load, torch.float32, src_dtype = torch.uint8)
+        get_index_3 = self.get_index('index0')
+        index_expr_2 = ops.index_expr(get_index_3, torch.uint8)
+        to_dtype_5 = ops.to_dtype(index_expr_2, torch.float32, src_dtype = torch.uint8)
+        constant_8 = ops.constant(0.5, torch.float32)
+        add_2 = ops.add(to_dtype_5, constant_8)
+        constant_9 = ops.constant(1.953125, torch.float32)
+        mul_2 = ops.mul(add_2, constant_9)
+        constant_10 = ops.constant(0.5, torch.float32)
+        sub_2 = ops.sub(mul_2, constant_10)
+        constant_11 = ops.constant(0.0, torch.float32)
+        maximum_2 = ops.maximum(sub_2, constant_11)
+        get_index_4 = self.get_index('index0')
+        index_expr_3 = ops.index_expr(get_index_4, torch.uint8)
+        to_dtype_6 = ops.to_dtype(index_expr_3, torch.float32, src_dtype = torch.uint8)
+        constant_12 = ops.constant(0.5, torch.float32)
+        add_3 = ops.add(to_dtype_6, constant_12)
+        constant_13 = ops.constant(1.953125, torch.float32)
+        mul_3 = ops.mul(add_3, constant_13)
+        constant_14 = ops.constant(0.5, torch.float32)
+        sub_3 = ops.sub(mul_3, constant_14)
+        constant_15 = ops.constant(0.0, torch.float32)
+        maximum_3 = ops.maximum(sub_3, constant_15)
+        to_dtype_7 = ops.to_dtype(maximum_3, torch.int64, src_dtype = torch.float32)
+        to_dtype_8 = ops.to_dtype(to_dtype_7, torch.float32, src_dtype = torch.int64)
+        sub_4 = ops.sub(maximum_2, to_dtype_8)
+        constant_16 = ops.constant(1.0, torch.float32)
+        sub_5 = ops.sub(constant_16, sub_4)
+        mul_4 = ops.mul(to_dtype_4, sub_5)
+        get_index_5 = self.get_index('index3')
+        store = ops.store('buf0', get_index_5, mul_4, None)
+        return store
+
+
+buf1: SchedulerNode(ComputedBuffer)
+buf1.writes = [MemoryDep('buf1', c0, {c0: 393216})]
+buf1.unmet_dependencies = []
+buf1.met_dependencies = [MemoryDep('arg0_1', 500*(tmp13) + (tmp24) + 250000*c0, {c0: 6})]
+buf1.users = [NodeUser(node=SchedulerNode(name='buf4'), can_inplace=True, is_weak=False)]
+buf1.group.device = cpu
+buf1.group.iteration = ((6, 256, 256), ())
+buf1.sizes = ([6, 256, 256], [])
+class buf1_loop_body:
+    var_ranges = {z0: 6, z1: 256, z2: 256}
+    index0 = z1
+    index1 = z2
+    index2 = 500*indirect0 + indirect1 + 250000*z0
+    index3 = 65536*z0 + 256*z1 + z2
+    def body(self, ops):
+        get_index = self.get_index('index0')
+        index_expr = ops.index_expr(get_index, torch.uint8)
+        to_dtype = ops.to_dtype(index_expr, torch.float32, src_dtype = torch.uint8)
+        constant = ops.constant(0.5, torch.float32)
+        add = ops.add(to_dtype, constant)
+        constant_1 = ops.constant(1.953125, torch.float32)
+        mul = ops.mul(add, constant_1)
+        constant_2 = ops.constant(0.5, torch.float32)
+        sub = ops.sub(mul, constant_2)
+        constant_3 = ops.constant(0.0, torch.float32)
+        maximum = ops.maximum(sub, constant_3)
+        ceil = ops.ceil(maximum)
+        constant_4 = ops.constant(499.0, torch.float32)
+        minimum = ops.minimum(ceil, constant_4)
+        to_dtype_1 = ops.to_dtype(minimum, torch.int64, src_dtype = torch.float32)
+        set_indirect0 = self.set_indirect0(to_dtype_1)
+        get_index_1 = self.get_index('index1')
+        index_expr_1 = ops.index_expr(get_index_1, torch.uint8)
+        to_dtype_2 = ops.to_dtype(index_expr_1, torch.float32, src_dtype = torch.uint8)
+        constant_5 = ops.constant(0.5, torch.float32)
+        add_1 = ops.add(to_dtype_2, constant_5)
+        constant_6 = ops.constant(1.953125, torch.float32)
+        mul_1 = ops.mul(add_1, constant_6)
+        constant_7 = ops.constant(0.5, torch.float32)
+        sub_1 = ops.sub(mul_1, constant_7)
+        constant_8 = ops.constant(0.0, torch.float32)
+        maximum_1 = ops.maximum(sub_1, constant_8)
+        to_dtype_3 = ops.to_dtype(maximum_1, torch.int64, src_dtype = torch.float32)
+        set_indirect1 = self.set_indirect1(to_dtype_3)
+        get_index_2 = self.get_index('index2')
+        load = ops.load('arg0_1', get_index_2)
+        to_dtype_4 = ops.to_dtype(load, torch.float32, src_dtype = torch.uint8)
+        get_index_3 = self.get_index('index0')
+        index_expr_2 = ops.index_expr(get_index_3, torch.uint8)
+        to_dtype_5 = ops.to_dtype(index_expr_2, torch.float32, src_dtype = torch.uint8)
+        constant_9 = ops.constant(0.5, torch.float32)
+        add_2 = ops.add(to_dtype_5, constant_9)
+        constant_10 = ops.constant(1.953125, torch.float32)
+        mul_2 = ops.mul(add_2, constant_10)
+        constant_11 = ops.constant(0.5, torch.float32)
+        sub_2 = ops.sub(mul_2, constant_11)
+        constant_12 = ops.constant(0.0, torch.float32)
+        maximum_2 = ops.maximum(sub_2, constant_12)
+        get_index_4 = self.get_index('index0')
+        index_expr_3 = ops.index_expr(get_index_4, torch.uint8)
+        to_dtype_6 = ops.to_dtype(index_expr_3, torch.float32, src_dtype = torch.uint8)
+        constant_13 = ops.constant(0.5, torch.float32)
+        add_3 = ops.add(to_dtype_6, constant_13)
+        constant_14 = ops.constant(1.953125, torch.float32)
+        mul_3 = ops.mul(add_3, constant_14)
+        constant_15 = ops.constant(0.5, torch.float32)
+        sub_3 = ops.sub(mul_3, constant_15)
+        constant_16 = ops.constant(0.0, torch.float32)
+        maximum_3 = ops.maximum(sub_3, constant_16)
+        to_dtype_7 = ops.to_dtype(maximum_3, torch.int64, src_dtype = torch.float32)
+        to_dtype_8 = ops.to_dtype(to_dtype_7, torch.float32, src_dtype = torch.int64)
+        sub_4 = ops.sub(maximum_2, to_dtype_8)
+        mul_4 = ops.mul(to_dtype_4, sub_4)
+        get_index_5 = self.get_index('index3')
+        store = ops.store('buf1', get_index_5, mul_4, None)
+        return store
+
+
+buf2: SchedulerNode(ComputedBuffer)
+buf2.writes = [MemoryDep('buf2', c0, {c0: 393216})]
+buf2.unmet_dependencies = []
+buf2.met_dependencies = [MemoryDep('arg0_1', 500*(tmp10) + (tmp24) + 250000*c0, {c0: 6})]
+buf2.users = [NodeUser(node=SchedulerNode(name='buf4'), can_inplace=True, is_weak=False)]
+buf2.group.device = cpu
+buf2.group.iteration = ((6, 256, 256), ())
+buf2.sizes = ([6, 256, 256], [])
+class buf2_loop_body:
+    var_ranges = {z0: 6, z1: 256, z2: 256}
+    index0 = z1
+    index1 = z2
+    index2 = 500*indirect0 + indirect1 + 250000*z0
+    index3 = 65536*z0 + 256*z1 + z2
+    def body(self, ops):
+        get_index = self.get_index('index0')
+        index_expr = ops.index_expr(get_index, torch.uint8)
+        to_dtype = ops.to_dtype(index_expr, torch.float32, src_dtype = torch.uint8)
+        constant = ops.constant(0.5, torch.float32)
+        add = ops.add(to_dtype, constant)
+        constant_1 = ops.constant(1.953125, torch.float32)
+        mul = ops.mul(add, constant_1)
+        constant_2 = ops.constant(0.5, torch.float32)
+        sub = ops.sub(mul, constant_2)
+        constant_3 = ops.constant(0.0, torch.float32)
+        maximum = ops.maximum(sub, constant_3)
+        to_dtype_1 = ops.to_dtype(maximum, torch.int64, src_dtype = torch.float32)
+        set_indirect0 = self.set_indirect0(to_dtype_1)
+        get_index_1 = self.get_index('index1')
+        index_expr_1 = ops.index_expr(get_index_1, torch.uint8)
+        to_dtype_2 = ops.to_dtype(index_expr_1, torch.float32, src_dtype = torch.uint8)
+        constant_4 = ops.constant(0.5, torch.float32)
+        add_1 = ops.add(to_dtype_2, constant_4)
+        constant_5 = ops.constant(1.953125, torch.float32)
+        mul_1 = ops.mul(add_1, constant_5)
+        constant_6 = ops.constant(0.5, torch.float32)
+        sub_1 = ops.sub(mul_1, constant_6)
+        constant_7 = ops.constant(0.0, torch.float32)
+        maximum_1 = ops.maximum(sub_1, constant_7)
+        ceil = ops.ceil(maximum_1)
+        constant_8 = ops.constant(499.0, torch.float32)
+        minimum = ops.minimum(ceil, constant_8)
+        to_dtype_3 = ops.to_dtype(minimum, torch.int64, src_dtype = torch.float32)
+        set_indirect1 = self.set_indirect1(to_dtype_3)
+        get_index_2 = self.get_index('index2')
+        load = ops.load('arg0_1', get_index_2)
+        to_dtype_4 = ops.to_dtype(load, torch.float32, src_dtype = torch.uint8)
+        get_index_3 = self.get_index('index0')
+        index_expr_2 = ops.index_expr(get_index_3, torch.uint8)
+        to_dtype_5 = ops.to_dtype(index_expr_2, torch.float32, src_dtype = torch.uint8)
+        constant_9 = ops.constant(0.5, torch.float32)
+        add_2 = ops.add(to_dtype_5, constant_9)
+        constant_10 = ops.constant(1.953125, torch.float32)
+        mul_2 = ops.mul(add_2, constant_10)
+        constant_11 = ops.constant(0.5, torch.float32)
+        sub_2 = ops.sub(mul_2, constant_11)
+        constant_12 = ops.constant(0.0, torch.float32)
+        maximum_2 = ops.maximum(sub_2, constant_12)
+        get_index_4 = self.get_index('index0')
+        index_expr_3 = ops.index_expr(get_index_4, torch.uint8)
+        to_dtype_6 = ops.to_dtype(index_expr_3, torch.float32, src_dtype = torch.uint8)
+        constant_13 = ops.constant(0.5, torch.float32)
+        add_3 = ops.add(to_dtype_6, constant_13)
+        constant_14 = ops.constant(1.953125, torch.float32)
+        mul_3 = ops.mul(add_3, constant_14)
+        constant_15 = ops.constant(0.5, torch.float32)
+        sub_3 = ops.sub(mul_3, constant_15)
+        constant_16 = ops.constant(0.0, torch.float32)
+        maximum_3 = ops.maximum(sub_3, constant_16)
+        to_dtype_7 = ops.to_dtype(maximum_3, torch.int64, src_dtype = torch.float32)
+        to_dtype_8 = ops.to_dtype(to_dtype_7, torch.float32, src_dtype = torch.int64)
+        sub_4 = ops.sub(maximum_2, to_dtype_8)
+        constant_17 = ops.constant(1.0, torch.float32)
+        sub_5 = ops.sub(constant_17, sub_4)
+        mul_4 = ops.mul(to_dtype_4, sub_5)
+        get_index_5 = self.get_index('index3')
+        store = ops.store('buf2', get_index_5, mul_4, None)
+        return store
+
+
+buf3: SchedulerNode(ComputedBuffer)
+buf3.writes = [MemoryDep('buf3', c0, {c0: 393216})]
+buf3.unmet_dependencies = []
+buf3.met_dependencies = [MemoryDep('arg0_1', 500*(tmp13) + (tmp27) + 250000*c0, {c0: 6})]
+buf3.users = [NodeUser(node=SchedulerNode(name='buf4'), can_inplace=True, is_weak=False)]
+buf3.group.device = cpu
+buf3.group.iteration = ((6, 256, 256), ())
+buf3.sizes = ([6, 256, 256], [])
+class buf3_loop_body:
+    var_ranges = {z0: 6, z1: 256, z2: 256}
+    index0 = z1
+    index1 = z2
+    index2 = 500*indirect0 + indirect1 + 250000*z0
+    index3 = 65536*z0 + 256*z1 + z2
+    def body(self, ops):
+        get_index = self.get_index('index0')
+        index_expr = ops.index_expr(get_index, torch.uint8)
+        to_dtype = ops.to_dtype(index_expr, torch.float32, src_dtype = torch.uint8)
+        constant = ops.constant(0.5, torch.float32)
+        add = ops.add(to_dtype, constant)
+        constant_1 = ops.constant(1.953125, torch.float32)
+        mul = ops.mul(add, constant_1)
+        constant_2 = ops.constant(0.5, torch.float32)
+        sub = ops.sub(mul, constant_2)
+        constant_3 = ops.constant(0.0, torch.float32)
+        maximum = ops.maximum(sub, constant_3)
+        ceil = ops.ceil(maximum)
+        constant_4 = ops.constant(499.0, torch.float32)
+        minimum = ops.minimum(ceil, constant_4)
+        to_dtype_1 = ops.to_dtype(minimum, torch.int64, src_dtype = torch.float32)
+        set_indirect0 = self.set_indirect0(to_dtype_1)
+        get_index_1 = self.get_index('index1')
+        index_expr_1 = ops.index_expr(get_index_1, torch.uint8)
+        to_dtype_2 = ops.to_dtype(index_expr_1, torch.float32, src_dtype = torch.uint8)
+        constant_5 = ops.constant(0.5, torch.float32)
+        add_1 = ops.add(to_dtype_2, constant_5)
+        constant_6 = ops.constant(1.953125, torch.float32)
+        mul_1 = ops.mul(add_1, constant_6)
+        constant_7 = ops.constant(0.5, torch.float32)
+        sub_1 = ops.sub(mul_1, constant_7)
+        constant_8 = ops.constant(0.0, torch.float32)
+        maximum_1 = ops.maximum(sub_1, constant_8)
+        ceil_1 = ops.ceil(maximum_1)
+        constant_9 = ops.constant(499.0, torch.float32)
+        minimum_1 = ops.minimum(ceil_1, constant_9)
+        to_dtype_3 = ops.to_dtype(minimum_1, torch.int64, src_dtype = torch.float32)
+        set_indirect1 = self.set_indirect1(to_dtype_3)
+        get_index_2 = self.get_index('index2')
+        load = ops.load('arg0_1', get_index_2)
+        to_dtype_4 = ops.to_dtype(load, torch.float32, src_dtype = torch.uint8)
+        get_index_3 = self.get_index('index0')
+        index_expr_2 = ops.index_expr(get_index_3, torch.uint8)
+        to_dtype_5 = ops.to_dtype(index_expr_2, torch.float32, src_dtype = torch.uint8)
+        constant_10 = ops.constant(0.5, torch.float32)
+        add_2 = ops.add(to_dtype_5, constant_10)
+        constant_11 = ops.constant(1.953125, torch.float32)
+        mul_2 = ops.mul(add_2, constant_11)
+        constant_12 = ops.constant(0.5, torch.float32)
+        sub_2 = ops.sub(mul_2, constant_12)
+        constant_13 = ops.constant(0.0, torch.float32)
+        maximum_2 = ops.maximum(sub_2, constant_13)
+        get_index_4 = self.get_index('index0')
+        index_expr_3 = ops.index_expr(get_index_4, torch.uint8)
+        to_dtype_6 = ops.to_dtype(index_expr_3, torch.float32, src_dtype = torch.uint8)
+        constant_14 = ops.constant(0.5, torch.float32)
+        add_3 = ops.add(to_dtype_6, constant_14)
+        constant_15 = ops.constant(1.953125, torch.float32)
+        mul_3 = ops.mul(add_3, constant_15)
+        constant_16 = ops.constant(0.5, torch.float32)
+        sub_3 = ops.sub(mul_3, constant_16)
+        constant_17 = ops.constant(0.0, torch.float32)
+        maximum_3 = ops.maximum(sub_3, constant_17)
+        to_dtype_7 = ops.to_dtype(maximum_3, torch.int64, src_dtype = torch.float32)
+        to_dtype_8 = ops.to_dtype(to_dtype_7, torch.float32, src_dtype = torch.int64)
+        sub_4 = ops.sub(maximum_2, to_dtype_8)
+        mul_4 = ops.mul(to_dtype_4, sub_4)
+        get_index_5 = self.get_index('index3')
+        store = ops.store('buf3', get_index_5, mul_4, None)
+        return store
+
+
+buf4: SchedulerNode(ComputedBuffer)
+buf4.writes = [MemoryDep('buf4', c0, {c0: 393216})]
+buf4.unmet_dependencies = 
+    [   MemoryDep('buf0', c0, {c0: 393216}),
+        MemoryDep('buf1', c0, {c0: 393216}),
+        MemoryDep('buf2', c0, {c0: 393216}),
+        MemoryDep('buf3', c0, {c0: 393216})]
+buf4.met_dependencies = []
+buf4.users = [NodeUser(node=SchedulerNode(name='buf5'), can_inplace=True, is_weak=False)]
+buf4.group.device = cpu
+buf4.group.iteration = ((1536, 256), ())
+buf4.sizes = ([1536, 256], [])
+class buf4_loop_body:
+    var_ranges = {z0: 1536, z1: 256}
+    index0 = 256*z0 + z1
+    index1 = z1
+    def body(self, ops):
+        get_index = self.get_index('index0')
+        load = ops.load('buf0', get_index)
+        get_index_1 = self.get_index('index0')
+        load_1 = ops.load('buf1', get_index_1)
+        add = ops.add(load, load_1)
+        get_index_2 = self.get_index('index1')
+        index_expr = ops.index_expr(get_index_2, torch.uint8)
+        to_dtype = ops.to_dtype(index_expr, torch.float32, src_dtype = torch.uint8)
+        constant = ops.constant(0.5, torch.float32)
+        add_1 = ops.add(to_dtype, constant)
+        constant_1 = ops.constant(1.953125, torch.float32)
+        mul = ops.mul(add_1, constant_1)
+        constant_2 = ops.constant(0.5, torch.float32)
+        sub = ops.sub(mul, constant_2)
+        constant_3 = ops.constant(0.0, torch.float32)
+        maximum = ops.maximum(sub, constant_3)
+        get_index_3 = self.get_index('index1')
+        index_expr_1 = ops.index_expr(get_index_3, torch.uint8)
+        to_dtype_1 = ops.to_dtype(index_expr_1, torch.float32, src_dtype = torch.uint8)
+        constant_4 = ops.constant(0.5, torch.float32)
+        add_2 = ops.add(to_dtype_1, constant_4)
+        constant_5 = ops.constant(1.953125, torch.float32)
+        mul_1 = ops.mul(add_2, constant_5)
+        constant_6 = ops.constant(0.5, torch.float32)
+        sub_1 = ops.sub(mul_1, constant_6)
+        constant_7 = ops.constant(0.0, torch.float32)
+        maximum_1 = ops.maximum(sub_1, constant_7)
+        to_dtype_2 = ops.to_dtype(maximum_1, torch.int64, src_dtype = torch.float32)
+        to_dtype_3 = ops.to_dtype(to_dtype_2, torch.float32, src_dtype = torch.int64)
+        sub_2 = ops.sub(maximum, to_dtype_3)
+        constant_8 = ops.constant(1.0, torch.float32)
+        sub_3 = ops.sub(constant_8, sub_2)
+        mul_2 = ops.mul(add, sub_3)
+        get_index_4 = self.get_index('index0')
+        load_2 = ops.load('buf2', get_index_4)
+        get_index_5 = self.get_index('index0')
+        load_3 = ops.load('buf3', get_index_5)
+        add_3 = ops.add(load_2, load_3)
+        get_index_6 = self.get_index('index1')
+        index_expr_2 = ops.index_expr(get_index_6, torch.uint8)
+        to_dtype_4 = ops.to_dtype(index_expr_2, torch.float32, src_dtype = torch.uint8)
+        constant_9 = ops.constant(0.5, torch.float32)
+        add_4 = ops.add(to_dtype_4, constant_9)
+        constant_10 = ops.constant(1.953125, torch.float32)
+        mul_3 = ops.mul(add_4, constant_10)
+        constant_11 = ops.constant(0.5, torch.float32)
+        sub_4 = ops.sub(mul_3, constant_11)
+        constant_12 = ops.constant(0.0, torch.float32)
+        maximum_2 = ops.maximum(sub_4, constant_12)
+        get_index_7 = self.get_index('index1')
+        index_expr_3 = ops.index_expr(get_index_7, torch.uint8)
+        to_dtype_5 = ops.to_dtype(index_expr_3, torch.float32, src_dtype = torch.uint8)
+        constant_13 = ops.constant(0.5, torch.float32)
+        add_5 = ops.add(to_dtype_5, constant_13)
+        constant_14 = ops.constant(1.953125, torch.float32)
+        mul_4 = ops.mul(add_5, constant_14)
+        constant_15 = ops.constant(0.5, torch.float32)
+        sub_5 = ops.sub(mul_4, constant_15)
+        constant_16 = ops.constant(0.0, torch.float32)
+        maximum_3 = ops.maximum(sub_5, constant_16)
+        to_dtype_6 = ops.to_dtype(maximum_3, torch.int64, src_dtype = torch.float32)
+        to_dtype_7 = ops.to_dtype(to_dtype_6, torch.float32, src_dtype = torch.int64)
+        sub_6 = ops.sub(maximum_2, to_dtype_7)
+        mul_5 = ops.mul(add_3, sub_6)
+        add_6 = ops.add(mul_2, mul_5)
+        get_index_8 = self.get_index('index0')
+        store = ops.store('buf4', get_index_8, add_6, None)
+        return store
+
+
+buf5: SchedulerNode(ComputedBuffer)
+buf5.writes = [MemoryDep('buf5', c0, {c0: 393216})]
+buf5.unmet_dependencies = [MemoryDep('buf4', c0, {c0: 393216})]
+buf5.met_dependencies = []
+buf5.users = [NodeUser(node=OUTPUT, can_inplace=False, is_weak=False)]
+buf5.group.device = cpu
+buf5.group.iteration = ((393216,), ())
+buf5.sizes = ([393216], [])
+class buf5_loop_body:
+    var_ranges = {z0: 393216}
+    index0 = z0
+    def body(self, ops):
+        get_index = self.get_index('index0')
+        load = ops.load('buf4', get_index)
+        to_dtype = ops.to_dtype(load, torch.uint8, src_dtype = torch.float32)
+        get_index_1 = self.get_index('index0')
+        store = ops.store('buf5', get_index_1, to_dtype, None)
+        return store
+
+
