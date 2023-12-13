@@ -744,29 +744,22 @@ Times are in microseconds (us).
 ## Test
 
 ```
-pytest -vvv test/test_decomp.py -k "interpolate_bil or upsample_bil"
-pytest -vvv test/inductor/test_torchinductor_opinfo.py -k "interp or upsampl"
-pytest -vvv test/functorch/test_aotdispatch.py -k "interp or upsampl"
-pytest -vvv test/functorch/test_ops.py -k "interp or upsampl"
-pytest -vvv test/test_meta.py -k "interp or upsampl"
-pytest -vvv test/test_proxy_tensor.py -k "interp or upsampl"
-pytest -vvv test/test_decomp.py::HasDecompTest::test_has_decomposition
+pytest -vvv test/test_decomp.py -k "interpolate_bil or upsample_bil" && \
+pytest -vvv test/inductor/test_torchinductor_opinfo.py -k "interp or upsampl" && \
+pytest -vvv test/inductor/test_torchinductor_dynamic_shapes.py -k "interp or upsampl" && \
+pytest -vvv test/functorch/test_aotdispatch.py -k "interp or upsampl" && \
+pytest -vvv test/functorch/test_ops.py -k "interp or upsampl" && \
+pytest -vvv test/test_meta.py -k "interp or upsampl" && \
+pytest -vvv test/test_proxy_tensor.py -k "interp or upsampl" && \
+pytest -vvv test/test_decomp.py::HasDecompTest::test_has_decomposition && \
 pytest -vvv test/functorch/test_vmap.py -k "interp or upsampl"
 
 
+
+pytest -vvv test/inductor/test_torchinductor_dynamic_shapes.py::DynamicShapesCpuTests::test_upsample_bilinear2d_b_dynamic_shapes_cpu
 pytest -vvv test/test_proxy_tensor.py::TestProxyTensorOpInfoCPU::test_make_fx_symbolic_exhaustive_nn_functional_interpolate_bilinear_cpu_float32
 pytest -vvv test/test_proxy_tensor.py::TestProxyTensorOpInfoCPU::test_make_fx_symbolic_exhaustive_nn_functional_interpolate_bicubic_cpu_float32
-
 pytest -vvv test/functorch/test_vmap.py::TestVmapOperatorsOpInfoCUDA::test_op_has_batch_rule_nn_functional_interpolate_bicubic_cuda_float32
-```
-
-
-```
-FAILED [1.1219s] test/test_decomp.py::TestDecompCPU::test_comprehensive_nn_functional_interpolate_bilinear_cpu_uint8
-
-FAILED [0.1714s] test/test_decomp.py::TestDecompCPU::test_comprehensive_nn_functional_upsample_bilinear_cpu_uint8
-
-FAILED [1.3664s] test/test_decomp.py::TestDecompCUDA::test_comprehensive_nn_functional_interpolate_bilinear_cuda_bfloat16
 ```
 
 

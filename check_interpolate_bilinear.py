@@ -9,12 +9,13 @@ if not ("OMP_NUM_THREADS" in os.environ):
     torch.set_num_threads(1)
 
 
-def transform(img, osize):
-    img = torch.nn.functional.interpolate(img, size=osize, mode="bilinear", antialias=False, align_corners=False)
+def transform(img, osize, align_corners):
+    img = torch.nn.functional.interpolate(img, size=osize, mode="bilinear", antialias=False, align_corners=align_corners)
     return img
 
-device = "cuda"
-# device = "cpu"
+# device = "cuda"
+device = "cpu"
+align_corners = True
 
 c_transform = torch.compile(transform, dynamic=True)
 
@@ -22,10 +23,13 @@ c_transform = torch.compile(transform, dynamic=True)
 memory_format = torch.contiguous_format
 
 
+#   Input (4, 3, 1200, 1300), torch.uint8, torch.contiguous_format | mode: bilinear, align_corners: True, antialias: False, osize: (200, 300)     |       9866.441 (+-50.617)       |        5639.161 (+-16.663)         |           1628.572 (+-19.770)           |     0.289 (+-0.000)      |         9893.606 (+-62.377)
+
 torch.manual_seed(12)
 # x = torch.randint(0, 256, size=(2, 3, 500, 400), dtype=torch.uint8)
 # x = torch.randint(0, 256, size=(1, 3, 500, 400), dtype=torch.uint8)
-x = torch.randint(0, 256, size=(1, 3, 500, 400), dtype=torch.float32)
+x = torch.randint(0, 256, size=(4, 3, 1200, 1300), dtype=torch.uint8)
+# x = torch.randint(0, 256, size=(1, 3, 500, 400), dtype=torch.float32)
 
 # Input (1, 3, 1200, 1300), torch.uint8, torch.contiguous_format | mode: bilinear, align_corners: True, osize: (200, 300)
 # x = torch.randint(0, 256, size=(1, 3, 1200, 1300), dtype=torch.uint8, device=device)
@@ -41,11 +45,12 @@ x = x.to(device=device)
 # x = torch.rand(2, 3, *isize, device=device)
 
 # osize = (500, 256)
-osize = (300, 256)
-# osize = (200, 300)
+# osize = (300, 256)
+osize = (200, 300)
+# osize = (600, 700)
 
-output = c_transform(x, osize)
-expected = transform(x, osize)
+output = c_transform(x, osize, align_corners=align_corners)
+expected = transform(x, osize, align_corners=align_corners)
 # expected_f = transform(x.float(), osize)
 
 torch.set_printoptions(precision=6)

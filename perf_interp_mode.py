@@ -157,10 +157,6 @@ def main(
             if kwargs["device"] in skip_devices:
                 continue
 
-            if kwargs["align_corners"] and kwargs["dtype"] == torch.uint8 and kwargs["device"] == "cpu":
-                # skip as inductor C++ codegen is broken
-                continue
-
             input_kwargs = {k: kwargs[k] for k in kwargs if k in input_test_cases}
             op_kwargs = {k: kwargs[k] for k in kwargs if k in op_test_cases}
 

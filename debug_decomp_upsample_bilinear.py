@@ -110,20 +110,19 @@ def upsample_bilinear2d(
     j = torch.arange(output_size[1], device=input.device)
 
     x_f32 = _compute_source_index(w_scale_factor, j, align_corners).clamp(min=0.0)
-    y_f32 = _compute_source_index(h_scale_factor, i, align_corners).clamp(min=0.0)
-    x = x_f32.to(torch.long)
-    y = y_f32.to(torch.long)
+    y_f32 = _compute_source_index(h_scale_factor, i, align_corners).clamp(min=0.0).unsqueeze(-1)
+    x = x_f32.to(torch.int64)
+    y = y_f32.to(torch.int64)
 
-    xp1 = (x + 1).clamp(max=in_w - 1).to(torch.int64)
-    yp1 = (y + 1).clamp(max=in_h - 1).to(torch.int64)
+    # xp1 = (x + 1).clamp(max=in_w - 1).to(torch.int64)
+    # yp1 = (y + 1).clamp(max=in_h - 1).to(torch.int64)
+    xp1 = torch.where(x < in_w - 1, x + 1, x)
+    yp1 = torch.where(y < in_h - 1, y + 1, y)
 
-    y_view = y.unsqueeze(-1)
-    yp1_view = yp1.unsqueeze(-1)
-
-    v1 = input[..., y_view, x]
-    v2 = input[..., y_view, xp1]
-    v3 = input[..., yp1_view, x]
-    v4 = input[..., yp1_view, xp1]
+    v1 = input[..., y, x]
+    v2 = input[..., y, xp1]
+    v3 = input[..., yp1, x]
+    v4 = input[..., yp1, xp1]
 
     dtype = torch.float32 if not input.is_floating_point() else input.dtype
     if not input.is_floating_point():
@@ -138,7 +137,7 @@ def upsample_bilinear2d(
     # x1 * (1 - alpha) + x2 * alpha == x1 + (x2 - x1) * alpha
     q1 = v1 + torch.mul(v2 - v1, xscale)
     q2 = v3 + torch.mul(v4 - v3, xscale)
-    output = q1 + torch.mul(q2 - q1, yscale.unsqueeze(-1))
+    output = q1 + torch.mul(q2 - q1, yscale)
 
     # convert output to correct memory format, if necessary
     # memory_format = utils.suggest_memory_format(input)
@@ -155,13 +154,13 @@ def upsample_bilinear2d(
 
     return output
 
-def transform(img, osize):
-    img = torch.nn.functional.interpolate(img, size=osize, mode="bilinear", antialias=False, align_corners=False)
+def transform(img, osize, align_corners=False):
+    img = torch.nn.functional.interpolate(img, size=osize, mode="bilinear", antialias=False, align_corners=align_corners)
     return img
 
 
-def c_transform(img, osize):
-    out = upsample_bilinear2d(img, osize, align_corners=False)
+def c_transform(img, osize, align_corners=False):
+    out = upsample_bilinear2d(img, osize, align_corners=align_corners)
     if out.dtype != img.dtype:
         out = out.to(img.dtype)
     return out
@@ -173,8 +172,8 @@ device = "cpu"
 memory_format = torch.contiguous_format
 
 torch.manual_seed(12)
-x = torch.randint(0, 256, size=(2, 3, 500, 400), dtype=torch.uint8)
-# x = torch.randint(0, 256, size=(2, 3, 500, 500), dtype=torch.float32)
+# x = torch.randint(0, 256, size=(2, 3, 500, 400), dtype=torch.uint8)
+x = torch.randint(0, 256, size=(2, 3, 500, 400), dtype=torch.float32)
 
 # Input (1, 3, 1200, 1300), torch.uint8, torch.contiguous_format | mode: bilinear, align_corners: True, osize: (200, 300)
 # x = torch.randint(0, 256, size=(1, 3, 1200, 1300), dtype=torch.uint8)
