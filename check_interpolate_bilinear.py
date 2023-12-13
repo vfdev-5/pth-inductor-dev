@@ -13,9 +13,9 @@ def transform(img, osize, align_corners):
     img = torch.nn.functional.interpolate(img, size=osize, mode="bilinear", antialias=False, align_corners=align_corners)
     return img
 
-# device = "cuda"
-device = "cpu"
-align_corners = True
+device = "cuda"
+# device = "cpu"
+align_corners = False
 
 c_transform = torch.compile(transform, dynamic=True)
 
@@ -28,11 +28,13 @@ memory_format = torch.contiguous_format
 torch.manual_seed(12)
 # x = torch.randint(0, 256, size=(2, 3, 500, 400), dtype=torch.uint8)
 # x = torch.randint(0, 256, size=(1, 3, 500, 400), dtype=torch.uint8)
-x = torch.randint(0, 256, size=(4, 3, 1200, 1300), dtype=torch.uint8)
+# x = torch.randint(0, 256, size=(4, 3, 1200, 1300), dtype=torch.uint8)
 # x = torch.randint(0, 256, size=(1, 3, 500, 400), dtype=torch.float32)
 
 # Input (1, 3, 1200, 1300), torch.uint8, torch.contiguous_format | mode: bilinear, align_corners: True, osize: (200, 300)
 # x = torch.randint(0, 256, size=(1, 3, 1200, 1300), dtype=torch.uint8, device=device)
+
+x = torch.randint(0, 256, size=(1, 3, 2345, 2456), dtype=torch.float32, device=device)
 
 # x = torch.arange(3 * 345 * 456, device=device).reshape(1, 3, 345, 456).to(torch.uint8, device=device)
 # x = torch.arange(3 * 345 * 456, device=device).reshape(1, 3, 345, 456).to(torch.uint8, device=device)
@@ -46,8 +48,9 @@ x = x.to(device=device)
 
 # osize = (500, 256)
 # osize = (300, 256)
-osize = (200, 300)
+# osize = (200, 300)
 # osize = (600, 700)
+osize = (1234, 1345)
 
 output = c_transform(x, osize, align_corners=align_corners)
 expected = transform(x, osize, align_corners=align_corners)
