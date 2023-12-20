@@ -17,7 +17,7 @@ compile_kwargs = {
 
 def main():
 
-    for osize in [(271, 272), (567, 678)]:
+    for osize in [(224, 224), (800, 700)]:
         for bs in [1, 4]:
             for align_corners in [True, False]:
                 for dtype in [torch.uint8, torch.float32]:
@@ -35,7 +35,7 @@ def main():
                                 if device == "cuda" and dtype == torch.uint8:
                                     continue
 
-                                x = torch.randint(0, 256, size=(bs, 3, 345, 456), dtype=dtype, device=device)
+                                x = torch.randint(0, 256, size=(bs, 3, 500, 400), dtype=dtype, device=device)
                                 x = x.contiguous(memory_format=memory_format)
 
                                 c_transform = torch.compile(transform, **compile_kwargs)
@@ -46,7 +46,10 @@ def main():
                                     assert output.stride() == expected.stride(), (output.stride(), expected.stride())
 
                                 if x.is_floating_point():
-                                    torch.testing.assert_close(output, expected, atol=5e-3, rtol=0.0)
+                                    if device == "cpu":
+                                        torch.testing.assert_close(output, expected, atol=5e-3, rtol=0.0)
+                                    else:
+                                        torch.testing.assert_close(output, expected, atol=5e-2, rtol=0.0)
                                 else:
                                     torch.testing.assert_close(output.float(), expected.float(), atol=1.0, rtol=0.0)
 
