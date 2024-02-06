@@ -11,7 +11,7 @@ python -u perf_interp_nearest.py output --tag=Nightly --mode=nearest
 
 - PR
 ```
-python -u perf_interp_nearest.py output --tag=PR
+python -u perf_interp_nearest.py output --tag=PR --mode=nearest
 
 python -u make_results_table_from_pickles.py output/$(date "+%Y%m%d-%H%M%S")-pr_vs_nightly.md output/XYZ-pr.pkl output/ABC-nightly.pkl
 

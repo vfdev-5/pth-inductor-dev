@@ -1,0 +1,34 @@
+buf0: SchedulerNode(ComputedBuffer)
+buf0.writes = [MemoryDep('buf0', c0, {c0: 122880})]
+buf0.unmet_dependencies = []
+buf0.met_dependencies = [MemoryDep('arg0_1', 4*(tmp3) + (tmp7) + 16*c0, {c0: 1920})]
+buf0.users = [NodeUser(node=OUTPUT, can_inplace=False, is_weak=False)]
+buf0.group.device = cpu
+buf0.group.iteration = ((1920, 8, 8), ())
+buf0.sizes = ([1920, 8, 8], [])
+class buf0_loop_body:
+    var_ranges = {z0: 1920, z1: 8, z2: 8}
+    index0 = z1
+    index1 = z2
+    index2 = 4*indirect0 + indirect1 + 16*z0
+    index3 = 64*z0 + 8*z1 + z2
+    def body(self, ops):
+        get_index = self.get_index('index0')
+        index_expr = ops.index_expr(get_index, torch.float32)
+        constant = ops.constant(2.0, torch.float32)
+        mul = ops.mul(index_expr, constant)
+        to_dtype = ops.to_dtype(mul, torch.int32)
+        set_indirect0 = self.set_indirect0(to_dtype)
+        get_index_1 = self.get_index('index1')
+        index_expr_1 = ops.index_expr(get_index_1, torch.float32)
+        constant_1 = ops.constant(2.0, torch.float32)
+        mul_1 = ops.mul(index_expr_1, constant_1)
+        to_dtype_1 = ops.to_dtype(mul_1, torch.int32)
+        set_indirect1 = self.set_indirect1(to_dtype_1)
+        get_index_2 = self.get_index('index2')
+        load = ops.load('arg0_1', get_index_2)
+        get_index_3 = self.get_index('index3')
+        store = ops.store('buf0', get_index_3, load, None)
+        return store
+
+

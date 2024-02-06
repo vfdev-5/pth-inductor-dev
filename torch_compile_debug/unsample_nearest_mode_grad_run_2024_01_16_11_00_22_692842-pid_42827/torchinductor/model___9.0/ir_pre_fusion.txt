@@ -1,0 +1,50 @@
+buf0: SchedulerNode(ComputedBuffer)
+buf0.writes = [MemoryDep('buf0', c0, {c0: 122880})]
+buf0.unmet_dependencies = []
+buf0.met_dependencies = [MemoryDep('arg0_1', 4*(tmp11) + (tmp23) + 16*c0, {c0: 1920})]
+buf0.users = [NodeUser(node=OUTPUT, can_inplace=False, is_weak=False)]
+buf0.group.device = cpu
+buf0.group.iteration = ((1920, 8, 8), ())
+buf0.sizes = ([1920, 8, 8], [])
+class buf0_loop_body:
+    var_ranges = {z0: 1920, z1: 8, z2: 8}
+    index0 = z1
+    index1 = z2
+    index2 = 4*indirect0 + indirect1 + 16*z0
+    index3 = 64*z0 + 8*z1 + z2
+    def body(self, ops):
+        get_index = self.get_index('index0')
+        index_expr = ops.index_expr(get_index, torch.int64)
+        to_dtype = ops.to_dtype(index_expr, torch.float64, src_dtype = torch.int64)
+        constant = ops.constant(1.0, torch.float64)
+        mul = ops.mul(to_dtype, constant)
+        constant_1 = ops.constant(0.0, torch.float64)
+        add = ops.add(mul, constant_1)
+        to_dtype_1 = ops.to_dtype(add, torch.float32, src_dtype = torch.float64)
+        constant_2 = ops.constant(0.0, torch.float32)
+        add_1 = ops.add(to_dtype_1, constant_2)
+        constant_3 = ops.constant(0.5, torch.float32)
+        mul_1 = ops.mul(add_1, constant_3)
+        to_dtype_2 = ops.to_dtype(mul_1, torch.int64, src_dtype = torch.float32)
+        set_indirect0 = self.set_indirect0(to_dtype_2)
+        get_index_1 = self.get_index('index1')
+        index_expr_1 = ops.index_expr(get_index_1, torch.int64)
+        to_dtype_3 = ops.to_dtype(index_expr_1, torch.float64, src_dtype = torch.int64)
+        constant_4 = ops.constant(1.0, torch.float64)
+        mul_2 = ops.mul(to_dtype_3, constant_4)
+        constant_5 = ops.constant(0.0, torch.float64)
+        add_2 = ops.add(mul_2, constant_5)
+        to_dtype_4 = ops.to_dtype(add_2, torch.float32, src_dtype = torch.float64)
+        constant_6 = ops.constant(0.0, torch.float32)
+        add_3 = ops.add(to_dtype_4, constant_6)
+        constant_7 = ops.constant(0.5, torch.float32)
+        mul_3 = ops.mul(add_3, constant_7)
+        to_dtype_5 = ops.to_dtype(mul_3, torch.int64, src_dtype = torch.float32)
+        set_indirect1 = self.set_indirect1(to_dtype_5)
+        get_index_2 = self.get_index('index2')
+        load = ops.load('arg0_1', get_index_2)
+        get_index_3 = self.get_index('index3')
+        store = ops.store('buf0', get_index_3, load, None)
+        return store
+
+

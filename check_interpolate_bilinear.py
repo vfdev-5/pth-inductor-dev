@@ -13,8 +13,8 @@ def transform(img, osize, align_corners):
     img = torch.nn.functional.interpolate(img, size=osize, mode="bilinear", antialias=False, align_corners=align_corners)
     return img
 
-device = "cuda"
-# device = "cpu"
+# device = "cuda"
+device = "cpu"
 align_corners = False
 
 # backend = "eager"
