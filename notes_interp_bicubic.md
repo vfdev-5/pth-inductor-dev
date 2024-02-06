@@ -2,6 +2,26 @@
 
 ## Performance benchmark
 
+- Nightly
+```bash
+python perf_interp_mode.py output --tag=Nightly --mode=bicubic
+```
+
+- PR
+```bash
+python perf_interp_mode.py output --tag=PR --mode=bicubic
+
+pr_pkl=output/20240118-140606-upsample-bicubic-PR.pkl
+ni_pkl=output/20240118-133434-upsample-bicubic-Nightly.pkl
+out_name=$(date "+%Y%m%d-%H%M%S")-upsample-bicubic-pr_vs_nightly
+
+python -u make_results_table_from_pickles.py output/${out_name}.md $pr_pkl $ni_pkl
+python -u perf_results_compute_speedup_v2.py output/${out_name}-speedup.md $pr_pkl $ni_pkl --compare "Compiled .+ PR;Compiled .+ Nightly;speed-up PR vs Nightly"
+```
+
+
+## First Performance benchmark
+
 - `main`
 ```
 [-------------------------- Interpolate bicubic, AA=false, cpu -------------------------]
