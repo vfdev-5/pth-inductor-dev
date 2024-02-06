@@ -58,7 +58,7 @@ class CustomizedTable(Table):
 def get_new_tables(compare, list_col1_col2_desc, debug):
     results = common.Measurement.merge(compare._results)
     grouped_results = compare._group_by_label(results)
-    assert len(grouped_results.values()) > 1, [len(grouped_results.values()), grouped_results.values()]
+    assert len(grouped_results.values()) >= 1, [len(grouped_results.values()), grouped_results.values()]
 
     output_tables = []
     for group in grouped_results.values():

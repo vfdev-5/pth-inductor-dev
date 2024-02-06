@@ -17,7 +17,12 @@ device = "cuda"
 # device = "cpu"
 align_corners = False
 
-c_transform = torch.compile(transform, dynamic=True)
+# backend = "eager"
+# backend = "aot_eager_decomp_partition"
+# backend = "aot_eager"
+backend = "inductor"
+
+c_transform = torch.compile(transform, dynamic=True, backend=backend)
 
 # memory_format = torch.channels_last
 memory_format = torch.contiguous_format

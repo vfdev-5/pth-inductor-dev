@@ -104,8 +104,13 @@ def main(
     torch.set_num_threads(num_threads)
     from datetime import datetime
 
+    if mode is None:
+        modes = ["nearest", "nearest-exact"]
+    else:
+        modes = [mode, ]
+
     now = datetime.now().strftime('%Y%m%d-%H%M%S')
-    output_filepath = Path(output_folder) / f"{now}-upsample-nearest-{tag}.pkl"
+    output_filepath = Path(output_folder) / f"{now}-upsample-{'-'.join(modes)}-{tag}.pkl"
 
     print(f"Output filepath: {str(output_filepath)}")
     print(f"Torch version: {torch.__version__}")
@@ -113,11 +118,6 @@ def main(
     print(f"Torch config: {torch.__config__.show()}")
     print(f"Num threads: {torch.get_num_threads()}")
     print("")
-
-    if mode is None:
-        modes = ["nearest", "nearest-exact"]
-    else:
-        modes = [mode, ]
 
     test_results = []
 
