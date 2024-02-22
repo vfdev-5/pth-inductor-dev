@@ -119,18 +119,18 @@ def main(
         # "device": ["cuda", ],
         # "bs": [1, 4],
         "bs": [1, ],
-        # "dtype": [torch.uint8, torch.float32],
+        "dtype": [torch.uint8, torch.float32],
         # "dtype": [torch.uint8, ],
-        "dtype": [torch.float32, ],
-        # "memory_format": [torch.contiguous_format, torch.channels_last],
-        "memory_format": [torch.contiguous_format, ],
+        # "dtype": [torch.float32, ],
+        "memory_format": [torch.contiguous_format, torch.channels_last],
+        # "memory_format": [torch.contiguous_format, ],
     }
 
     op_test_cases = {
         "mode": modes,
-        # "align_corners": [True, False],
+        "align_corners": [True, False],
         # "align_corners": [True, ],
-        "align_corners": [False, ],
+        # "align_corners": [False, ],
         "antialias": [antialias, ],
     }
 
@@ -147,10 +147,10 @@ def main(
 
         for isize, osize, skip_devices in [
             [(500, 400), (256, 256), ("cuda", )],
-            # [(1200, 1300), (200, 300), ("cuda", )],
-            # [(300, 400), (600, 700), ("cuda", )],
+            [(1200, 1300), (200, 300), ("cuda", )],
+            [(300, 400), (600, 700), ("cuda", )],
             [(2345, 2456), (1234, 1345), ("cpu", )],
-            # [(1234, 1345), (2345, 2456), ("cpu", )],
+            [(1234, 1345), (2345, 2456), ("cpu", )],
         ]:
             if kwargs["device"] in "cuda" and kwargs["dtype"] == torch.uint8:
                 continue

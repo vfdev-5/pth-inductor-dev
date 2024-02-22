@@ -11,11 +11,11 @@ if not ("OMP_NUM_THREADS" in os.environ):
 
 def func(x):
     # node 1 with reduction
-    y = x[0, 0, 0, :]
-    y = y.flip(-1)
-    z = x.view(*x.shape, 1) * y.view(1, -1)
-    x = (z * x.view(*x.shape, 1)).sum(-1)
-
+    # y = x[0, 0, 0, :]
+    # y = y.flip(-1)
+    # z = x.view(*x.shape, 1) * y.view(1, -1)
+    # x = (z * x.view(*x.shape, 1)).sum(-1)
+    x = x + 0.5
     # node 2
     x = x.contiguous()
     return x

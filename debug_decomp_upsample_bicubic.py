@@ -4,6 +4,7 @@ from torch import Tensor
 from functools import partial, reduce
 
 
+print(torch.__version__)
 print(torch.__config__.show())
 
 
@@ -168,14 +169,9 @@ def upsample_bicubic2d_new_uint8(
         return v
 
     weights_x = _upsample_get_cubic_coefficients(xscale)
-    print("weights_x:", weights_x[0].shape, weights_x[1].shape, weights_x[2].shape, weights_x[3].shape)
     weights_y = _upsample_get_cubic_coefficients(yscale)
-    print("weights_y:", weights_y[0].shape, weights_y[1].shape, weights_y[2].shape, weights_y[3].shape)
 
-    print("1 weights_x:", weights_x[0][:5], weights_x[1][:5], weights_x[2][:5], weights_x[3][:5])
-    print("1 weights_y:", weights_y[0][:5], weights_y[1][:5], weights_y[2][:5], weights_y[3][:5])
-
-    def _compute_max_and_precision(weights: Tuple[Tensor]) -> Tuple[float, float]:
+    def _compute_max_and_precision(weights: Tuple[Tensor]) -> float:
         max_weight = max([t.max() for t in weights]).item()
         weights_precision = 0
         for _ in range(22):
@@ -188,9 +184,6 @@ def upsample_bicubic2d_new_uint8(
     weights_precision_x = _compute_max_and_precision(weights_x)
     weights_precision_y = _compute_max_and_precision(weights_y)
 
-    print("weights_precision_x:", weights_precision_x)
-    print("weights_precision_y:", weights_precision_y)
-
     weights_x = [
         (w * (1 << weights_precision_x) + torch.sign(w) * 0.5).to(torch.int16)
         for w in weights_x
@@ -200,34 +193,24 @@ def upsample_bicubic2d_new_uint8(
         for w in weights_y
     ]
 
-    print("2 weights_x:", weights_x[0][:5], weights_x[1][:5], weights_x[2][:5], weights_x[3][:5])
-    print("2 weights_y:", weights_y[0][:5], weights_y[1][:5], weights_y[2][:5], weights_y[3][:5])
-
     def get_x_interp(y):
         src_x = tuple(load_bounded(y, x_ofs) for x_ofs in ixs_ofs)
 
-        # print("src_x:", src_x[0].dtype, src_x[0].shape)
         output = _sum_tensors(
             s.to(torch.int32) * c.to(torch.int32) for s, c in zip(src_x, weights_x)
         ) + (1 << (weights_precision_x - 1))
 
         output = output >> weights_precision_x
-        print("1 output: ", output.dtype, output[0, 0, :5, :5])
         output = torch.clamp(output, 0, 255).to(torch.uint8)
-        # print("2 output: ", output[0, 0, :5, :5])
         return output
 
     coeffs_y = tuple(get_x_interp(y_ofs) for y_ofs in iys_ofs)
-    result = coeffs_y[1]
 
-    # # print("coeffs_y:", coeffs_y[0].shape, coeffs_y[0].dtype, coeffs_y[0][0, 0, :5, :5])
-    # result = _sum_tensors(
-    #     s * c for s, c in zip(coeffs_y, weights_y)
-    # ) + (1 << (weights_precision_y - 1))
-    # # print("1 result:", result.shape, result.dtype, result[0, 0, :5, :5])
-    # result = result >> weights_precision_y
-    # # print("2 result:", result.shape, result.dtype, result[0, 0, :5, :5])
-    # result = torch.clamp(result, 0, 255)
+    result = _sum_tensors(
+        s.to(torch.int32) * c.to(torch.int32) for s, c in zip(coeffs_y, weights_y)
+    ) + (1 << (weights_precision_y - 1))
+    result = result >> weights_precision_y
+    result = torch.clamp(result, 0, 255)
     result = result.to(torch.uint8)
 
     # convert output to correct memory format, if necessary
@@ -305,7 +288,6 @@ def upsample_bicubic2d_new(
         result = torch.clamp(result.round(), 0, 255)
 
     return result
-
 
 
 def upsample_bicubic2d_old(
@@ -405,7 +387,8 @@ memory_format = torch.contiguous_format
 
 torch.manual_seed(12)
 # x = torch.randint(0, 256, size=(2, 3, 500, 400), dtype=torch.uint8)
-x = torch.randint(0, 256, size=(1, 3, 500, 400), dtype=torch.uint8)
+# x = torch.randint(0, 256, size=(1, 3, 500, 400), dtype=torch.uint8)
+x = torch.randint(30, 220, size=(1, 3, 500, 400), dtype=torch.uint8)
 
 # x = torch.randint(0, 256, size=(1, 3, 500, 400), dtype=torch.float32)
 # x = torch.randint(0, 256, size=(2, 3, 345, 456), dtype=torch.float32)
@@ -415,7 +398,9 @@ x = torch.randint(0, 256, size=(1, 3, 500, 400), dtype=torch.uint8)
 # x = torch.arange(3 * 345 * 456, device=device).reshape(1, 3, 345, 456).to(torch.uint8)
 # x = torch.arange(3 * 345 * 456, device=device).reshape(1, 3, 345, 456).to(torch.uint8)
 # x = x.to(torch.float32)
-# x = x.contiguous(memory_format=memory_format)
+
+x = x.contiguous(memory_format=memory_format)
+x = x.to(device)
 
 # isize = (4, 4)
 # osize = (3, 3)
@@ -425,11 +410,10 @@ x = torch.randint(0, 256, size=(1, 3, 500, 400), dtype=torch.uint8)
 # osize = (300, 256)
 # osize = (200, 300)
 # osize = (400, 500)
-# osize = (224, 224)
+osize = (224, 224)
 
 # osize = (500, 250)
-
-osize = (800, 700)
+# osize = (800, 700)
 
 
 # x = torch.tensor([

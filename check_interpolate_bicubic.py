@@ -8,6 +8,7 @@ if not ("OMP_NUM_THREADS" in os.environ):
     torch.set_num_threads(1)
 
 
+<<<<<<< HEAD
 def transform(img):
     # img = img[None, ...]
     # img = torch.nn.functional.interpolate(img, size=(270, 270), mode="bicubic", antialias=False, align_corners=True)
@@ -25,20 +26,25 @@ def transform(img):
 
     # img = torch.nn.functional.interpolate(img, size=(12, 32), mode="bicubic", antialias=False)
 
+=======
+def transform(img, osize, align_corners):
+    img = torch.nn.functional.interpolate(img, size=osize, mode="bicubic", antialias=False, align_corners=align_corners)
+>>>>>>> 11f96ab (Updates on 22/02/2023)
     return img
 
 
 # backend = "eager"
 # backend = "aot_eager_decomp_partition"
-backend = "aot_eager"
-# backend = "inductor"
+# backend = "aot_eager"
+backend = "inductor"
 
-c_transform = torch.compile(transform, dynamic=True, backend=backend)
+c_transform = torch.compile(transform, dynamic=True, backend=backend, fullgraph=True)
 
 # memory_format = torch.channels_last
 memory_format = torch.contiguous_format
 # device = "cuda"
 device = "cpu"
+align_corners = False
 
 # x = torch.randint(0, 256, size=(1, 3, 270, 456), dtype=torch.uint8)
 # x = torch.randint(0, 256, size=(1, 3, 345, 270), dtype=torch.uint8)
@@ -52,15 +58,17 @@ device = "cpu"
 
 torch.manual_seed(14)
 bs = 1
-x = torch.randint(0, 256, size=(bs, 3, 500, 400), dtype=torch.uint8, device=device)
-# x = torch.randint(0, 256, size=(bs, 3, 500, 400), dtype=torch.float32, device=device)
+# x = torch.randint(0, 256, size=(bs, 3, 500, 400), dtype=torch.uint8, device=device)
+x = torch.randint(0, 256, size=(bs, 3, 500, 400), dtype=torch.float32, device=device)
 # x = torch.arange(3 * 345 * 456, device=device).reshape(1, 3, 345, 456).to(torch.uint8).to(torch.float32)
 
 # x = torch.arange(3 * 32 * 32, device=device).reshape(1, 3, 32, 32).to(torch.uint8).to(torch.float32)
 x = x.contiguous(memory_format=memory_format)
 
-output = c_transform(x)
-expected = transform(x)
+osize = (224, 225)
+
+output = c_transform(x, osize, align_corners)
+expected = transform(x, osize, align_corners)
 # expected_f = transform(x.float())
 
 torch.set_printoptions(precision=7)
