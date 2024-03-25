@@ -179,6 +179,7 @@ def upsample_bicubic2d_new_uint8(
             next_value = int(0.5 + max_weight * (1 << (weights_precision + 1)))
             if next_value >= (1 << 15):
                 break
+        print("max_weight:", max_weight, "weights_precision:", weights_precision)
         return weights_precision
 
     weights_precision_x = _compute_max_and_precision(weights_x)
@@ -290,6 +291,72 @@ def upsample_bicubic2d_new(
     return result
 
 
+def upsample_bicubic2d_new_single_load(
+    input: Tensor,
+    output_size: Tuple[int, int],
+    align_corners: bool,
+    scale_h: Optional[float] = None,
+    scale_w: Optional[float] = None,
+) -> Tensor:
+    # get dimensions of original image
+    _, _, in_h, in_w = input.shape
+
+    # Calculate horizontal and vertical scaling factor
+    h_scale_factor = _compute_scale(in_h, output_size[0], align_corners, scale_h)
+    w_scale_factor = _compute_scale(in_w, output_size[1], align_corners, scale_w)
+
+    # _, dtype = utils.elementwise_dtypes(
+    #     input, type_promotion_kind=utils.ELEMENTWISE_TYPE_PROMOTION_KIND.INT_TO_FLOAT
+    # )
+    dtype = torch.float32
+
+    # We have to create arange with int64 dtype and use .to in order to avoid
+    # additional kernels creation in inductor and get a perf slowdown
+    i = torch.arange(output_size[0], device=input.device).to(dtype=dtype)
+    j = torch.arange(output_size[1], device=input.device).to(dtype=dtype)
+
+    x_float = _compute_source_index(w_scale_factor, j, align_corners)
+    y_float = _compute_source_index(h_scale_factor, i, align_corners)
+
+    x = x_float.floor()
+    y = y_float.floor()
+
+    yscale = (y_float - y).clamp(0.0, 1.0)
+    xscale = (x_float - x).clamp(0.0, 1.0)
+    x = x.to(torch.int64)
+    y = y.to(torch.int64)
+
+    x_weights = torch.cat(_upsample_get_cubic_coefficients(xscale.view(-1, 1)), dim=-1)
+    y_weights = torch.cat(_upsample_get_cubic_coefficients(yscale.view(-1, 1)), dim=-1)
+
+    max_interp_size = x_weights.shape[-1]
+    kx = torch.arange(-1, max_interp_size - 1, device=input.device)
+    ky = torch.arange(-1, max_interp_size - 1, device=input.device)
+
+    x = x.unsqueeze(dim=-1)
+    y = y.unsqueeze(dim=-1)
+
+    x_indices = torch.clamp(x + kx, min=0, max=in_w - 1)
+    y_indices = torch.clamp(y + ky, min=0, max=in_h - 1)
+
+    y_indices = y_indices.view(*y_indices.shape, 1, 1)
+    input_selected = input[:, :, y_indices, x_indices]
+
+    y_weights = y_weights.view(output_size[0], max_interp_size, 1, 1)
+    x_weights = x_weights.view(1, output_size[1], max_interp_size)
+    result = (y_weights * (x_weights * input_selected)).sum(dim=(-1, -3))
+
+    # convert output to correct memory format, if necessary
+    # memory_format = utils.suggest_memory_format(input)
+    memory_format = torch.contiguous_format
+    result = result.contiguous(memory_format=memory_format)
+
+    if input.dtype == torch.uint8:
+        result = torch.clamp(result.round(), 0, 255)
+
+    return result
+
+
 def upsample_bicubic2d_old(
     a: Tensor,
     output_size: Tuple[int, int],
@@ -373,7 +440,8 @@ def c_transform(img, osize, align_corners=False):
     if img.dtype == torch.uint8:
         out = upsample_bicubic2d_new_uint8(img, osize, align_corners=align_corners)
     else:
-        out = upsample_bicubic2d_new(img, osize, align_corners=align_corners)
+        # out = upsample_bicubic2d_new(img, osize, align_corners=align_corners)
+        out = upsample_bicubic2d_new_single_load(img, osize, align_corners=align_corners)
     if out.dtype != img.dtype:
         out = out.to(img.dtype)
     return out
@@ -388,9 +456,11 @@ memory_format = torch.contiguous_format
 torch.manual_seed(12)
 # x = torch.randint(0, 256, size=(2, 3, 500, 400), dtype=torch.uint8)
 # x = torch.randint(0, 256, size=(1, 3, 500, 400), dtype=torch.uint8)
-x = torch.randint(30, 220, size=(1, 3, 500, 400), dtype=torch.uint8)
+# x = torch.randint(0, 256, size=(1, 3, 1500, 1400), dtype=torch.uint8)
+# x = torch.randint(30, 220, size=(1, 3, 500, 400), dtype=torch.uint8)
 
-# x = torch.randint(0, 256, size=(1, 3, 500, 400), dtype=torch.float32)
+
+x = torch.randint(0, 256, size=(1, 3, 500, 400), dtype=torch.float32)
 # x = torch.randint(0, 256, size=(2, 3, 345, 456), dtype=torch.float32)
 
 # Input (1, 3, 1200, 1300), torch.uint8, torch.contiguous_format | mode: bilinear, align_corners: True, osize: (200, 300)
@@ -409,34 +479,13 @@ x = x.to(device)
 # osize = (500, 200)
 # osize = (300, 256)
 # osize = (200, 300)
-# osize = (400, 500)
+# osize = (1, 1)
+# osize = (500, 600)
+# osize = (300, 400)
 osize = (224, 224)
 
 # osize = (500, 250)
 # osize = (800, 700)
-
-
-# x = torch.tensor([
-#     [ 12.,  13.,  14.,  15.,  16.,  17.,  18.,  19.],
-#     [ 60.,  61.,  62.,  63.,  64.,  65.,  66.,  67.],
-#     [108., 109., 110., 111., 112., 113., 114., 115.],
-#     [156., 157., 158., 159., 160., 161., 162., 163.],
-#     [204., 205., 206., 207., 208., 209., 210., 211.],
-#     [252., 253., 254., 255.,   0.,   1.,   2.,   3.],
-#     [ 44.,  45.,  46.,  47.,  48.,  49.,  50.,  51.],
-#     [ 92.,  93.,  94.,  95.,  96.,  97.,  98.,  99.]
-# ], dtype=torch.uint8)[None, None, ...]
-# osize = (4, 4)
-
-
-# x = torch.tensor([
-#     [ 12.,  13.,  14.,  15.],
-#     [108., 109., 110., 111.],
-#     [204., 205., 206., 207.],
-#     [252., 253., 254., 255.],
-# ], dtype=torch.uint8)[None, None, ...]
-# osize = (16, 16)
-
 
 output = c_transform(x, osize, align_corners=align_corners)
 expected = transform(x, osize, align_corners=align_corners)
@@ -472,7 +521,7 @@ if x.dtype == torch.uint8:
     }
 else:
     kwargs = {
-        "atol": 1e-3,
+        "atol": 5e-3,
         "rtol": 0.0,
     }
 

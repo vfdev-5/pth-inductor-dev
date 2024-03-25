@@ -130,11 +130,22 @@ def main(
 
     op_test_cases = {
         "mode": modes,
-        "align_corners": [True, False],
-        "antialias": [antialias, ],
+        "align_corners": [None, ],
     }
 
-    compile_kwargs = {}
+    if 0 < sum(["nearest" in m for m in modes]) < len(modes):
+        raise ValueError(f"Can't mix nearest mode with other modes. modes={modes}")
+
+    if not all(["nearest" in m for m in modes]):
+        op_test_cases.update({
+            "align_corners": [True, False],
+            "antialias": [antialias, ],
+        })
+
+    compile_kwargs = {
+        "fullgraph": True,
+        "dynamic": True,
+    }
 
     test_cases = list(input_test_cases.values()) + list(op_test_cases.values())
     test_keys = list(input_test_cases.keys()) + list(op_test_cases.keys())

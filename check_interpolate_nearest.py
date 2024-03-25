@@ -1,4 +1,5 @@
 # TORCH_COMPILE_DEBUG=1 python check_interpolate_nearest.py
+# TORCH_LOGS=+output_code python check_interpolate_nearest.py
 
 import os
 
@@ -8,14 +9,14 @@ if not ("OMP_NUM_THREADS" in os.environ):
     torch.set_num_threads(1)
 
 
-def transform(img):
-    img = torch.nn.functional.interpolate(img, size=(256, 256), mode="nearest")
+def transform(img, osize):
+    img = torch.nn.functional.interpolate(img, size=osize, mode="nearest")
     return img
 
-device = "cuda"
-# device = "cpu"
+# device = "cuda"
+device = "cpu"
 
-c_transform = torch.compile(transform)
+c_transform = torch.compile(transform, fullgraph=True, dynamic=True)
 
 # memory_format = torch.channels_last
 memory_format = torch.contiguous_format
@@ -26,11 +27,13 @@ memory_format = torch.contiguous_format
 # x = x.to(torch.float32)
 # x = x.contiguous(memory_format=memory_format)[0]
 
-x = torch.rand(1, 3, 500, 400, device=device)
+x = torch.rand(1, 3, 501, 401, device=device)
 
-output = c_transform(x)
-expected = transform(x)
-expected_f = transform(x.float())
+osize = (224, 225)
+
+output = c_transform(x, osize)
+expected = transform(x, osize)
+expected_f = transform(x.float(), osize)
 
 torch.set_printoptions(precision=6)
 

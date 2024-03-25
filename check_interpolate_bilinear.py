@@ -22,7 +22,7 @@ align_corners = False
 # backend = "aot_eager"
 backend = "inductor"
 
-c_transform = torch.compile(transform, dynamic=True, backend=backend)
+c_transform = torch.compile(transform, dynamic=True, backend=backend, fullgraph=True)
 
 # memory_format = torch.channels_last
 memory_format = torch.contiguous_format

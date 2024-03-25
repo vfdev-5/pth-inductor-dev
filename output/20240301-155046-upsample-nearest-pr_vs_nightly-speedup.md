@@ -1,0 +1,74 @@
+Description:
+
+- 20240301-152339-upsample-nearest-PR
+Torch version: 2.3.0a0+gitb4324ed
+Torch config: PyTorch built with:
+  - GCC 9.4
+  - C++ Version: 201703
+  - OpenMP 201511 (a.k.a. OpenMP 4.5)
+  - CPU capability usage: AVX2
+  - CUDA Runtime 12.1
+  - NVCC architecture flags: -gencode;arch=compute_89,code=sm_89;-gencode;arch=compute_61,code=sm_61
+  - CuDNN 8.9
+  - Build settings: BUILD_TYPE=Release, CUDA_VERSION=12.1, CUDNN_VERSION=8.9.0, CXX_COMPILER=/usr/bin/c++, CXX_FLAGS= -D_GLIBCXX_USE_CXX11_ABI=1 -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -DNDEBUG -DUSE_PYTORCH_QNNPACK -DSYMBOLICATE_MOBILE_DEBUG_HANDLE -O2 -fPIC -Wall -Wextra -Werror=return-type -Werror=non-virtual-dtor -Werror=bool-operation -Wnarrowing -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-unused-parameter -Wno-unused-function -Wno-unused-result -Wno-strict-overflow -Wno-strict-aliasing -Wno-stringop-overflow -Wsuggest-override -Wno-psabi -Wno-error=pedantic -Wno-error=old-style-cast -Wno-missing-braces -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Wno-stringop-overflow, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_VERSION=2.3.0, USE_CUDA=1, USE_CUDNN=1, USE_CUSPARSELT=OFF, USE_EIGEN_FOR_BLAS=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_GLOO=OFF, USE_MKL=OFF, USE_MKLDNN=0, USE_MPI=OFF, USE_NCCL=0, USE_NNPACK=0, USE_OPENMP=ON, USE_ROCM=OFF, USE_ROCM_KERNEL_ASSERT=OFF, 
+
+Triton version: 2.1.0+bcad9dabe1
+
+- 20240301-151104-upsample-nearest-Nightly
+Torch version: 2.3.0a0+git0d1e705
+Torch config: PyTorch built with:
+  - GCC 9.4
+  - C++ Version: 201703
+  - OpenMP 201511 (a.k.a. OpenMP 4.5)
+  - CPU capability usage: AVX2
+  - CUDA Runtime 12.1
+  - NVCC architecture flags: -gencode;arch=compute_89,code=sm_89;-gencode;arch=compute_61,code=sm_61
+  - CuDNN 8.9
+  - Build settings: BUILD_TYPE=Release, CUDA_VERSION=12.1, CUDNN_VERSION=8.9.0, CXX_COMPILER=/usr/bin/c++, CXX_FLAGS= -D_GLIBCXX_USE_CXX11_ABI=1 -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -DNDEBUG -DUSE_PYTORCH_QNNPACK -DSYMBOLICATE_MOBILE_DEBUG_HANDLE -O2 -fPIC -Wall -Wextra -Werror=return-type -Werror=non-virtual-dtor -Werror=bool-operation -Wnarrowing -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-unused-parameter -Wno-unused-function -Wno-unused-result -Wno-strict-overflow -Wno-strict-aliasing -Wno-stringop-overflow -Wsuggest-override -Wno-psabi -Wno-error=pedantic -Wno-error=old-style-cast -Wno-missing-braces -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Wno-stringop-overflow, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_VERSION=2.3.0, USE_CUDA=1, USE_CUDNN=1, USE_CUSPARSELT=OFF, USE_EIGEN_FOR_BLAS=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_GLOO=OFF, USE_MKL=OFF, USE_MKLDNN=0, USE_MPI=OFF, USE_NCCL=0, USE_NNPACK=0, USE_OPENMP=ON, USE_ROCM=OFF, USE_ROCM_KERNEL_ASSERT=OFF, 
+
+Triton version: 2.1.0+bcad9dabe1
+
+
+[----------------------------------------------------------------------------------------------------------------------------------------------- Interpolate, cpu ----------------------------------------------------------------------------------------------------------------------------------------------]
+                                                                                                                                |  Eager (2.3.0a0+gitb4324ed) PR  |  Compiled (2.3.0a0+gitb4324ed) PR  |  Compiled (2.3.0a0+git0d1e705) Nightly  |  speed-up PR vs Nightly  |  Eager (2.3.0a0+git0d1e705) Nightly
+1 threads: ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      Input (1, 3, 500, 400), torch.uint8, torch.contiguous_format | mode: nearest, align_corners: None, osize: (256, 256)      |        287.988 (+-10.399)       |         200.034 (+-8.630)          |            285.143 (+-8.412)            |     1.425 (+-0.000)      |          287.991 (+-11.302)        
+      Input (1, 3, 500, 400), torch.uint8, torch.channels_last | mode: nearest, align_corners: None, osize: (256, 256)          |        697.206 (+-27.033)       |         171.650 (+-7.381)          |            193.280 (+-5.840)            |     1.126 (+-0.000)      |          701.642 (+-26.461)        
+      Input (1, 3, 500, 400), torch.float32, torch.contiguous_format | mode: nearest, align_corners: None, osize: (256, 256)    |        149.149 (+-6.045)        |         222.780 (+-6.852)          |            299.968 (+-12.354)           |     1.346 (+-0.000)      |          145.055 (+-7.232)         
+      Input (1, 3, 500, 400), torch.float32, torch.channels_last | mode: nearest, align_corners: None, osize: (256, 256)        |        596.741 (+-27.970)       |         205.923 (+-8.648)          |            233.912 (+-7.742)            |     1.136 (+-0.000)      |          598.000 (+-25.630)        
+      Input (4, 3, 500, 400), torch.uint8, torch.contiguous_format | mode: nearest, align_corners: None, osize: (256, 256)      |       1095.734 (+-51.658)       |         700.850 (+-24.852)         |           1044.255 (+-38.216)           |     1.490 (+-0.000)      |         1097.977 (+-35.521)        
+      Input (4, 3, 500, 400), torch.uint8, torch.channels_last | mode: nearest, align_corners: None, osize: (256, 256)          |       2741.813 (+-122.917)      |         583.073 (+-16.998)         |            665.029 (+-36.331)           |     1.141 (+-0.000)      |         2722.388 (+-116.263)       
+      Input (4, 3, 500, 400), torch.float32, torch.contiguous_format | mode: nearest, align_corners: None, osize: (256, 256)    |        578.183 (+-37.266)       |         833.295 (+-42.264)         |           1131.341 (+-54.710)           |     1.358 (+-0.000)      |          584.953 (+-45.549)        
+      Input (4, 3, 500, 400), torch.float32, torch.channels_last | mode: nearest, align_corners: None, osize: (256, 256)        |       2332.508 (+-103.556)      |         840.194 (+-47.664)         |            935.625 (+-47.467)           |     1.114 (+-0.000)      |         2334.314 (+-91.644)        
+      Input (1, 3, 1200, 1300), torch.uint8, torch.contiguous_format | mode: nearest, align_corners: None, osize: (200, 300)    |        272.631 (+-11.348)       |         195.988 (+-5.748)          |            274.021 (+-9.475)            |     1.398 (+-0.000)      |          272.752 (+-12.716)        
+      Input (1, 3, 1200, 1300), torch.uint8, torch.channels_last | mode: nearest, align_corners: None, osize: (200, 300)        |        640.409 (+-25.465)       |         164.773 (+-7.372)          |            185.018 (+-8.349)            |     1.123 (+-0.000)      |          639.390 (+-30.761)        
+      Input (1, 3, 1200, 1300), torch.float32, torch.contiguous_format | mode: nearest, align_corners: None, osize: (200, 300)  |        158.602 (+-6.593)        |         220.478 (+-6.809)          |            286.376 (+-8.981)            |     1.299 (+-0.000)      |          158.557 (+-6.143)         
+      Input (1, 3, 1200, 1300), torch.float32, torch.channels_last | mode: nearest, align_corners: None, osize: (200, 300)      |        548.903 (+-22.889)       |         202.788 (+-9.158)          |            227.404 (+-8.995)            |     1.121 (+-0.000)      |          554.096 (+-21.330)        
+      Input (4, 3, 1200, 1300), torch.uint8, torch.contiguous_format | mode: nearest, align_corners: None, osize: (200, 300)    |       1036.061 (+-35.285)       |         680.728 (+-30.925)         |            986.254 (+-42.732)           |     1.449 (+-0.000)      |         1038.718 (+-43.070)        
+      Input (4, 3, 1200, 1300), torch.uint8, torch.channels_last | mode: nearest, align_corners: None, osize: (200, 300)        |       2504.520 (+-125.805)      |         550.067 (+-21.383)         |            628.000 (+-27.589)           |     1.142 (+-0.000)      |         2523.134 (+-113.336)       
+      Input (4, 3, 1200, 1300), torch.float32, torch.contiguous_format | mode: nearest, align_corners: None, osize: (200, 300)  |       1058.188 (+-57.853)       |        1216.427 (+-76.160)         |           1380.231 (+-98.939)           |     1.135 (+-0.000)      |         1057.031 (+-66.075)        
+      Input (4, 3, 1200, 1300), torch.float32, torch.channels_last | mode: nearest, align_corners: None, osize: (200, 300)      |       2305.911 (+-116.864)      |        1080.189 (+-79.934)         |           1141.561 (+-67.959)           |     1.057 (+-0.000)      |         2306.606 (+-121.544)       
+      Input (1, 3, 300, 400), torch.uint8, torch.contiguous_format | mode: nearest, align_corners: None, osize: (600, 700)      |       1689.489 (+-60.579)       |        1077.401 (+-44.948)         |           1634.264 (+-64.340)           |     1.517 (+-0.000)      |         1693.945 (+-67.998)        
+      Input (1, 3, 300, 400), torch.uint8, torch.channels_last | mode: nearest, align_corners: None, osize: (600, 700)          |       4198.368 (+-179.096)      |         886.656 (+-30.355)         |           1028.568 (+-46.310)           |     1.160 (+-0.000)      |         4174.351 (+-141.020)       
+      Input (1, 3, 300, 400), torch.float32, torch.contiguous_format | mode: nearest, align_corners: None, osize: (600, 700)    |        716.572 (+-51.954)       |        1175.864 (+-52.191)         |           1674.373 (+-51.815)           |     1.424 (+-0.000)      |          715.724 (+-41.104)        
+      Input (1, 3, 300, 400), torch.float32, torch.channels_last | mode: nearest, align_corners: None, osize: (600, 700)        |       3604.989 (+-132.489)      |        1096.933 (+-54.290)         |           1270.347 (+-60.932)           |     1.158 (+-0.000)      |         3601.864 (+-140.218)       
+      Input (4, 3, 300, 400), torch.uint8, torch.contiguous_format | mode: nearest, align_corners: None, osize: (600, 700)      |       6721.610 (+-355.997)      |        4203.213 (+-134.362)        |           6423.763 (+-225.311)          |     1.528 (+-0.000)      |         6715.626 (+-288.233)       
+      Input (4, 3, 300, 400), torch.uint8, torch.channels_last | mode: nearest, align_corners: None, osize: (600, 700)          |      16695.467 (+-709.620)      |        3460.013 (+-149.456)        |           4001.810 (+-218.093)          |     1.157 (+-0.000)      |        16621.138 (+-713.320)       
+      Input (4, 3, 300, 400), torch.float32, torch.contiguous_format | mode: nearest, align_corners: None, osize: (600, 700)    |       3020.017 (+-147.314)      |        4743.164 (+-135.850)        |           6709.494 (+-281.025)          |     1.415 (+-0.000)      |         3015.602 (+-105.852)       
+      Input (4, 3, 300, 400), torch.float32, torch.channels_last | mode: nearest, align_corners: None, osize: (600, 700)        |      14456.688 (+-752.839)      |        5150.893 (+-201.571)        |           5737.315 (+-138.011)          |     1.114 (+-0.000)      |        14464.472 (+-720.027)       
+
+Times are in microseconds (us).
+
+[----------------------------------------------------------------------------------------------------------------------------------------------- Interpolate, cuda -----------------------------------------------------------------------------------------------------------------------------------------------]
+                                                                                                                                  |  Eager (2.3.0a0+gitb4324ed) PR  |  Compiled (2.3.0a0+gitb4324ed) PR  |  Compiled (2.3.0a0+git0d1e705) Nightly  |  speed-up PR vs Nightly  |  Eager (2.3.0a0+git0d1e705) Nightly
+1 threads: --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      Input (1, 3, 2345, 2456), torch.float32, torch.contiguous_format | mode: nearest, align_corners: None, osize: (1234, 1345)  |         17.574 (+-0.017)        |          61.821 (+-2.094)          |             62.611 (+-1.573)            |     1.013 (+-0.000)      |           17.613 (+-0.016)         
+      Input (1, 3, 2345, 2456), torch.float32, torch.channels_last | mode: nearest, align_corners: None, osize: (1234, 1345)      |        369.728 (+-0.054)        |          62.267 (+-1.590)          |             65.444 (+-3.579)            |     1.051 (+-0.000)      |          369.766 (+-0.048)         
+      Input (4, 3, 2345, 2456), torch.float32, torch.contiguous_format | mode: nearest, align_corners: None, osize: (1234, 1345)  |        246.265 (+-0.042)        |         246.589 (+-0.085)          |            246.585 (+-0.109)            |     1.000 (+-0.000)      |          246.276 (+-0.049)         
+      Input (4, 3, 2345, 2456), torch.float32, torch.channels_last | mode: nearest, align_corners: None, osize: (1234, 1345)      |        1590.070 (+-0.454)       |         275.124 (+-0.066)          |            275.129 (+-0.067)            |     1.000 (+-0.000)      |          1590.059 (+-0.405)        
+      Input (1, 3, 1234, 1345), torch.float32, torch.contiguous_format | mode: nearest, align_corners: None, osize: (2345, 2456)  |        100.363 (+-0.040)        |          99.064 (+-0.065)          |             99.064 (+-0.038)            |     1.000 (+-0.000)      |          100.333 (+-0.048)         
+      Input (1, 3, 1234, 1345), torch.float32, torch.channels_last | mode: nearest, align_corners: None, osize: (2345, 2456)      |        279.931 (+-0.059)        |          86.573 (+-0.134)          |             86.644 (+-0.063)            |     1.001 (+-0.000)      |          279.915 (+-0.038)         
+      Input (4, 3, 1234, 1345), torch.float32, torch.contiguous_format | mode: nearest, align_corners: None, osize: (2345, 2456)  |        401.513 (+-0.042)        |         395.308 (+-0.065)          |            395.323 (+-0.054)            |     1.000 (+-0.000)      |          401.541 (+-0.043)         
+      Input (4, 3, 1234, 1345), torch.float32, torch.channels_last | mode: nearest, align_corners: None, osize: (2345, 2456)      |        1180.081 (+-0.375)       |         416.067 (+-0.120)          |            416.157 (+-0.198)            |     1.000 (+-0.000)      |          1180.223 (+-0.472)        
+
+Times are in microseconds (us).

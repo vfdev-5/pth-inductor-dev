@@ -117,24 +117,35 @@ def main(
         "device": ["cpu", "cuda"],
         # "device": ["cpu", ],
         # "device": ["cuda", ],
-        # "bs": [1, 4],
-        "bs": [1, ],
-        "dtype": [torch.uint8, torch.float32],
+        "bs": [1, 4],
+        # "bs": [1, ],
+        # "dtype": [torch.uint8, torch.float32],
         # "dtype": [torch.uint8, ],
-        # "dtype": [torch.float32, ],
+        "dtype": [torch.float32, ],
         "memory_format": [torch.contiguous_format, torch.channels_last],
         # "memory_format": [torch.contiguous_format, ],
     }
 
     op_test_cases = {
         "mode": modes,
-        "align_corners": [True, False],
-        # "align_corners": [True, ],
-        # "align_corners": [False, ],
-        "antialias": [antialias, ],
+        "align_corners": [None, ],
     }
 
-    compile_kwargs = {}
+    if 0 < sum(["nearest" in m for m in modes]) < len(modes):
+        raise ValueError(f"Can't mix nearest mode with other modes. modes={modes}")
+
+    if not all(["nearest" in m for m in modes]):
+        op_test_cases.update({
+            # "align_corners": [True, False],
+            # "align_corners": [True, ],
+            "align_corners": [False, ],
+            "antialias": [antialias, ],
+        })
+
+    compile_kwargs = {
+        "fullgraph": True,
+        "dynamic": True,
+    }
 
     test_cases = list(input_test_cases.values()) + list(op_test_cases.values())
     test_keys = list(input_test_cases.keys()) + list(op_test_cases.keys())
@@ -147,8 +158,9 @@ def main(
 
         for isize, osize, skip_devices in [
             [(500, 400), (256, 256), ("cuda", )],
-            [(1200, 1300), (200, 300), ("cuda", )],
+            # [(1200, 1300), (200, 300), ("cuda", )],
             [(300, 400), (600, 700), ("cuda", )],
+            # [(500, 400), (1024, 1024), ("cuda", )],
             [(2345, 2456), (1234, 1345), ("cpu", )],
             [(1234, 1345), (2345, 2456), ("cpu", )],
         ]:

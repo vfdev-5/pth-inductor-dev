@@ -4,20 +4,13 @@ import torch
 import torch.nn.functional as F
 
 
-class DWModel(torch.nn.Module):
-    def __init__(self):
-        super(DWModel, self).__init__()
-
-    def forward(self, hidden_states):
-        # return F.interpolate(hidden_states, scale_factor=2.3, mode="nearest")
-        return F.interpolate(hidden_states, scale_factor=1.89, mode="nearest")
-        # return F.interpolate(hidden_states, scale_factor=0.5, mode="nearest")
+def func(x, mode, scale):
+    return F.interpolate(x, scale_factor=scale, mode=mode)
 
 
 torch.manual_seed(1234321)
-model = DWModel()
 # cmodel = torch.compile(model, backend="eager")
-cmodel = torch.compile(model, backend="inductor")
+cfunc = torch.compile(func, backend="inductor")
 
 dtype = torch.float32
 
@@ -40,11 +33,15 @@ input = torch.rand((3, 640, 32, 32), device='cpu', dtype=dtype)
 # output.sum().backward()
 # torch.testing.assert_close(expected, output)
 
+# mode = "nearest"
+mode = "bicubic"
+scale = 1.89
+
 
 with torch.no_grad():
-    expected2 = model(input)
+    expected2 = func(input, mode, scale)
 with torch.no_grad():
-    output2 = cmodel(input)
+    output2 = cfunc(input, mode, scale)
 
 assert not expected2.requires_grad
 assert not output2.requires_grad
@@ -52,14 +49,14 @@ torch.testing.assert_close(expected2, output2)
 
 
 with torch.inference_mode():
-    expected3 = model(input)
+    expected3 = func(input, mode, scale)
 
 with torch.inference_mode():
-    output3 = cmodel(input)
+    output3 = cfunc(input, mode, scale)
 
 assert not expected3.requires_grad
 assert not output3.requires_grad
-# torch.testing.assert_close(expected2, expected3)
+torch.testing.assert_close(expected2, expected3)
 
 print("mean expected3:", expected3.shape, expected3.mean())
 print("mean output3:", output3.shape, output3.mean())
